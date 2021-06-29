@@ -18,7 +18,10 @@ then
   then
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install)"
   fi
-
+else
+  # Upgrade homebrew
+  echo "› brew update"
+  brew update
 fi
 
 exit 0
