@@ -8,3 +8,6 @@ then
   alias ll="gls -l --color"
   alias la='gls -A --color'
 fi
+
+# case insensitive search with ripgrep
+alias rgs='rg --ignore-case --sort-files'
