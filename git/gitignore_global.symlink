@@ -1,0 +1,13 @@
+# ignore all idea files
+.idea/
+
+#misc system files
+~*
+.DS_Store
+
+helm-example
+
+# ignore test files
+test.sh
+test.ts
+test.js

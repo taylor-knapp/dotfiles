@@ -14,17 +14,28 @@
         status = auto
         branch = auto
         ui = true
+[commit]
+	template = ~/.stCommitMsg
 [core]
-        excludesfile = ~/.gitignore
+        excludesfile = ~/.gitignore_global
         editor = vim
 [apply]
         whitespace = nowarn
-[mergetool]
-        keepBackup = false
-[difftool]
-        prompt = false
+[mergetool "sourcetree"]
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path =
+[filter "lfs"]
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
 [help]
         autocorrect = 1
+[pull]
+	rebase = false
 [push]
         # See `git help config` (search for push.default)
         # for more information on different options of the below setting.
