@@ -18,6 +18,9 @@ fi
 typeset -U config_files
 config_files=($DOTFILES/**/*.zsh)
 
+# set a reasonable path default
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+
 # load the path files
 for file in ${(M)config_files:#*/path.zsh}
 do
