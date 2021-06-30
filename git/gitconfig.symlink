@@ -33,7 +33,7 @@
 	required = true
 	clean = git-lfs clean -- %f
 [help]
-        autocorrect = 1
+	autocorrect = 1
 [pull]
 	rebase = false
 [push]
