@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# dot
+# .dotfiles
 #
-# `dot` handles installation, updates, things like that. Run it periodically
+# `.dotfiles` handles installation, updates, things like that. Run it periodically
 # to make sure you're on the latest and greatest.
 
 set -e
@@ -38,7 +38,7 @@ while test $# -gt 0; do
 	shift
 done
 
-# we set this here in case dot is being executed during bootstrap, in which case
+# we set this here in case .dotfiles is being executed during bootstrap, in which case
 # the DOTFILES env variable will not have been set
 export DOTFILES=$HOME/.dotfiles
 
