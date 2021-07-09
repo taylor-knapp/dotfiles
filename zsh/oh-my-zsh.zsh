@@ -18,8 +18,6 @@ plugins=(git npm)
 
 source $ZSH/oh-my-zsh.sh
 
-source $ZSH/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
 PROMPT='%{$fg[cyan]%}%30<...<%~%<<%{$reset_color%} $(git_prompt_info)'
 PROMPT+='
 %(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ ) %{$reset_color%}'
