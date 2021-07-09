@@ -52,7 +52,6 @@ $DOTFILES/script/install
 
 # todo add starship installation
 # todo add iterm2_shell_integration installation
-# todo add nvm installation
 # todo add rvm installation?
 # todo add sdkman installation?
 # todo add riggrep installation? (is this a default?)
