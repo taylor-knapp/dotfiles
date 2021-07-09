@@ -50,7 +50,6 @@ export DOTFILES=$HOME/.dotfiles
 echo "› $DOTFILES/script/install"
 $DOTFILES/script/install
 
-# todo add z jump around installation
 # todo add starship installation
 # todo add iterm2_shell_integration installation
 # todo add nvm installation
