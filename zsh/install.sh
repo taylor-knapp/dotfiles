@@ -6,3 +6,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 # Install syntax highlighting support.
 brew install zsh-syntax-highlighting
+
+# Install ripgrep.
+# https://github.com/BurntSushi/ripgrep
+brew install ripgrep
