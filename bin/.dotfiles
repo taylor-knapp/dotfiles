@@ -42,9 +42,8 @@ done
 # the DOTFILES env variable will not have been set
 export DOTFILES=$HOME/.dotfiles
 
-# todo review these more in depth prior to executing
 # Set macOS defaults
-#$DOTFILES/macos/set-defaults.sh
+$DOTFILES/macos/set-defaults.sh
 
 # Install software
 echo "› $DOTFILES/script/install"

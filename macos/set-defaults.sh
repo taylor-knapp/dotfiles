@@ -1,41 +1,48 @@
-# Sets reasonable macOS defaults.
+# Sets macOS defaults.
 #
-# Or, in other words, set shit how I like in macOS.
+# Defaults exist both globally and for specific applications and are saved in
+# ~/Library/Preferences/* as plist files.
 #
-# The original idea (and a couple settings) were grabbed from:
-#   https://github.com/mathiasbynens/dotfiles/blob/master/.macos
+# Overview of what defaults are: https://macos-defaults.com/
 #
-# Run ./set-defaults.sh and you'll be good to go.
+# Other implementations
+#   - https://github.com/holman/dotfiles/blob/master/macos/set-defaults.sh
+#   - https://github.com/mathiasbynens/dotfiles/blob/master/.macos
+#
+# Run ./set-defaults.sh and close and reopen any affected apps you want the update to take place within.
 
-# Disable press-and-hold for keys in favor of key repeat.
+### Global ###
+
+# Disables press-and-hold for keys (to get accent options) in favor of key repeat.
 defaults write -g ApplePressAndHoldEnabled -bool false
 
-# Use AirDrop over every interface. srsly this should be a default.
-defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
+### Finder ###
 
-# Always open everything in Finder's list view. This is important.
+# Show everything in list view.
 defaults write com.apple.Finder FXPreferredViewStyle Nlsv
 
-# Show the ~/Library folder.
-chflags nohidden ~/Library
-
-# Set a really fast key repeat.
-defaults write NSGlobalDomain KeyRepeat -int 1
-
-# Set the Finder prefs for showing a few different volumes on the Desktop.
+# Show external hard drives and media on the desktop.
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
 defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
+
+### Dock ###
+
+# Setup the default look how I like it:
+# - left side
+# - small tiles with magnification
+# - show recent apps
+# - do not hide
+defaults write com.apple.dock orientation -string left
+defaults write com.apple.dock tilesize -int 22
+defaults write com.apple.dock magnification -bool true
+defaults write com.apple.dock largesize -int 128
+defaults write com.apple.dock show-recents -bool true
+defaults write com.apple.dock autohide -bool false
+
 
 # Run the screensaver if we're in the bottom-left hot corner.
 defaults write com.apple.dock wvous-bl-corner -int 5
 defaults write com.apple.dock wvous-bl-modifier -int 0
 
-# Hide Safari's bookmark bar.
-defaults write com.apple.Safari ShowFavoritesBar -bool false
-
-# Set up Safari for development.
-defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
-defaults write com.apple.Safari IncludeDevelopMenu -bool true
-defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
-defaults write com.apple.Safari "com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled" -bool true
-defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
+# TODO: Would be really cool to add all my desired apps here by default. Do so after including a script to ensure they are downloaded.
+# https://stackoverflow.com/a/59637792/9778071
