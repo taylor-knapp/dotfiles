@@ -5,6 +5,4 @@ SDKMAN_DIR="$HOME/.sdkman"
 # Install sdkman, or update if it already is installed.
 if [ ! -d $SDKMAN_DIR ]; then
   curl -s "https://get.sdkman.io?rcupdate=false" | bash
-else
-  sdk selfupdate force
 fi

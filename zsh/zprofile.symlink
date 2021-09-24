@@ -1,0 +1,2 @@
+# Sets homebrew on path and some other stuff, I guess.
+eval "$(/opt/homebrew/bin/brew shellenv)"

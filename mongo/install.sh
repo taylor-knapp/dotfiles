@@ -11,7 +11,7 @@ if [[ -d $MVM ]]; then
 fi
 
 # Ensure the required versioning directory exists
-export MVM_PATHS='/usr/local/m/versions:/usr/local/m/tools/versions'
+export MVM_PATHS='/usr/local/m/versions:/usr/local/bin/m:/usr/local/m/tools/versions'
 for mvm_path in ${(s/:/)MVM_PATHS}; do
   echo $mvm_path
   if [[ ! -d $mvm_path ]]; then
@@ -20,4 +20,4 @@ for mvm_path in ${(s/:/)MVM_PATHS}; do
   fi
 done
 
-git clone git://github.com/aheckmann/m.git $MVM && cd $MVM && make install
+git clone git://github.com/aheckmann/m.git $MVM && cd $MVM && sudo make install
