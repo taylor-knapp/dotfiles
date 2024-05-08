@@ -1,3 +1,8 @@
+# tk shortcuts
+- `reload!` will reload anything that has changed in regards to zsh or bash configs
+- `.dotfiles` will install everything, which is usually only what you want if starting on a new machine
+
+
 # holman does dotfiles
 
 Your dotfiles are how you personalize your system. These are mine.

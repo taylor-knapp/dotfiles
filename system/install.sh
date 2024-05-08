@@ -7,8 +7,8 @@
 cp -R $(dirname $0)/services/ ~/Library/Services/
 
 # Add shortcuts for services to the pbs.plist.
-/usr/libexec/PlistBuddy -c 'delete NSServicesStatus:"(null) - Launch Atom - runWorkflowAsService"' ~/Library/Preferences/pbs.plist
-defaults write pbs NSServicesStatus -dict-add '"(null) - Launch Atom - runWorkflowAsService"' '{ "key_equivalent" = "@~^$a"; }'
+/usr/libexec/PlistBuddy -c 'delete NSServicesStatus:"(null) - Launch Obsidian - runWorkflowAsService"' ~/Library/Preferences/pbs.plist
+defaults write pbs NSServicesStatus -dict-add '"(null) - Launch Obsidian - runWorkflowAsService"' '{ "key_equivalent" = "@~^$a"; }'
 
 /usr/libexec/PlistBuddy -c 'delete NSServicesStatus:"(null) - Launch Brave - runWorkflowAsService"' ~/Library/Preferences/pbs.plist
 defaults write pbs NSServicesStatus -dict-add '"(null) - Launch Brave - runWorkflowAsService"' '{ "key_equivalent" = "@~^$b"; }'
@@ -23,7 +23,10 @@ defaults write pbs NSServicesStatus -dict-add '"(null) - Launch Slack - runWorkf
 defaults write pbs NSServicesStatus -dict-add '"(null) - Launch Spotify - runWorkflowAsService"' '{ "key_equivalent" = "@~^$p"; }'
 
 /usr/libexec/PlistBuddy -c 'delete NSServicesStatus:"(null) - Launch WebStorm - runWorkflowAsService"' ~/Library/Preferences/pbs.plist
-defaults write pbs NSServicesStatus -dict-add '"(null) - Launch WebStorm - runWorkflowAsService"' '{ "key_equivalent" = "@~^$m"; }'
+defaults write pbs NSServicesStatus -dict-add '"(null) - Launch WebStorm - runWorkflowAsService"' '{ "key_equivalent" = "@~^$w"; }'
 
 /usr/libexec/PlistBuddy -c 'delete NSServicesStatus:"(null) - Launch Postman - runWorkflowAsService"' ~/Library/Preferences/pbs.plist
 defaults write pbs NSServicesStatus -dict-add '"(null) - Launch Postman - runWorkflowAsService"' '{ "key_equivalent" = "@~^$o"; }'
+
+/usr/libexec/PlistBuddy -c 'delete NSServicesStatus:"(null) - Launch Toggl - runWorkflowAsService"' ~/Library/Preferences/pbs.plist
+defaults write pbs NSServicesStatus -dict-add '"(null) - Launch Toggl - runWorkflowAsService"' '{ "key_equivalent" = "@~^$x"; }'

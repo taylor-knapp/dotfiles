@@ -16,9 +16,10 @@
         ui = true
 [commit]
 	template = ~/.stCommitMsg
+	gpgsign = true
 [core]
-        excludesfile = ~/.gitignore_global
-        editor = vim
+	excludesfile = /Users/taylorknapp/.gitignore_global
+    editor = vim
 [apply]
         whitespace = nowarn
 [mergetool "sourcetree"]
@@ -26,7 +27,7 @@
 	trustExitCode = true
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path =
+	path = 
 [filter "lfs"]
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
@@ -42,5 +43,9 @@
         #
         # Setting to git 2.0 default to suppress warning message
         default = simple
+[rebase]
+	updateRefs = true
 [credential]
 	helper = osxkeychain
+[gpg]
+	program = /opt/homebrew/bin/gpg

@@ -2,3 +2,9 @@ git/gitconfig.local.symlink
 
 # historic local config files
 /historic
+
+# hidden aliases that contain sensitive info
+/zsh/hidden-aliases.zsh
+
+# hide any file named local - they contain sensitive information!
+local.*

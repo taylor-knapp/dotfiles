@@ -8,6 +8,9 @@
 helm-example
 
 # ignore test files
-test.sh
-test.ts
-test.js
+test.*
+.test.*
+.wat.*
+
+# ignore '.local' directories
+.local/

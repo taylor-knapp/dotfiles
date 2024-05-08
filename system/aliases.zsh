@@ -9,5 +9,15 @@ then
   alias la='gls -A --color'
 fi
 
-# case insensitive search with ripgrep
-alias rgs='rg --ignore-case --sort-files'
+# ripgrep: case insensitive search sorted by file creation (most recent will be last, or closest to the new prompt).
+alias rgs='rg --ignore-case --sort created'
+
+# Keep track of time working in terminal during broken schedules (e.g. kids).
+stopwatch() {
+    start=$(date +%s)
+    while true; do
+        now=$(date +%s)
+        echo -ne "\r$(date -ju -f %s $(($now - $start)) +%H:%M:%S)"
+        sleep 1
+    done
+}

@@ -1,6 +1,9 @@
 # Install iterm shell integration.
 # https://iterm2.com/documentation-shell-integration.html
 
+# todo: there are some plist files I have saved to dropbox that should really be added here instead.
+
+
 # The default install can be found below. This file customizes it to only work for zsh and not update my .zshrc.
 # Default install: curl -L https://iterm2.com/shell_integration/install_shell_integration.sh | bash
 

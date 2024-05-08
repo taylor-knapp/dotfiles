@@ -1,3 +1,6 @@
+# Set GPG terminal to ask for password when signing commits.
+export GPG_TTY=$TTY
+
 # Use `hub` as our git wrapper:
 #   http://defunkt.github.com/hub/
 hub_path=$(which hub)

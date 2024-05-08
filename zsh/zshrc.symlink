@@ -1,3 +1,6 @@
+# Turn off zsh's annoying auto-correct feature.
+setopt nocorrectall;
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -60,6 +63,10 @@ zle -N down-line-or-beginning-search
 bindkey "^[[A" up-line-or-beginning-search # Up
 bindkey "^[[B" down-line-or-beginning-search # Down
 
+# Use ctrl+u to delete from cursor to the start of the line, instead of the entire line
+# Credits to https://stackoverflow.com/a/44847265/9778071
+bindkey \^U backward-kill-line
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
@@ -68,3 +75,10 @@ if [ -f '/Users/taylorknapp/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/tay
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/taylorknapp/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/taylorknapp/google-cloud-sdk/completion.zsh.inc'; fi
+
+# This sets the default editor for kubectl to storm, and `-w` makes it wait for the editor to close before applying the changes.
+export KUBE_EDITOR="storm -w"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
