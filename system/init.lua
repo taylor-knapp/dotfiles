@@ -1,10 +1,89 @@
--- I'm not using this currently, but the goal was to show/hide an app like iTerm2 used to do.
-function toggleApp(bundleId)
+local appStateWindowPosition = {} -- Table to track app state and window positions
+
+-- This recreates the hide/un-hide behavior of iTerm, but keeps the window position.
+-- Note that apps do not show in the Stage Manager panel on the left.
+function toggleAppWithHide(bundleId)
     local frontApp = hs.application.frontmostApplication()
+
     if frontApp and frontApp:bundleID() == bundleId then
-        hs.window.desktop().focus()
+        -- If app is frontmost, hide it and save window positions
+        local allWindows = frontApp:allWindows()
+        appStateWindowPosition[bundleId] = {}
+
+        for _, window in ipairs(allWindows) do
+            if window:isVisible() then
+                table.insert(appStateWindowPosition[bundleId], {window = window, frame = window:frame()})
+            end
+        end
+
+        frontApp:hide()
     else
+        -- Restore the app and its window positions
+        local app = hs.application.get(bundleId)
+
+        if app and appStateWindowPosition[bundleId] then
+            app:unhide()
+            app:activate() -- Bring it to the front
+
+            -- Restore window positions
+            for _, winData in ipairs(appStateWindowPosition[bundleId]) do
+                local window = winData.window
+                local frame = winData.frame
+
+                if window:isStandard() then
+                    window:setFrame(frame)
+                end
+            end
+
+            -- Clear the saved state
+            appStateWindowPosition[bundleId] = nil
+        else
+            -- Launch or focus the app if not already running
+            hs.application.launchOrFocusByBundleID(bundleId)
+        end
+    end
+end
+
+local appStateMinimizeStatus = {} -- Table to track app state by Space ID and bundleId
+
+function getCurrentSpaceID()
+    -- Retrieve the current Space ID using hs.spaces
+    return hs.spaces.focusedSpace()
+end
+
+--- I'm not using this currently because it doesn't work perfectly, but it is pretty close.
+function toggleAppWithMinimize(bundleId)
+    local currentSpace = getCurrentSpaceID()
+    local spaceKey = tostring(currentSpace) .. "_" .. bundleId -- Unique key for Space and app
+    local frontApp = hs.application.frontmostApplication()
+
+    if frontApp and frontApp:bundleID() == bundleId then
+        local allWindows = frontApp:allWindows()
+
+        if not appStateMinimizeStatus[spaceKey] then
+            -- If not minimized, minimize all visible windows
+            appStateMinimizeStatus[spaceKey] = "minimized"
+
+            for _, window in ipairs(allWindows) do
+                if window:isVisible() then
+                    window:minimize()
+                end
+            end
+        else
+            -- If minimized, restore all windows
+            appStateMinimizeStatus[spaceKey] = nil -- Clear the minimized state
+
+            for _, window in ipairs(allWindows) do
+                if window:isMinimized() then
+                    window:unminimize()
+                end
+                window:focus() -- Bring back focus to the restored windows
+            end
+        end
+    else
+        -- Launch or focus the app if it's not already frontmost
         hs.application.launchOrFocusByBundleID(bundleId)
+        appStateMinimizeStatus[spaceKey] = nil -- Reset state for the app on this Space
     end
 end
 
@@ -14,7 +93,6 @@ MODIFIERS = {"ctrl", "cmd", "alt", "shift"}
 
 -- App configuration
 APPS = {
-  {shortcut = "space", name = "iTerm", id = "com.googlecode.iterm2", modifiers = {"alt"}},
   {shortcut = "b", name = "Brave Browser", id = "com.brave.Browser"},
   {shortcut = "w", name = "Webstorm", id = "com.jetbrains.WebStorm"},
   {shortcut = "s", name = "Slack", id = "com.tinyspeck.slackmacgap"},
@@ -24,7 +102,17 @@ APPS = {
 
 -- Bind application shortcuts
 for _, app in ipairs(APPS) do
-  hs.hotkey.bind(app.modifiers or MODIFIERS, app.shortcut, function()
+  hs.hotkey.bind(MODIFIERS, app.shortcut, function()
     hs.application.launchOrFocusByBundleID(app.id)
   end)
 end
+
+-- Add shortcut for iTerm2
+hs.hotkey.bind({"alt"}, "space", function()
+	toggleAppWithHide("com.googlecode.iterm2")
+end)
+
+-- Add shortcut to reload hammerspoon configuration
+hs.hotkey.bind(MODIFIERS, "r", function()
+	hs.reload()
+end)
