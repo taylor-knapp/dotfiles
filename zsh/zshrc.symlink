@@ -26,6 +26,9 @@ fi
 typeset -U config_files
 config_files=($DOTFILES/**/*.zsh)
 
+# Ensure PATH only contains unique entries
+typeset -U PATH
+
 # load the path files
 for file in ${(M)config_files:#*/path.zsh}
 do
@@ -77,7 +80,7 @@ if [ -f '/Users/taylorknapp/google-cloud-sdk/completion.zsh.inc' ]; then . '/Use
 export KUBE_EDITOR="storm -w"
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/nvm.sh" ] && sh "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # pnpm
