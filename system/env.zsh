@@ -1,4 +1,4 @@
-export EDITOR='storm'
+export EDITOR='code'
 
 # Set defaults for using `less`.
 # -R displays escaped characters like '/' correctly
