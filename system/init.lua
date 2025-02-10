@@ -20,23 +20,26 @@ function toggleAppWithHide(bundleId)
     else
         -- Restore the app and its window positions
         local app = hs.application.get(bundleId)
-
+        
         if app and appStateWindowPosition[bundleId] then
-            app:unhide()
-            app:activate() -- Bring it to the front
-
-            -- Restore window positions
+            -- Set window positions while still hidden
             for _, winData in ipairs(appStateWindowPosition[bundleId]) do
                 local window = winData.window
                 local frame = winData.frame
-
+                
                 if window:isStandard() then
                     window:setFrame(frame)
                 end
             end
-
+            
             -- Clear the saved state
             appStateWindowPosition[bundleId] = nil
+            
+            -- Now unhide and activate
+            app:unhide()
+            hs.timer.doAfter(0.01, function()
+                app:activate()
+            end)
         else
             -- Launch or focus the app if not already running
             hs.application.launchOrFocusByBundleID(bundleId)
@@ -94,7 +97,7 @@ MODIFIERS = {"ctrl", "cmd", "alt", "shift"}
 -- App configuration
 APPS = {
   {shortcut = "b", name = "Brave Browser", id = "com.brave.Browser"},
-  {shortcut = "w", name = "Webstorm", id = "com.jetbrains.WebStorm"},
+  {shortcut = "w", name = "VSCode", id = "com.microsoft.VSCode"},
   {shortcut = "s", name = "Slack", id = "com.tinyspeck.slackmacgap"},
   {shortcut = "a", name = "Obsidian", id = "md.obsidian"},
   {shortcut = "x", name = "Toggl", id = "com.toggl.daneel"},
