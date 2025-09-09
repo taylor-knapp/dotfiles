@@ -77,7 +77,7 @@ if [ -f '/Users/taylorknapp/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/tay
 if [ -f '/Users/taylorknapp/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/taylorknapp/google-cloud-sdk/completion.zsh.inc'; fi
 
 # This sets the default editor for kubectl to storm, and `-w` makes it wait for the editor to close before applying the changes.
-export KUBE_EDITOR="storm -w"
+export KUBE_EDITOR="cursor -w"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && sh "$NVM_DIR/nvm.sh"  # This loads nvm

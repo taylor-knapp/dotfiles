@@ -95,12 +95,15 @@ end
 MODIFIERS = {"ctrl", "cmd", "alt", "shift"}
 
 -- App configuration
+-- Find the app id by running `osascript -e 'id of app "Name of Application (as seen in Spotlight)"'`
+--   {shortcut = "w", name = "VSCode", id = "com.microsoft.VSCode"},
 APPS = {
   {shortcut = "b", name = "Brave Browser", id = "com.brave.Browser"},
-  {shortcut = "w", name = "VSCode", id = "com.microsoft.VSCode"},
+  {shortcut = "w", name = "Cursor", id = "com.todesktop.230313mzl4w4u92"},
   {shortcut = "s", name = "Slack", id = "com.tinyspeck.slackmacgap"},
   {shortcut = "a", name = "Obsidian", id = "md.obsidian"},
   {shortcut = "x", name = "Toggl", id = "com.toggl.daneel"},
+  {shortcut = "c", name = "MongoDB Compass", id = "com.mongodb.compass"},
 }
 
 -- Bind application shortcuts

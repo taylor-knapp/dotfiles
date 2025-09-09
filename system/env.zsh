@@ -1,4 +1,4 @@
-export EDITOR='code'
+export EDITOR="cursor"
 
 # Set defaults for using `less`.
 # -R displays escaped characters like '/' correctly
