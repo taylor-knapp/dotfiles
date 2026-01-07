@@ -76,12 +76,15 @@ if [ -f '/Users/taylorknapp/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/tay
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/taylorknapp/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/taylorknapp/google-cloud-sdk/completion.zsh.inc'; fi
 
-# This sets the default editor for kubectl to storm, and `-w` makes it wait for the editor to close before applying the changes.
-export KUBE_EDITOR="cursor -w"
+# This sets the default editor for kubectl to vscode, and `-w` makes it wait for the editor to close before applying the changes.
+export KUBE_EDITOR="code -w"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && sh "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Set the zscaler cert so Claude Code can fetch as expected.
+export NODE_EXTRA_CA_CERTS="$HOME/.certs/zscaler-root-ca.pem"
 
 # pnpm
 export PNPM_HOME="/Users/taylorknapp/Library/pnpm"

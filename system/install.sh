@@ -21,19 +21,19 @@ osascript -e 'tell application "Hammerspoon" to activate'
 # Install duti.
 brew reinstall duti
 
-# Assign Cursor default file extensions.
-duti -s com.todesktop.230313mzl4w4u92 .js all
-duti -s com.todesktop.230313mzl4w4u92 .jsx all
-duti -s com.todesktop.230313mzl4w4u92 .ts all
-duti -s com.todesktop.230313mzl4w4u92 .tsx all
-duti -s com.todesktop.230313mzl4w4u92 .json all
-duti -s com.todesktop.230313mzl4w4u92 .md all
-duti -s com.todesktop.230313mzl4w4u92 .yaml all
-duti -s com.todesktop.230313mzl4w4u92 .yml all
-duti -s com.todesktop.230313mzl4w4u92 .tf all
-duti -s com.todesktop.230313mzl4w4u92 .tfvars all
-duti -s com.todesktop.230313mzl4w4u92 .hcl all
-duti -s com.todesktop.230313mzl4w4u92 .zsh all
-duti -s com.todesktop.230313mzl4w4u92 .sh all
-duti -s com.todesktop.230313mzl4w4u92 .lua all
-duti -s com.todesktop.230313mzl4w4u92 .symlink all
+# Assign VSCode default file extensions.
+duti -s com.microsoft.VSCode .js all
+duti -s com.microsoft.VSCode .jsx all
+duti -s com.microsoft.VSCode .ts all
+duti -s com.microsoft.VSCode .tsx all
+duti -s com.microsoft.VSCode .json all
+duti -s com.microsoft.VSCode .md all
+duti -s com.microsoft.VSCode .yaml all
+duti -s com.microsoft.VSCode .yml all
+duti -s com.microsoft.VSCode .tf all
+duti -s com.microsoft.VSCode .tfvars all
+duti -s com.microsoft.VSCode .hcl all
+duti -s com.microsoft.VSCode .zsh all
+duti -s com.microsoft.VSCode .sh all
+duti -s com.microsoft.VSCode .lua all
+duti -s com.microsoft.VSCode .symlink all

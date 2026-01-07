@@ -14,3 +14,12 @@ test.*
 
 # ignore '.local' directories
 .local/
+
+# ignore local Claude files
+.claude/CLAUDE.local.md
+.claude/settings.local.json
+.claude.local/
+.claude.local
+
+# This can be removed once the context branch is merged
+.claude/CLAUDE.md

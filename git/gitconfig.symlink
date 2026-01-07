@@ -49,3 +49,17 @@
 	helper = osxkeychain
 [gpg]
 	program = /opt/homebrew/bin/gpg
+[safe]
+	directory = /github/workspace
+	directory = /github/workspace
+	directory = /github/workspace
+	directory = /github/workspace
+	directory = /github/workspace
+	directory = /github/workspace
+	directory = /github/workspace
+	directory = /github/workspace
+	directory = /github/workspace
+	directory = /github/workspace
+	directory = /github/workspace
+	directory = /github/workspace
+	directory = /github/workspace
