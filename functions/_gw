@@ -1,7 +1,27 @@
 #compdef gw
 
-local main_root
-main_root=$(git worktree list --porcelain 2>/dev/null | head -1 | sed 's/^worktree //')
-if [[ -n "$main_root" && -d "$main_root/worktrees" ]]; then
-  _files -W "$main_root/worktrees" -/
-fi
+_gw() {
+  local main_root
+  main_root=$(git worktree list --porcelain 2>/dev/null | head -1 | sed 's/^worktree //')
+
+  _arguments -S \
+    '--cl[include claude pane]' \
+    '--nvim[include nvim pane]' \
+    '--cli[include terminal pane]' \
+    '--no-cl[exclude claude pane]' \
+    '--no-nvim[exclude nvim pane]' \
+    '--no-cli[exclude terminal pane]' \
+    '1:worktree name:->worktree' \
+    '2:branch:__git_branch_names' \
+    && return
+
+  case "$state" in
+    worktree)
+      if [[ -n "$main_root" && -d "$main_root/worktrees" ]]; then
+        _files -W "$main_root/worktrees" -/
+      fi
+      ;;
+  esac
+}
+
+_gw "$@"

@@ -1,0 +1,32 @@
+#!/bin/zsh
+#
+# gco — smart git checkout
+#
+# Falls back to prompting branch creation when checkout fails
+# because the branch doesn't exist.
+
+local output
+output=$(git checkout "$@" 2>&1)
+local rc=$?
+
+if [[ $rc -eq 0 ]]; then
+  [[ -n "$output" ]] && echo "$output"
+  return 0
+fi
+
+# Check if failure is "branch not found"
+if [[ "$output" == *"did not match any"* ]] || \
+   [[ "$output" == *"not a commit"* ]] || \
+   [[ "$output" == *"invalid reference"* ]]; then
+  echo -n "gco: branch '$*' does not exist. Create it? [y/N] "
+  read -r reply
+  if [[ "$reply" == [yY] ]]; then
+    git checkout -b "$@"
+    return $?
+  fi
+  return 1
+fi
+
+# Some other error — just show it
+echo "$output" >&2
+return $rc

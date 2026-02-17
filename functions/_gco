@@ -1,0 +1,2 @@
+#compdef gco
+_git-checkout "$@"

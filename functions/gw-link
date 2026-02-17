@@ -1,0 +1,71 @@
+#!/bin/zsh
+#
+# gw-link — symlink shared files from main worktree into a child worktree
+#
+# Usage: gw-link <worktree-path>
+#
+# Reads .gwlinks from main worktree root for items to link.
+# Lines ending in / are directories, others are files. # comments ignored.
+# Falls back to sensible defaults if .gwlinks doesn't exist.
+
+local wt_dir="$1"
+if [[ -z "$wt_dir" ]]; then
+  echo "gw-link: worktree path required" >&2
+  return 1
+fi
+
+local main_root
+main_root=$(git -C "$wt_dir" worktree list --porcelain 2>/dev/null | head -1 | sed 's/^worktree //')
+if [[ -z "$main_root" ]]; then
+  echo "gw-link: could not resolve main worktree" >&2
+  return 1
+fi
+
+# Don't link into the main worktree itself
+[[ "$wt_dir" == "$main_root" ]] && return 0
+
+local -a items
+if [[ -f "$main_root/.gwlinks" ]]; then
+  while IFS= read -r line; do
+    # Strip comments and whitespace
+    line="${line%%#*}"
+    line="${line## }"
+    line="${line%% }"
+    [[ -z "$line" ]] && continue
+    items+=("$line")
+  done < "$main_root/.gwlinks"
+else
+  items=(
+    .vscode/
+    .local/
+    local/
+    .claude/settings.local.json
+  )
+fi
+
+local item src dest
+for item in "${items[@]}"; do
+  src="$main_root/$item"
+  dest="$wt_dir/$item"
+
+  # Skip if source doesn't exist in main
+  if [[ ! -e "$src" ]]; then
+    continue
+  fi
+
+  # Already a symlink — nothing to do
+  if [[ -L "$dest" ]]; then
+    continue
+  fi
+
+  # Exists but not a symlink — warn and skip
+  if [[ -e "$dest" ]]; then
+    echo "gw-link: warning: $dest exists and is not a symlink, skipping" >&2
+    continue
+  fi
+
+  # Ensure parent directory exists
+  mkdir -p "${dest:h}"
+
+  ln -s "$src" "$dest"
+done

@@ -1,18 +1,34 @@
 #!/bin/zsh
 #
-# gw — Git Worktree + iTerm 3-pane layout
+# gw — Git Worktree manager with iTerm pane layout
 #
 # Usage:
-#   gw                    # list existing worktrees
-#   gw <name>             # create/navigate worktree, branch = <name>
-#   gw <name> <branch>    # create/navigate worktree, checkout <branch>
+#   gw                           # list existing worktrees
+#   gw <name>                    # create/navigate worktree, branch = <name>
+#   gw <name> <branch>           # create/navigate worktree, checkout <branch>
+#   gw <name> --no-nvim          # skip nvim pane
+#   gw <name> --cl --cli         # only cl + terminal panes
 #
-# Layout:
+# Layout (default 3-pane):
 #   ┌──────────┬──────────┐
 #   │          │  nvim .  │
 #   │    cl    ├──────────┤
 #   │          │ terminal │
 #   └──────────┴──────────┘
+
+# --- Parse pane flags ---
+local -a layout_flags
+local -a positional
+local arg
+for arg in "$@"; do
+  case "$arg" in
+    --cl|--nvim|--cli|--no-cl|--no-nvim|--no-cli)
+      layout_flags+=("$arg") ;;
+    *)
+      positional+=("$arg") ;;
+  esac
+done
+set -- "${positional[@]}"
 
 # --- Resolve main worktree root ---
 local main_root
@@ -59,46 +75,12 @@ else
   cd "$wt_dir"
 fi
 
-# --- Close extra iTerm panes ---
-osascript <<'CLOSE_APPLESCRIPT'
-tell application "iTerm2"
-  tell current window
-    tell current tab
-      set currentSession to current session
-      set allSessions to sessions
-      repeat with i from (count of allSessions) to 1 by -1
-        set s to item i of allSessions
-        if s is not currentSession then
-          tell s to close
-        end if
-      end repeat
-    end tell
-  end tell
-end tell
-CLOSE_APPLESCRIPT
+# --- Symlink shared files from main worktree ---
+gw-link "$wt_dir"
 
-# --- Set up 3-pane layout ---
-osascript <<LAYOUT_APPLESCRIPT
-tell application "iTerm2"
-  tell current window
-    tell current tab
-      tell current session
-        set rightSession to (split vertically with default profile)
-      end tell
-      tell rightSession
-        set bottomRightSession to (split horizontally with default profile)
-      end tell
-      tell rightSession
-        write text "cd $wt_dir && nvim ."
-      end tell
-      tell bottomRightSession
-        write text "cd $wt_dir && clear"
-      end tell
-    end tell
-  end tell
-end tell
-LAYOUT_APPLESCRIPT
-
-# --- Run cl in the left (current) pane ---
-clear
-cl
+# --- Set up iTerm pane layout ---
+if (( $+commands[gw-layout] )); then
+  gw-layout "$wt_dir" "${layout_flags[@]}"
+else
+  echo "gw: gw-layout not found, skipping pane layout" >&2
+fi

@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+"""
+gw-layout — iTerm2 pane layout manager for git worktrees.
+
+Uses iTerm2's Python API via direct WebSocket connection for fast,
+reliable pane management without AppleScript overhead.
+
+Usage:
+  gw-layout <wt_dir> [--cl] [--nvim] [--cli] [--no-cl] [--no-nvim] [--no-cli]
+
+Pane flags default to all-on (--cl --nvim --cli → 3-pane layout).
+Use --no-X to disable a pane, or pass only the ones you want.
+
+Layout topologies:
+  3 panes: V-split + H-split right (cl | nvim / terminal)
+  2 panes: varies by combination
+  1 pane:  no splits, run command in current session
+  0 panes: no layout changes
+"""
+
+import argparse
+import asyncio
+import sys
+
+
+def parse_args():
+    p = argparse.ArgumentParser(description="iTerm2 pane layout for git worktrees")
+    p.add_argument("wt_dir", help="Worktree directory path")
+    p.add_argument("--cl", action="store_true", default=None, dest="cl")
+    p.add_argument("--nvim", action="store_true", default=None, dest="nvim")
+    p.add_argument("--cli", action="store_true", default=None, dest="cli")
+    p.add_argument("--no-cl", action="store_true", default=False, dest="no_cl")
+    p.add_argument("--no-nvim", action="store_true", default=False, dest="no_nvim")
+    p.add_argument("--no-cli", action="store_true", default=False, dest="no_cli")
+    return p.parse_args()
+
+
+def resolve_panes(args):
+    """Determine which panes to show.
+
+    If any --X flag is explicitly set, only those are enabled.
+    If any --no-X flag is set, start from all-on and subtract.
+    Default (no flags): all three enabled.
+    """
+    explicit_on = any(v is True for v in [args.cl, args.nvim, args.cli])
+    explicit_off = any([args.no_cl, args.no_nvim, args.no_cli])
+
+    if explicit_on:
+        return {
+            "cl": bool(args.cl),
+            "nvim": bool(args.nvim),
+            "cli": bool(args.cli),
+        }
+    elif explicit_off:
+        return {
+            "cl": not args.no_cl,
+            "nvim": not args.no_nvim,
+            "cli": not args.no_cli,
+        }
+    else:
+        return {"cl": True, "nvim": True, "cli": True}
+
+
+def pane_command(name, wt_dir):
+    if name == "cl":
+        return f"cd {_quote(wt_dir)} && clear && cl"
+    elif name == "nvim":
+        return f"cd {_quote(wt_dir)} && nvim ."
+    elif name == "cli":
+        return f"cd {_quote(wt_dir)} && clear"
+    return ""
+
+
+def _quote(s):
+    """Shell-quote a string."""
+    return "'" + s.replace("'", "'\\''") + "'"
+
+
+async def run_layout(wt_dir, panes):
+    import iterm2
+
+    enabled = [k for k, v in panes.items() if v]
+    count = len(enabled)
+
+    if count == 0:
+        return
+
+    connection = await iterm2.Connection.async_create()
+    app = await iterm2.async_get_app(connection)
+    window = app.current_terminal_window
+    if not window:
+        print("gw-layout: no iTerm2 window found", file=sys.stderr)
+        return
+
+    tab = window.current_tab
+
+    # --- Close extra sessions ---
+    current = tab.current_session
+    for session in tab.sessions:
+        if session.session_id != current.session_id:
+            await session.async_close(force=True)
+
+    # Re-fetch after closing
+    tab = window.current_tab
+    current = tab.current_session
+
+    if count == 1:
+        # Single pane — just run the command in current session
+        cmd = pane_command(enabled[0], wt_dir)
+        await current.async_send_text(cmd + "\n")
+        return
+
+    if count == 3:
+        # 3-pane: V-split, then H-split right
+        #   left = cl, top-right = nvim, bottom-right = terminal
+        right = await current.async_split_pane(vertical=True)
+        bottom_right = await right.async_split_pane(vertical=False)
+
+        # Send commands
+        await current.async_send_text(pane_command("cl", wt_dir) + "\n")
+        await right.async_send_text(pane_command("nvim", wt_dir) + "\n")
+        await bottom_right.async_send_text(pane_command("cli", wt_dir) + "\n")
+
+    elif count == 2:
+        if "cl" in enabled and "nvim" in enabled:
+            # V-split: left=cl, right=nvim
+            right = await current.async_split_pane(vertical=True)
+            await current.async_send_text(pane_command("cl", wt_dir) + "\n")
+            await right.async_send_text(pane_command("nvim", wt_dir) + "\n")
+
+        elif "cl" in enabled and "cli" in enabled:
+            # V-split: left=cl, right=terminal
+            right = await current.async_split_pane(vertical=True)
+            await current.async_send_text(pane_command("cl", wt_dir) + "\n")
+            await right.async_send_text(pane_command("cli", wt_dir) + "\n")
+
+        elif "nvim" in enabled and "cli" in enabled:
+            # H-split: top=nvim, bottom=terminal
+            bottom = await current.async_split_pane(vertical=False)
+            await current.async_send_text(pane_command("nvim", wt_dir) + "\n")
+            await bottom.async_send_text(pane_command("cli", wt_dir) + "\n")
+
+
+def main():
+    args = parse_args()
+    panes = resolve_panes(args)
+
+    try:
+        asyncio.run(run_layout(args.wt_dir, panes))
+    except ImportError:
+        print("gw-layout: iterm2 python module not available, skipping layout", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
