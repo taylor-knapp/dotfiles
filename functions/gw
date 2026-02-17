@@ -1,0 +1,104 @@
+#!/bin/zsh
+#
+# gw — Git Worktree + iTerm 3-pane layout
+#
+# Usage:
+#   gw                    # list existing worktrees
+#   gw <name>             # create/navigate worktree, branch = <name>
+#   gw <name> <branch>    # create/navigate worktree, checkout <branch>
+#
+# Layout:
+#   ┌──────────┬──────────┐
+#   │          │  nvim .  │
+#   │    cl    ├──────────┤
+#   │          │ terminal │
+#   └──────────┴──────────┘
+
+# --- Resolve main worktree root ---
+local main_root
+main_root=$(git worktree list --porcelain 2>/dev/null | head -1 | sed 's/^worktree //')
+if [[ -z "$main_root" ]]; then
+  echo "gw: not a git repository" >&2
+  return 1
+fi
+
+# --- No args: list worktrees ---
+if [[ $# -eq 0 ]]; then
+  git worktree list
+  return 0
+fi
+
+local name="$1"
+local branch="${2:-}"
+local wt_dir="$main_root/worktrees/$name"
+
+# --- Navigate to or create worktree ---
+if [[ -d "$wt_dir" ]]; then
+  cd "$wt_dir"
+else
+  # Confirm before creating
+  echo -n "gw: worktree '$name' does not exist. Create it? [y/N] "
+  read -r reply
+  if [[ "$reply" != [yY] ]]; then
+    return 0
+  fi
+
+  mkdir -p "$main_root/worktrees"
+  if [[ -n "$branch" ]]; then
+    git worktree add "$wt_dir" "$branch" || return 1
+  else
+    # Try existing branch first, fall back to new branch off main
+    if git show-ref --verify --quiet "refs/heads/$name" 2>/dev/null || \
+       git show-ref --verify --quiet "refs/remotes/origin/$name" 2>/dev/null; then
+      git worktree add "$wt_dir" "$name" || return 1
+    else
+      git worktree add -b "$name" "$wt_dir" main || return 1
+    fi
+  fi
+  echo "gw: created worktree at $wt_dir"
+  cd "$wt_dir"
+fi
+
+# --- Close extra iTerm panes ---
+osascript <<'CLOSE_APPLESCRIPT'
+tell application "iTerm2"
+  tell current window
+    tell current tab
+      set currentSession to current session
+      set allSessions to sessions
+      repeat with i from (count of allSessions) to 1 by -1
+        set s to item i of allSessions
+        if s is not currentSession then
+          tell s to close
+        end if
+      end repeat
+    end tell
+  end tell
+end tell
+CLOSE_APPLESCRIPT
+
+# --- Set up 3-pane layout ---
+osascript <<LAYOUT_APPLESCRIPT
+tell application "iTerm2"
+  tell current window
+    tell current tab
+      tell current session
+        set rightSession to (split vertically with default profile)
+      end tell
+      tell rightSession
+        set bottomRightSession to (split horizontally with default profile)
+      end tell
+      tell rightSession
+        write text "cd $wt_dir && nvim ."
+      end tell
+      tell bottomRightSession
+        write text "cd $wt_dir && clear"
+      end tell
+    end tell
+  end tell
+end tell
+LAYOUT_APPLESCRIPT
+
+# --- Run cl in the left (current) pane ---
+clear
+cl

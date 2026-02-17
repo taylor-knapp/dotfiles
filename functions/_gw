@@ -1,0 +1,7 @@
+#compdef gw
+
+local main_root
+main_root=$(git worktree list --porcelain 2>/dev/null | head -1 | sed 's/^worktree //')
+if [[ -n "$main_root" && -d "$main_root/worktrees" ]]; then
+  _files -W "$main_root/worktrees" -/
+fi
