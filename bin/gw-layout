@@ -162,8 +162,8 @@ async def run_layout(wt_dir, panes):
 
         await resize_panes(tab, full_size, [
             (current, 0.35, 1.0),
-            (right, 0.65, 0.70),
-            (bottom_right, 0.65, 0.30),
+            (right, 0.65, 0.80),
+            (bottom_right, 0.65, 0.20),
         ])
 
         await current.async_send_text(pane_command("cl", wt_dir) + "\n")
@@ -195,8 +195,8 @@ async def run_layout(wt_dir, panes):
             # H-split: top=nvim (~70%), bottom=terminal (~30%)
             bottom = await current.async_split_pane(vertical=False)
             await resize_panes(tab, full_size, [
-                (current, 1.0, 0.70),
-                (bottom, 1.0, 0.30),
+                (current, 1.0, 0.80),
+                (bottom, 1.0, 0.20),
             ])
             await current.async_send_text(pane_command("nvim", wt_dir) + "\n")
             await bottom.async_send_text(pane_command("cli", wt_dir) + "\n")
