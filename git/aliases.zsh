@@ -19,7 +19,6 @@ alias gd='git diff --color | sed "s/^\([^-+ ]*\)[-+ ]/\\1/" | less -r'
 
 alias gc='git commit'
 alias gca='git commit -a'
-unalias gco 2>/dev/null  # remove OMZ git plugin alias; using function instead
 alias gcb='git copy-branch-name'
 alias gb='git branch'
 alias gs='git status -sb' # upgrade your git if -sb breaks for you. it's fun.

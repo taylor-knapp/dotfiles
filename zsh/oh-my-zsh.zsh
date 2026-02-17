@@ -16,6 +16,9 @@ plugins=(git npm nvm z kube-ps1)
 
 source $ZSH/oh-my-zsh.sh
 
+# Remove OMZ git plugin aliases that conflict with our functions
+unalias gco 2>/dev/null
+
 #PROMPT='%{$fg[cyan]%}%30<...<%~%<<%{$reset_color%} $(git_prompt_info)'
 #PROMPT+='
 #%(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ ) %{$reset_color%}'
