@@ -100,18 +100,15 @@ def _quote(s):
     return "'" + s.replace("'", "'\\''") + "'"
 
 
-async def resize_panes(tab, sizes):
+async def resize_panes(tab, total_size, sizes):
     """Set preferred_size on each session and apply the layout.
 
+    total_size: (width, height) in cells — the full tab dimensions before splitting.
     sizes: list of (session, width_fraction, height_fraction) tuples.
-    Fractions are relative to the full tab (e.g. 0.35 = 35%).
     """
     import iterm2
 
-    # Read total cell dimensions from the first session after split
-    total_w = sum(s.grid_size.width for s, _, _ in sizes)
-    total_h = max(s.grid_size.height for s, _, _ in sizes)
-
+    total_w, total_h = total_size
     for session, wf, hf in sizes:
         cols = max(1, int(total_w * wf))
         rows = max(1, int(total_h * hf))
@@ -154,13 +151,16 @@ async def run_layout(wt_dir, panes):
         await current.async_send_text(cmd + "\n")
         return
 
+    # Capture full tab dimensions before any splits
+    full_size = (current.grid_size.width, current.grid_size.height)
+
     if count == 3:
         # 3-pane: V-split, then H-split right
         #   left = cl (~35%), top-right = nvim (~65% x ~70%), bottom-right = terminal (~65% x ~30%)
         right = await current.async_split_pane(vertical=True)
         bottom_right = await right.async_split_pane(vertical=False)
 
-        await resize_panes(tab, [
+        await resize_panes(tab, full_size, [
             (current, 0.35, 1.0),
             (right, 0.65, 0.70),
             (bottom_right, 0.65, 0.30),
@@ -174,7 +174,7 @@ async def run_layout(wt_dir, panes):
         if "cl" in enabled and "nvim" in enabled:
             # V-split: left=cl (~35%), right=nvim (~65%)
             right = await current.async_split_pane(vertical=True)
-            await resize_panes(tab, [
+            await resize_panes(tab, full_size, [
                 (current, 0.35, 1.0),
                 (right, 0.65, 1.0),
             ])
@@ -184,7 +184,7 @@ async def run_layout(wt_dir, panes):
         elif "cl" in enabled and "cli" in enabled:
             # V-split: left=cl (~35%), right=terminal (~65%)
             right = await current.async_split_pane(vertical=True)
-            await resize_panes(tab, [
+            await resize_panes(tab, full_size, [
                 (current, 0.35, 1.0),
                 (right, 0.65, 1.0),
             ])
@@ -194,7 +194,7 @@ async def run_layout(wt_dir, panes):
         elif "nvim" in enabled and "cli" in enabled:
             # H-split: top=nvim (~70%), bottom=terminal (~30%)
             bottom = await current.async_split_pane(vertical=False)
-            await resize_panes(tab, [
+            await resize_panes(tab, full_size, [
                 (current, 1.0, 0.70),
                 (bottom, 1.0, 0.30),
             ])
