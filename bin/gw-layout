@@ -18,9 +18,33 @@ Layout topologies:
   0 panes: no layout changes
 """
 
+import os
+import subprocess
+import sys
+
+VENV_DIR = os.path.expanduser("~/.local/venvs/gw-layout")
+VENV_PYTHON = os.path.join(VENV_DIR, "bin", "python3")
+
+
+def ensure_venv():
+    """Bootstrap the venv and install iterm2 if needed, then re-exec."""
+    if sys.prefix != sys.base_prefix:
+        # Already running inside a venv
+        return
+
+    if not os.path.isfile(VENV_PYTHON):
+        print("gw-layout: creating venv and installing iterm2...", file=sys.stderr)
+        subprocess.check_call([sys.executable, "-m", "venv", VENV_DIR])
+        subprocess.check_call([VENV_PYTHON, "-m", "pip", "install", "-q", "iterm2"])
+
+    # Re-exec under the venv python
+    os.execv(VENV_PYTHON, [VENV_PYTHON] + sys.argv)
+
+
+ensure_venv()
+
 import argparse
 import asyncio
-import sys
 
 
 def parse_args():
@@ -144,12 +168,7 @@ async def run_layout(wt_dir, panes):
 def main():
     args = parse_args()
     panes = resolve_panes(args)
-
-    try:
-        asyncio.run(run_layout(args.wt_dir, panes))
-    except ImportError:
-        print("gw-layout: iterm2 python module not available, skipping layout", file=sys.stderr)
-        sys.exit(1)
+    asyncio.run(run_layout(args.wt_dir, panes))
 
 
 if __name__ == "__main__":
