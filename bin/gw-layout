@@ -33,7 +33,7 @@ def ensure_venv():
         return
 
     if not os.path.isfile(VENV_PYTHON):
-        print("gw-layout: creating venv and installing iterm2...", file=sys.stderr)
+        print("gw-layout: creating venv and installing iterm2 package...", file=sys.stderr)
         subprocess.check_call([sys.executable, "-m", "venv", VENV_DIR])
         subprocess.check_call([VENV_PYTHON, "-m", "pip", "install", "-q", "iterm2"])
 
@@ -100,6 +100,26 @@ def _quote(s):
     return "'" + s.replace("'", "'\\''") + "'"
 
 
+async def resize_panes(tab, sizes):
+    """Set preferred_size on each session and apply the layout.
+
+    sizes: list of (session, width_fraction, height_fraction) tuples.
+    Fractions are relative to the full tab (e.g. 0.35 = 35%).
+    """
+    import iterm2
+
+    # Read total cell dimensions from the first session after split
+    total_w = sum(s.grid_size.width for s, _, _ in sizes)
+    total_h = max(s.grid_size.height for s, _, _ in sizes)
+
+    for session, wf, hf in sizes:
+        cols = max(1, int(total_w * wf))
+        rows = max(1, int(total_h * hf))
+        session.preferred_size = iterm2.util.Size(cols, rows)
+
+    await tab.async_update_layout()
+
+
 async def run_layout(wt_dir, panes):
     import iterm2
 
@@ -136,31 +156,48 @@ async def run_layout(wt_dir, panes):
 
     if count == 3:
         # 3-pane: V-split, then H-split right
-        #   left = cl, top-right = nvim, bottom-right = terminal
+        #   left = cl (~35%), top-right = nvim (~65% x ~70%), bottom-right = terminal (~65% x ~30%)
         right = await current.async_split_pane(vertical=True)
         bottom_right = await right.async_split_pane(vertical=False)
 
-        # Send commands
+        await resize_panes(tab, [
+            (current, 0.35, 1.0),
+            (right, 0.65, 0.70),
+            (bottom_right, 0.65, 0.30),
+        ])
+
         await current.async_send_text(pane_command("cl", wt_dir) + "\n")
         await right.async_send_text(pane_command("nvim", wt_dir) + "\n")
         await bottom_right.async_send_text(pane_command("cli", wt_dir) + "\n")
 
     elif count == 2:
         if "cl" in enabled and "nvim" in enabled:
-            # V-split: left=cl, right=nvim
+            # V-split: left=cl (~35%), right=nvim (~65%)
             right = await current.async_split_pane(vertical=True)
+            await resize_panes(tab, [
+                (current, 0.35, 1.0),
+                (right, 0.65, 1.0),
+            ])
             await current.async_send_text(pane_command("cl", wt_dir) + "\n")
             await right.async_send_text(pane_command("nvim", wt_dir) + "\n")
 
         elif "cl" in enabled and "cli" in enabled:
-            # V-split: left=cl, right=terminal
+            # V-split: left=cl (~35%), right=terminal (~65%)
             right = await current.async_split_pane(vertical=True)
+            await resize_panes(tab, [
+                (current, 0.35, 1.0),
+                (right, 0.65, 1.0),
+            ])
             await current.async_send_text(pane_command("cl", wt_dir) + "\n")
             await right.async_send_text(pane_command("cli", wt_dir) + "\n")
 
         elif "nvim" in enabled and "cli" in enabled:
-            # H-split: top=nvim, bottom=terminal
+            # H-split: top=nvim (~70%), bottom=terminal (~30%)
             bottom = await current.async_split_pane(vertical=False)
+            await resize_panes(tab, [
+                (current, 1.0, 0.70),
+                (bottom, 1.0, 0.30),
+            ])
             await current.async_send_text(pane_command("nvim", wt_dir) + "\n")
             await bottom.async_send_text(pane_command("cli", wt_dir) + "\n")
 
