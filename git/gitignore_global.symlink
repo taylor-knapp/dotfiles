@@ -12,8 +12,8 @@ test.*
 .test.*
 .wat.*
 
-# ignore '.local' directories
-.local/
+# ignore '.local' directories and symlinks
+.local
 
 # ignore local Claude files
 .claude/CLAUDE.local.md
