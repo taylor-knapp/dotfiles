@@ -24,3 +24,6 @@ curl -SsL "${URL}" > "${FILENAME}" || die "Couldn't download script from ${URL}"
 chmod +x "${FILENAME}"
 
 echo "iterm shell integration installed!"
+
+# Enable the Python API server (used by gw-layout for pane management)
+defaults write com.googlecode.iterm2 EnableAPIServer -bool true
