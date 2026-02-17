@@ -45,6 +45,9 @@ fi
 
 local item src dest
 for item in "${items[@]}"; do
+  # Strip trailing slash — symlink targets the name itself, not contents inside
+  item="${item%/}"
+
   src="$main_root/$item"
   dest="$wt_dir/$item"
 
