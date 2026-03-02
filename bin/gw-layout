@@ -8,13 +8,13 @@ reliable pane management without AppleScript overhead.
 Usage:
   gw-layout <wt_dir> [--cl] [--nvim] [--cli] [--no-cl] [--no-nvim] [--no-cli]
 
-Pane flags default to all-on (--cl --nvim --cli → 3-pane layout).
-Use --no-X to disable a pane, or pass only the ones you want.
+Pane flags default to claude only (--cl).
+Use --cli or --nvim to add panes, or --no-X to disable.
 
 Layout topologies:
+  1 pane (default): cl only, no splits
+  2 panes: V-split (cl + cli or cl + nvim) or H-split (nvim + cli)
   3 panes: V-split + H-split right (cl | nvim / terminal)
-  2 panes: varies by combination
-  1 pane:  no splits, run command in current session
   0 panes: no layout changes
 """
 
@@ -82,7 +82,7 @@ def resolve_panes(args):
             "cli": not args.no_cli,
         }
     else:
-        return {"cl": True, "nvim": True, "cli": True}
+        return {"cl": True, "nvim": False, "cli": False}
 
 
 def pane_command(name, wt_dir):

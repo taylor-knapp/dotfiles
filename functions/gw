@@ -6,15 +6,13 @@
 #   gw                           # list existing worktrees
 #   gw <name>                    # create/navigate worktree, branch = <name>
 #   gw <name> <branch>           # create/navigate worktree, checkout <branch>
-#   gw <name> --no-nvim          # skip nvim pane
-#   gw <name> --cl --cli         # only cl + terminal panes
+#   gw <name> --cli              # cl + terminal panes
+#   gw <name> --nvim             # cl + nvim panes
 #
-# Layout (default 3-pane):
-#   ┌──────────┬──────────┐
-#   │          │  nvim .  │
-#   │    cl    ├──────────┤
-#   │          │ terminal │
-#   └──────────┴──────────┘
+# Layout (default: claude only):
+#   ┌────────────────────┐
+#   │         cl         │
+#   └────────────────────┘
 
 # --- Parse pane flags ---
 local -a layout_flags

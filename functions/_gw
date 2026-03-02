@@ -5,9 +5,9 @@ _gw() {
   main_root=$(git worktree list --porcelain 2>/dev/null | head -1 | sed 's/^worktree //')
 
   _arguments -S \
-    '--cl[include claude pane]' \
-    '--nvim[include nvim pane]' \
-    '--cli[include terminal pane]' \
+    '--cl[include claude pane (default)]' \
+    '--nvim[add nvim pane]' \
+    '--cli[add terminal pane]' \
     '--no-cl[exclude claude pane]' \
     '--no-nvim[exclude nvim pane]' \
     '--no-cli[exclude terminal pane]' \
