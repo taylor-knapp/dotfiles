@@ -27,3 +27,6 @@ echo "iterm shell integration installed!"
 
 # Enable the Python API server (used by gw-layout for pane management)
 defaults write com.googlecode.iterm2 EnableAPIServer -bool true
+
+# New panes/tabs reuse the working directory of the current session
+/usr/libexec/PlistBuddy -c "Set ':New Bookmarks:0:Custom Directory' Recycle" ~/Library/Preferences/com.googlecode.iterm2.plist 2>/dev/null
