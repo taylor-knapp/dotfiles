@@ -1,3 +1,7 @@
+# Profiling toggle: run `ZPROF=1 zsh -i -c exit` to see startup breakdown.
+# zsh/zprof is a built-in module that instruments every sourced file and function call.
+[[ -n "$ZPROF" ]] && zmodload zsh/zprof
+
 # Turn off zsh's annoying auto-correct feature.
 setopt nocorrectall;
 
@@ -89,3 +93,6 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# Print profiling output if ZPROF was set (see top of file)
+[[ -n "$ZPROF" ]] && zprof
