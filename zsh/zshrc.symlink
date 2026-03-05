@@ -39,8 +39,13 @@ do
   source $file
 done
 
-# load everything but the path and completion files
-for file in ${${config_files:#*/path.zsh}:#*/completion.zsh}
+# Source zsh/oh-my-zsh.zsh first — it loads zsh-defer which other topic files
+# (e.g. iterm/) depend on. Without this, alphabetical glob order would source
+# iterm/ before zsh/, and zsh-defer calls would fail.
+source $DOTFILES/zsh/oh-my-zsh.zsh
+
+# load everything but the path, completion, and already-sourced oh-my-zsh files
+for file in ${${${config_files:#*/path.zsh}:#*/completion.zsh}:#*/oh-my-zsh.zsh}
 do
   source $file
 done
