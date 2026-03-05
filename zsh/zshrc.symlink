@@ -1,10 +1,3 @@
-# OPENSPEC:START
-# OpenSpec shell completions configuration
-fpath=("/Users/taylorknapp/.oh-my-zsh/custom/completions" $fpath)
-autoload -Uz compinit
-compinit
-# OPENSPEC:END
-
 # Turn off zsh's annoying auto-correct feature.
 setopt nocorrectall;
 
@@ -85,10 +78,6 @@ if [ -f '/Users/taylorknapp/google-cloud-sdk/completion.zsh.inc' ]; then . '/Use
 
 # This sets the default editor for kubectl to vscode, and `-w` makes it wait for the editor to close before applying the changes.
 export KUBE_EDITOR="code -w"
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && sh "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # Set the zscaler cert so Claude Code can fetch as expected.
 export NODE_EXTRA_CA_CERTS="$HOME/.certs/zscaler-root-ca.pem"

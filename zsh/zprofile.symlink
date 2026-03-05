@@ -1,2 +1,9 @@
-# Sets homebrew on path and some other stuff, I guess.
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# Homebrew environment (cached output of: /opt/homebrew/bin/brew shellenv)
+# If Homebrew stops working after a reinstall/move, re-run that command and update this block.
+export HOMEBREW_PREFIX="/opt/homebrew"
+export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+export HOMEBREW_REPOSITORY="/opt/homebrew"
+fpath[1,0]="$HOMEBREW_PREFIX/share/zsh/site-functions"
+export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
+[ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}"
+export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
