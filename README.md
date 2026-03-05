@@ -62,6 +62,10 @@ Everything is organized into **topic directories**. Special file conventions:
 - **macos/** - macOS defaults and install
 - **script/** - Bootstrap and install entry points
 
+## Notes
+
+- **Homebrew shellenv is cached** in `zsh/zprofile.symlink` for faster startup. If Homebrew is reinstalled or moved, re-run `/opt/homebrew/bin/brew shellenv` and update that file.
+
 ## Install
 
 ```sh
