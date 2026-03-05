@@ -44,6 +44,15 @@ if [[ -f "$NVM_DIR/nvm.sh" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
+# zsh-defer — deferred source loading
+# ---------------------------------------------------------------------------
+# zsh-defer queues commands to run after the prompt is first drawn, so they
+# don't block interactive startup. Used below and in zshrc.symlink to defer
+# syntax highlighting, gcloud completions, iterm integration, and terraform.
+# https://github.com/romkatv/zsh-defer
+source ${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-defer/zsh-defer.plugin.zsh
+
+# ---------------------------------------------------------------------------
 # z — directory jumping (frecency-based)
 # ---------------------------------------------------------------------------
 # z tracks your most-used directories and lets you jump to them with partial
