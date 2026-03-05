@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-03-05
+
+### Restore Ctrl+S forward history search
+
+- Added `setopt NO_FLOW_CONTROL` to disable XON/XOFF flow control (zsh builtin, no TTY needed — avoids p10k instant prompt `stty` issues)
+- Added `bindkey '^S' history-incremental-search-forward` to restore forward incremental search lost when OMZ was dropped
+
 ## 2025-03-05
 
 ### ZSH Startup Performance Overhaul (~1.9s → <200ms)
