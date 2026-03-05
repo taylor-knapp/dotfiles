@@ -1,15 +1,16 @@
 autoload -U add-zsh-hook
 load-nvmrc() {
-  # If node is not in the commands list yet, it hasn't been lazy loaded,
-  # so don't worry about loading the right version with nvm!
-  ! (( ${+commands[node]} )) && return;
+  # Only act when an .nvmrc exists in the current directory.
+  # This means we auto-switch when cd'ing into a repo root, but don't
+  # slow down every other cd with nvm lookups.
+  [[ -f .nvmrc ]] || return
 
-  # To increase performance, only run the script if .nvmrc is in the current directory.
-  # This means we only change node automatically if cd'ing into the root directory of a repo,
-  # and we don't go back to the nvm default, but it decreases delay of cd'ing around elsewhere.
-  [ -f .nvmrc ] || return
+  # Ensure nvm is loaded (triggers lazy stub on first call, no-op after).
+  nvm --version >/dev/null 2>&1 || return
 
-  local nvmrc_node_version=$(nvm version "$(cat "$(nvm_find_nvmrc)")")
+  # We already know .nvmrc is in cwd (guard on line 6), so read it directly
+  # instead of calling nvm_find_nvmrc which may not be available.
+  local nvmrc_node_version=$(nvm version "$(cat .nvmrc)")
 
   if [ "$nvmrc_node_version" = "N/A" ]; then
     nvm install
