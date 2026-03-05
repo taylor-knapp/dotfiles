@@ -45,9 +45,19 @@ do
   source $file
 done
 
-# initialize autocomplete here, otherwise functions won't be loaded
-autoload -U compinit
-compinit
+# ---------------------------------------------------------------------------
+# compinit with 24-hour cache
+# ---------------------------------------------------------------------------
+# compinit scans $fpath and rebuilds the completion dump (~/.zcompdump).
+# The security audit + full scan adds ~80ms. We skip it (`-C` flag) unless
+# the dump file is older than 24 hours, at which point we do a full rebuild.
+# `-C` means "use cached dump without security checks or fpath re-scan."
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+  compinit        # dump is stale (>24h old) — full rebuild
+else
+  compinit -C     # dump is fresh — skip security audit and fpath scan
+fi
 
 # load every completion after autocomplete loads
 for file in ${(M)config_files:#*/completion.zsh}
@@ -56,6 +66,19 @@ do
 done
 
 unset config_files
+
+# ---------------------------------------------------------------------------
+# Compile zcompdump in background for faster loading
+# ---------------------------------------------------------------------------
+# zcompile converts the plain-text dump into a binary .zwc file that zsh can
+# mmap directly, shaving ~10-20ms off future compinit loads.
+# The `&!` disowns the subshell so it doesn't block startup or show in `jobs`.
+{
+  zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+  if [[ -s "$zcompdump" && (! -s "${zcompdump}.zwc" || "$zcompdump" -nt "${zcompdump}.zwc") ]]; then
+    zcompile "$zcompdump"
+  fi
+} &!
 
 # Zsh syntax highlighting must be loaded after all widgets have been loaded. This is the brew installation path.
 # https://github.com/zsh-users/zsh-syntax-highlighting
