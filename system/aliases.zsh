@@ -1,7 +1,9 @@
 # grc overides for ls
 #   Made possible through contributions from generous benefactors like
 #   `brew install coreutils`
-if $(gls &>/dev/null)
+# $+commands[gls] checks zsh's command hash table — no subprocess fork needed.
+# The old `$(gls &>/dev/null)` spawned a subshell on every startup.
+if (( $+commands[gls] ))
 then
   alias ls="gls -F --color"
   alias l="gls -lAh --color"
