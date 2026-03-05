@@ -22,7 +22,7 @@ Everything is organized into **topic directories**. Special file conventions:
 ## Structure
 
 ### Shell
-- **zsh/** - Primary shell. Oh My Zsh, Powerlevel10k, completions, aliases
+- **zsh/** - Primary shell. Powerlevel10k, lazy NVM, zsh-defer, completions, aliases
 - **bash/** - Bash profile and rc (symlinked)
 - **system/** - System-wide aliases, env vars, keyboard config, macOS Automator workflows
 - **functions/** - Shell functions and completions (`extract`, `c`, etc.)
@@ -31,7 +31,7 @@ Everything is organized into **topic directories**. Special file conventions:
 ### Languages & Runtimes
 - **node/** - Node.js aliases and install
 - **python/** - PATH config
-- **ruby/** - gemrc, irbrc, RVM setup
+- **ruby/** - gemrc, irbrc
 - **java/** - SDKMAN config and install
 - **go/** - PATH config
 - **rust/** - Cargo bin PATH config
@@ -64,6 +64,11 @@ Everything is organized into **topic directories**. Special file conventions:
 
 ## Notes
 
+- **Oh My Zsh is NOT sourced at startup.** OMZ is still installed (for p10k, z, and kube-ps1 which live under `~/.oh-my-zsh/`) but `oh-my-zsh.sh` is never loaded. Instead, `zsh/oh-my-zsh.zsh` sources only what we need directly.
+- **NVM is lazy-loaded.** Stub functions for `nvm`, `node`, `npm`, `npx`, `yarn`, `pnpx`, and `corepack` defer sourcing `nvm.sh` until first use.
+- **zsh-defer** defers non-critical sources (syntax highlighting, gcloud completion, iterm integration, terraform) until after the first prompt is drawn.
+- **kube-ps1 is on-demand.** Type `kube-on` to load Kubernetes context into your prompt.
+- **Profiling:** Run `ZPROF=1 zsh -i -c exit` to see a startup timing breakdown.
 - **Homebrew shellenv is cached** in `zsh/zprofile.symlink` for faster startup. If Homebrew is reinstalled or moved, re-run `/opt/homebrew/bin/brew shellenv` and update that file.
 
 ## Install
