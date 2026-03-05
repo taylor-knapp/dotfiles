@@ -58,7 +58,8 @@ done
 # the dump file is older than 24 hours, at which point we do a full rebuild.
 # `-C` means "use cached dump without security checks or fpath re-scan."
 autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+local -a stale_dump=(${ZDOTDIR:-$HOME}/.zcompdump(N.mh+24))
+if (( ${#stale_dump} )); then
   compinit        # dump is stale (>24h old) — full rebuild
 else
   compinit -C     # dump is fresh — skip security audit and fpath scan
