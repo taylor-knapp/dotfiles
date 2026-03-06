@@ -23,7 +23,7 @@ if [[ "$output" == *"did not match any"* ]] || \
   # $@ could include flags; grab just the branch name (last arg)
   local branch="${@[-1]}"
 
-  # Check if a remote tracking branch exists
+  # Check local remote-tracking refs first
   local remote_ref
   remote_ref=$(git branch -r --list "*/$branch" 2>/dev/null | head -1 | tr -d ' ')
 
@@ -33,7 +33,20 @@ if [[ "$output" == *"did not match any"* ]] || \
     return $?
   fi
 
-  echo -n "gco: branch '$branch' does not exist locally or on any remote. Create it? [y/N] "
+  # Local refs may be stale — offer to fetch and retry
+  echo -n "gco: '$branch' not found locally. Fetch from remote? [y/n] "
+  read -r reply
+  if [[ "$reply" == [yY] ]]; then
+    git fetch --all --quiet
+    remote_ref=$(git branch -r --list "*/$branch" 2>/dev/null | head -1 | tr -d ' ')
+    if [[ -n "$remote_ref" ]]; then
+      echo "gco: '$branch' found on remote, checking out and tracking $remote_ref"
+      git checkout --track "$remote_ref"
+      return $?
+    fi
+  fi
+
+  echo -n "gco: '$branch' does not exist locally or on any remote. Create it? [y/n] "
   read -r reply
   if [[ "$reply" == [yY] ]]; then
     git checkout -b "$@"

@@ -10,7 +10,7 @@
 - Updated `gw-layout` ratios: `cl+cli` and `nvim+cli` now use H-split (90/10) instead of V-split; added tunable constants at top
 - Added `gw root` to cd to main worktree root (with optional tools, no branch)
 - Updated `_gw` completion to match new positional args, sibling worktree dir, and `root` keyword
-- `gco` now checks for remote tracking branches before prompting to create — automatically checks out and tracks remote branches that exist
+- `gco` now checks for remote tracking branches before prompting to create; fetches from remote if local refs are stale — automatically checks out and tracks remote branches that exist
 - Added Hammerspoon shortcut (`Ctrl+Alt+H`) to stretch window to full screen height while keeping current width and position
 - Added `magnet/` topic to manage custom Magnet window layout overrides from dotfiles (`rightTwoThirds` → ~80% width, `iTerm` custom command)
 
