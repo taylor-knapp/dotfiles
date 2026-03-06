@@ -6,27 +6,30 @@
 #   gw                           # list existing worktrees
 #   gw <name>                    # create/navigate worktree, branch = <name>
 #   gw <name> <branch>           # create/navigate worktree, checkout <branch>
-#   gw <name> --cli              # cl + terminal panes
-#   gw <name> --nvim             # cl + nvim panes
+#   gw <name> cl nvim            # open with claude + nvim panes
+#   gw <name> <branch> cli       # checkout branch, open with cli pane
+#   gw root                      # cd to main worktree root
+#   gw root cl nvim              # cd to root + open with tools
 #
-# Layout (default: claude only):
-#   ┌────────────────────┐
-#   │         cl         │
-#   └────────────────────┘
+# Tools: cl (or claude), nvim, cli — positional, any order
 
-# --- Parse pane flags ---
-local -a layout_flags
-local -a positional
-local arg
+local -a tools
+local name="" branch=""
+local -A known_tools=([cl]=1 [claude]=1 [cli]=1 [nvim]=1)
+
 for arg in "$@"; do
-  case "$arg" in
-    --cl|--nvim|--cli|--no-cl|--no-nvim|--no-cli)
-      layout_flags+=("$arg") ;;
-    *)
-      positional+=("$arg") ;;
-  esac
+  if (( ${+known_tools[$arg]} )); then
+    [[ "$arg" == "claude" ]] && arg="cl"
+    tools+=("$arg")
+  elif [[ -z "$name" ]]; then
+    name="$arg"
+  elif [[ -z "$branch" ]]; then
+    branch="$arg"
+  else
+    echo "gw: unexpected argument '$arg'" >&2
+    return 1
+  fi
 done
-set -- "${positional[@]}"
 
 # --- Resolve main worktree root ---
 local main_root
@@ -37,18 +40,34 @@ if [[ -z "$main_root" ]]; then
 fi
 
 # --- No args: list worktrees ---
-if [[ $# -eq 0 ]]; then
+if [[ -z "$name" ]]; then
   git worktree list
   return 0
 fi
 
-local name="$1"
-local branch="${2:-}"
-local wt_dir="$main_root/worktrees/$name"
+# --- Special case: gw root ---
+if [[ "$name" == "root" ]]; then
+  if [[ -n "$branch" ]]; then
+    echo "gw: 'root' does not accept a branch argument" >&2
+    return 1
+  fi
+  cd "$main_root"
+  if (( ${#tools} )) && (( $+commands[gw-layout] )); then
+    gw-layout "$main_root" "${tools[@]}"
+  fi
+  return 0
+fi
+
+local wt_base="${main_root}-worktrees"
+local wt_dir="$wt_base/$name"
 
 # --- Navigate to or create worktree ---
 if [[ -d "$wt_dir" ]]; then
   cd "$wt_dir"
+  # Checkout branch if specified
+  if [[ -n "$branch" ]]; then
+    git checkout "$branch" || return 1
+  fi
 else
   # Confirm before creating
   echo -n "gw: worktree '$name' does not exist. Create it? [y/N] "
@@ -57,7 +76,7 @@ else
     return 0
   fi
 
-  mkdir -p "$main_root/worktrees"
+  mkdir -p "$wt_base"
   if [[ -n "$branch" ]]; then
     git worktree add "$wt_dir" "$branch" || return 1
   else
@@ -78,7 +97,7 @@ gw-link "$wt_dir"
 
 # --- Set up iTerm pane layout ---
 if (( $+commands[gw-layout] )); then
-  gw-layout "$wt_dir" "${layout_flags[@]}"
+  gw-layout "$wt_dir" "${tools[@]}"
 else
   echo "gw: gw-layout not found, skipping pane layout" >&2
 fi

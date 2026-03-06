@@ -4,22 +4,34 @@ _gw() {
   local main_root
   main_root=$(git worktree list --porcelain 2>/dev/null | head -1 | sed 's/^worktree //')
 
+  local -a tools=(
+    'cl:claude code'
+    'claude:claude code (alias for cl)'
+    'cli:terminal pane'
+    'nvim:neovim editor'
+  )
+
   _arguments -S \
-    '--cl[include claude pane (default)]' \
-    '--nvim[add nvim pane]' \
-    '--cli[add terminal pane]' \
-    '--no-cl[exclude claude pane]' \
-    '--no-nvim[exclude nvim pane]' \
-    '--no-cli[exclude terminal pane]' \
     '1:worktree name:->worktree' \
-    '2:branch:__git_branch_names' \
+    '*:tool or branch:->tool_or_branch' \
     && return
 
   case "$state" in
     worktree)
-      if [[ -n "$main_root" && -d "$main_root/worktrees" ]]; then
-        _files -W "$main_root/worktrees" -/
+      local -a special=('root:main worktree root')
+      local wt_base="${main_root}-worktrees"
+      if [[ -n "$main_root" && -d "$wt_base" ]]; then
+        _alternative \
+          'special:special:((${special}))' \
+          "worktrees:worktree:_files -W $wt_base -/"
+      else
+        _describe 'special' special
       fi
+      ;;
+    tool_or_branch)
+      _alternative \
+        'tools:tool:((${tools}))' \
+        'branches:branch:__git_branch_names'
       ;;
   esac
 }

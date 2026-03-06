@@ -6,16 +6,16 @@ Uses iTerm2's Python API via direct WebSocket connection for fast,
 reliable pane management without AppleScript overhead.
 
 Usage:
-  gw-layout <wt_dir> [--cl] [--nvim] [--cli] [--no-cl] [--no-nvim] [--no-cli]
+  gw-layout <wt_dir> [tool ...]
 
-Pane flags default to claude only (--cl).
-Use --cli or --nvim to add panes, or --no-X to disable.
+Tools: cl, nvim, cli (positional, no dashes)
 
 Layout topologies:
-  1 pane (default): cl only, no splits
-  2 panes: V-split (cl + cli or cl + nvim) or H-split (nvim + cli)
-  3 panes: V-split + H-split right (cl | nvim / terminal)
-  0 panes: no layout changes
+  1 tool:            full screen
+  nvim + cli:        H-split (nvim 90% top, cli 10% bottom)
+  cl + cli:          H-split (cl 90% top, cli 10% bottom)
+  cl + nvim:         V-split (cl 20% left, nvim 80% right)
+  cl + nvim + cli:   V-split + H-split (cl 20% left, nvim 90% top-right, cli 10% bottom-right)
 """
 
 import os
@@ -43,46 +43,20 @@ def ensure_venv():
 
 ensure_venv()
 
-import argparse
 import asyncio
+
+# --- Layout constants ---
+VSPLIT_LEFT = 0.20    # cl width in V-split layouts
+HSPLIT_TOP  = 0.90    # main pane height in H-split layouts
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="iTerm2 pane layout for git worktrees")
-    p.add_argument("wt_dir", help="Worktree directory path")
-    p.add_argument("--cl", action="store_true", default=None, dest="cl")
-    p.add_argument("--nvim", action="store_true", default=None, dest="nvim")
-    p.add_argument("--cli", action="store_true", default=None, dest="cli")
-    p.add_argument("--no-cl", action="store_true", default=False, dest="no_cl")
-    p.add_argument("--no-nvim", action="store_true", default=False, dest="no_nvim")
-    p.add_argument("--no-cli", action="store_true", default=False, dest="no_cli")
-    return p.parse_args()
-
-
-def resolve_panes(args):
-    """Determine which panes to show.
-
-    If any --X flag is explicitly set, only those are enabled.
-    If any --no-X flag is set, start from all-on and subtract.
-    Default (no flags): all three enabled.
-    """
-    explicit_on = any(v is True for v in [args.cl, args.nvim, args.cli])
-    explicit_off = any([args.no_cl, args.no_nvim, args.no_cli])
-
-    if explicit_on:
-        return {
-            "cl": bool(args.cl),
-            "nvim": bool(args.nvim),
-            "cli": bool(args.cli),
-        }
-    elif explicit_off:
-        return {
-            "cl": not args.no_cl,
-            "nvim": not args.no_nvim,
-            "cli": not args.no_cli,
-        }
-    else:
-        return {"cl": True, "nvim": False, "cli": False}
+    if len(sys.argv) < 2:
+        print("Usage: gw-layout <wt_dir> [tool ...]", file=sys.stderr)
+        sys.exit(1)
+    wt_dir = sys.argv[1]
+    tools = set(sys.argv[2:])
+    return wt_dir, tools
 
 
 def pane_command(name, wt_dir):
@@ -117,11 +91,10 @@ async def resize_panes(tab, total_size, sizes):
     await tab.async_update_layout()
 
 
-async def run_layout(wt_dir, panes):
+async def run_layout(wt_dir, tools):
     import iterm2
 
-    enabled = [k for k, v in panes.items() if v]
-    count = len(enabled)
+    count = len(tools)
 
     if count == 0:
         return
@@ -147,7 +120,8 @@ async def run_layout(wt_dir, panes):
 
     if count == 1:
         # Single pane — just run the command in current session
-        cmd = pane_command(enabled[0], wt_dir)
+        tool = list(tools)[0]
+        cmd = pane_command(tool, wt_dir)
         await current.async_send_text(cmd + "\n")
         return
 
@@ -156,14 +130,14 @@ async def run_layout(wt_dir, panes):
 
     if count == 3:
         # 3-pane: V-split, then H-split right
-        #   left = cl (~20%), top-right = nvim (~80% x ~85%), bottom-right = terminal (~80% x ~15%)
+        #   left = cl, top-right = nvim, bottom-right = cli
         right = await current.async_split_pane(vertical=True)
         bottom_right = await right.async_split_pane(vertical=False)
 
         await resize_panes(tab, full_size, [
-            (current, 0.20, 1.0),
-            (right, 0.80, 0.85),
-            (bottom_right, 0.80, 0.15),
+            (current, VSPLIT_LEFT, 1.0),
+            (right, 1.0 - VSPLIT_LEFT, HSPLIT_TOP),
+            (bottom_right, 1.0 - VSPLIT_LEFT, 1.0 - HSPLIT_TOP),
         ])
 
         await current.async_send_text(pane_command("cl", wt_dir) + "\n")
@@ -171,41 +145,40 @@ async def run_layout(wt_dir, panes):
         await bottom_right.async_send_text(pane_command("cli", wt_dir) + "\n")
 
     elif count == 2:
-        if "cl" in enabled and "nvim" in enabled:
-            # V-split: left=cl (~20%), right=nvim (~80%)
+        if "cl" in tools and "nvim" in tools:
+            # V-split: left=cl, right=nvim
             right = await current.async_split_pane(vertical=True)
             await resize_panes(tab, full_size, [
-                (current, 0.20, 1.0),
-                (right, 0.80, 1.0),
+                (current, VSPLIT_LEFT, 1.0),
+                (right, 1.0 - VSPLIT_LEFT, 1.0),
             ])
             await current.async_send_text(pane_command("cl", wt_dir) + "\n")
             await right.async_send_text(pane_command("nvim", wt_dir) + "\n")
 
-        elif "cl" in enabled and "cli" in enabled:
-            # V-split: left=cl (~20%), right=terminal (~80%)
-            right = await current.async_split_pane(vertical=True)
-            await resize_panes(tab, full_size, [
-                (current, 0.20, 1.0),
-                (right, 0.80, 1.0),
-            ])
-            await current.async_send_text(pane_command("cl", wt_dir) + "\n")
-            await right.async_send_text(pane_command("cli", wt_dir) + "\n")
-
-        elif "nvim" in enabled and "cli" in enabled:
-            # H-split: top=nvim (~85%), bottom=terminal (~15%)
+        elif "cl" in tools and "cli" in tools:
+            # H-split: top=cl, bottom=cli
             bottom = await current.async_split_pane(vertical=False)
             await resize_panes(tab, full_size, [
-                (current, 1.0, 0.85),
-                (bottom, 1.0, 0.15),
+                (current, 1.0, HSPLIT_TOP),
+                (bottom, 1.0, 1.0 - HSPLIT_TOP),
+            ])
+            await current.async_send_text(pane_command("cl", wt_dir) + "\n")
+            await bottom.async_send_text(pane_command("cli", wt_dir) + "\n")
+
+        elif "nvim" in tools and "cli" in tools:
+            # H-split: top=nvim, bottom=cli
+            bottom = await current.async_split_pane(vertical=False)
+            await resize_panes(tab, full_size, [
+                (current, 1.0, HSPLIT_TOP),
+                (bottom, 1.0, 1.0 - HSPLIT_TOP),
             ])
             await current.async_send_text(pane_command("nvim", wt_dir) + "\n")
             await bottom.async_send_text(pane_command("cli", wt_dir) + "\n")
 
 
 def main():
-    args = parse_args()
-    panes = resolve_panes(args)
-    asyncio.run(run_layout(args.wt_dir, panes))
+    wt_dir, tools = parse_args()
+    asyncio.run(run_layout(wt_dir, tools))
 
 
 if __name__ == "__main__":
