@@ -2,8 +2,9 @@
 #
 # gco — smart git checkout
 #
-# Falls back to prompting branch creation when checkout fails
-# because the branch doesn't exist.
+# 1. Try local checkout first
+# 2. If branch doesn't exist locally, check for a remote tracking branch and pull it
+# 3. If no remote branch either, prompt to create it
 
 local output
 output=$(git checkout "$@" 2>&1)
@@ -18,7 +19,21 @@ fi
 if [[ "$output" == *"did not match any"* ]] || \
    [[ "$output" == *"not a commit"* ]] || \
    [[ "$output" == *"invalid reference"* ]]; then
-  echo -n "gco: branch '$*' does not exist. Create it? [y/N] "
+
+  # $@ could include flags; grab just the branch name (last arg)
+  local branch="${@[-1]}"
+
+  # Check if a remote tracking branch exists
+  local remote_ref
+  remote_ref=$(git branch -r --list "*/$branch" 2>/dev/null | head -1 | tr -d ' ')
+
+  if [[ -n "$remote_ref" ]]; then
+    echo "gco: '$branch' found on remote, checking out and tracking $remote_ref"
+    git checkout --track "$remote_ref"
+    return $?
+  fi
+
+  echo -n "gco: branch '$branch' does not exist locally or on any remote. Create it? [y/N] "
   read -r reply
   if [[ "$reply" == [yY] ]]; then
     git checkout -b "$@"
