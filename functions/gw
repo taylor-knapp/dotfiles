@@ -52,7 +52,13 @@ if [[ "$name" == "root" ]]; then
     return 1
   fi
   cd "$main_root"
-  if (( ${#tools} )) && (( $+commands[gw-layout] )); then
+  if (( ${#tools} == 1 )); then
+    case "${tools[1]}" in
+      cl)   clear && cl ;;
+      nvim) nvim . ;;
+      cli)  clear ;;
+    esac
+  elif (( ${#tools} >= 2 )) && (( $+commands[gw-layout] )); then
     gw-layout "$main_root" "${tools[@]}"
   fi
   return 0
@@ -96,8 +102,13 @@ fi
 gw-link "$wt_dir"
 
 # --- Set up iTerm pane layout ---
-if (( $+commands[gw-layout] )); then
+if (( ${#tools} == 1 )); then
+  # Single tool — run directly, skip gw-layout Python overhead
+  case "${tools[1]}" in
+    cl)   clear && cl ;;
+    nvim) nvim . ;;
+    cli)  clear ;;
+  esac
+elif (( ${#tools} >= 2 )) && (( $+commands[gw-layout] )); then
   gw-layout "$wt_dir" "${tools[@]}"
-else
-  echo "gw: gw-layout not found, skipping pane layout" >&2
 fi
