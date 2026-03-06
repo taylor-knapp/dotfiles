@@ -54,7 +54,7 @@ if [[ "$name" == "root" ]]; then
   cd "$main_root"
   if (( ${#tools} == 1 )); then
     case "${tools[1]}" in
-      cl)   clear && cl ;;
+      cl)   clear && claude ;;
       nvim) nvim . ;;
       cli)  clear ;;
     esac
@@ -105,7 +105,7 @@ gw-link "$wt_dir"
 if (( ${#tools} == 1 )); then
   # Single tool — run directly, skip gw-layout Python overhead
   case "${tools[1]}" in
-    cl)   clear && cl ;;
+    cl)   clear && claude ;;
     nvim) nvim . ;;
     cli)  clear ;;
   esac
