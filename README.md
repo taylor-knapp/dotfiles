@@ -56,6 +56,7 @@ Everything is organized into **topic directories**. Special file conventions:
 - **obsidian/** - Aliases
 - **iterm/** - Shell integration
 - **rancher/** - Rancher Desktop install and PATH
+- **magnet/** - Window layout overrides and install
 - **renovate/** - Local config
 
 ### System

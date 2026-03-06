@@ -1,6 +1,21 @@
 # Changelog
 
+## 2026-03-06
+
+- `gco` now checks for remote tracking branches before prompting to create — automatically checks out and tracks remote branches that exist
+- Added Hammerspoon shortcut (`Ctrl+Alt+H`) to stretch window to full screen height while keeping current width and position
+- Added `magnet/` topic to manage custom Magnet window layout overrides from dotfiles (`rightTwoThirds` → ~80% width, `iTerm` custom command)
+
 ## 2026-03-05
+
+### Fix `load-nvmrc` breaking on `cd` into `.nvmrc` projects
+
+- Removed conditional `$+functions` check entirely — just call `nvm --version` unconditionally to trigger the lazy stub (first call) or no-op (already loaded), avoiding all zsh parsing ambiguity
+
+### Switch default editor to Neovim
+
+- Changed `EDITOR` from `code` to `nvim` in `system/env.zsh`
+- Changed `KUBE_EDITOR` from `code -w` to `nvim` in `zsh/zshrc.symlink`
 
 ### Restore Ctrl+S forward history search
 
