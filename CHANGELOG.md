@@ -2,6 +2,7 @@
 
 ## 2026-03-06
 
+- Replaced NVM with fnm (Fast Node Manager) — eliminates ~1s version-switch delay; auto-switches on cd via `fnm env --use-on-cd`
 - Rewrote `gw` CLI: positional tool args (`cl`, `nvim`, `cli`) instead of `--flags`, tools and branch in any order
 - Changed worktree location from `{repo}/worktrees/` to `{repo}-worktrees/` (sibling dir)
 - Updated `gw-layout` ratios: `cl+cli` and `nvim+cli` now use H-split (90/10) instead of V-split; added tunable constants at top

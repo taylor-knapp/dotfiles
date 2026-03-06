@@ -19,31 +19,6 @@ export ZSH=$HOME/.oh-my-zsh
 source ${ZSH_CUSTOM:-$ZSH/custom}/themes/powerlevel10k/powerlevel10k.zsh-theme
 
 # ---------------------------------------------------------------------------
-# NVM lazy loading
-# ---------------------------------------------------------------------------
-# Instead of sourcing nvm.sh eagerly (which parses 4387 lines and adds ~400ms),
-# we create lightweight stub functions for common Node commands. The first time
-# any of these commands is invoked, the stubs remove themselves, source nvm.sh
-# once, then transparently forward the call. Subsequent calls go directly to
-# the real binary with zero overhead.
-export NVM_DIR="$HOME/.nvm"
-if [[ -f "$NVM_DIR/nvm.sh" ]]; then
-  function nvm node npm npx yarn pnpx corepack {
-    # Remove all stub functions so they don't intercept future calls
-    unfunction nvm node npm npx yarn pnpx corepack 2>/dev/null
-    # Now source the real nvm — this only happens once per shell session
-    source "$NVM_DIR/nvm.sh"
-    # Forward the original command: if nvm defined it as a function, call
-    # the function; otherwise fall back to the external command.
-    if (( $+functions[$0] )); then
-      "$0" "$@"
-    else
-      command "$0" "$@"
-    fi
-  }
-fi
-
-# ---------------------------------------------------------------------------
 # zsh-defer — deferred source loading
 # ---------------------------------------------------------------------------
 # zsh-defer queues commands to run after the prompt is first drawn, so they

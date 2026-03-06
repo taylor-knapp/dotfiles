@@ -1,16 +1,31 @@
-# Install nvm.
+# Install fnm (Fast Node Manager) and migrate from NVM if present.
 
-export NVM_DIR="$HOME/.nvm"
+# 1. Install fnm
+if ! command -v fnm >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+    echo "  Installing fnm via Homebrew..."
+    brew install fnm
+  else
+    echo "  Install fnm manually: https://github.com/Schniz/fnm#installation"
+    exit 1
+  fi
+fi
 
-# Clone nvm if it is not present.
-if [ ! -d $NVM_DIR ]; then
-  git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR";
-fi;
+# 2. Bootstrap fnm in this shell (dotfiles sourcing hasn't happened yet)
+eval "$(fnm env --shell bash)"
 
-cd "$NVM_DIR"
+# 3. Install a current LTS node as default if fnm has no versions yet
+if [ -z "$(fnm list 2>/dev/null | grep -v 'system')" ]; then
+  echo "  Installing latest Node LTS via fnm..."
+  fnm install --lts
+  fnm default lts-latest
+fi
 
-# Fetch latest release to ensure it is up to date.
-git fetch --tags origin
-
-# Checkout the latest release. When the nvm oh-my-zsh plugin sources $NVM_DIR/nvm.sh this commit will be used.
-git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
+# 4. Migrate NVM default if NVM is still around and fnm default isn't set
+if [ -d "$HOME/.nvm" ]; then
+  echo ""
+  echo "  NVM detected at ~/.nvm"
+  echo "  fnm reads .nvmrc files natively — versions auto-install on first cd."
+  echo "  You can remove ~/.nvm when ready:  rm -rf ~/.nvm"
+  echo ""
+fi
