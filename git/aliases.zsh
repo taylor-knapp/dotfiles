@@ -101,7 +101,7 @@ alias gpristine='git reset --hard && git clean -dffx'
 alias gcm='git checkout $(git_main_branch)'
 alias gcd='git checkout $(git_develop_branch)'
 alias gcmsg='git commit -m'
-alias gco='git checkout'
+## gco is a custom function in functions/gco (prompts to create missing branches)
 alias gcor='git checkout --recurse-submodules'
 alias gcount='git shortlog -sn'
 alias gcp='git cherry-pick'

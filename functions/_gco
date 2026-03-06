@@ -1,2 +1,9 @@
 #compdef gco
-_git-checkout "$@"
+local -a branches remote_branches modified_files
+branches=(${(f)"$(git branch --format='%(refname:short)' 2>/dev/null)"})
+remote_branches=(${(f)"$(git branch -r --format='%(refname:lstrip=3)' 2>/dev/null)"})
+modified_files=(${(f)"$(git diff --name-only 2>/dev/null)"})
+_alternative \
+  'branches:branch:compadd -a branches' \
+  'remote-branches:remote branch:compadd -a remote_branches' \
+  'files:modified file:compadd -a modified_files'
