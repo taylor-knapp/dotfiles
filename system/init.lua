@@ -118,6 +118,16 @@ hs.hotkey.bind({"alt"}, "space", function()
 	toggleAppWithHide("com.googlecode.iterm2")
 end)
 
+-- Stretch window to full screen height, keep current width and x position
+hs.hotkey.bind({"ctrl", "alt"}, "h", function()
+  local win = hs.window.focusedWindow()
+  local f = win:frame()
+  local screen = win:screen():frame()
+  f.y = screen.y
+  f.h = screen.h
+  win:setFrame(f)
+end)
+
 -- Add shortcut to reload hammerspoon configuration
 hs.hotkey.bind(MODIFIERS, "r", function()
 	hs.reload()
