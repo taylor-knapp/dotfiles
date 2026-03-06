@@ -101,14 +101,15 @@ fi
 # --- Symlink shared files from main worktree ---
 gw-link "$wt_dir"
 
-# --- Set up iTerm pane layout ---
-if (( ${#tools} == 1 )); then
-  # Single tool — run directly, skip gw-layout Python overhead
+# --- Set up iTerm pane layout / launch tool ---
+if (( ${#tools} == 0 )); then
+  clear
+elif (( ${#tools} == 1 )); then
   case "${tools[1]}" in
     cl)   clear && claude ;;
     nvim) nvim . ;;
     cli)  clear ;;
   esac
-elif (( ${#tools} >= 2 )) && (( $+commands[gw-layout] )); then
+elif (( $+commands[gw-layout] )); then
   gw-layout "$wt_dir" "${tools[@]}"
 fi

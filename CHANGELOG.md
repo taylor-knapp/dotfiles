@@ -3,6 +3,7 @@
 ## 2026-03-06
 
 - Replaced NVM with fnm (Fast Node Manager) — eliminates ~1s version-switch delay; auto-switches on cd via `fnm env --use-on-cd`
+- `gw <worktree>` now clears the terminal on navigation (like `gw <worktree> cli`)
 - Skip `gw-layout` Python overhead for 0–1 tools — single tool runs directly in shell, layout only invoked for multi-pane splits
 - Rewrote `gw` CLI: positional tool args (`cl`, `nvim`, `cli`) instead of `--flags`, tools and branch in any order
 - Changed worktree location from `{repo}/worktrees/` to `{repo}-worktrees/` (sibling dir)
