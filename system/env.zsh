@@ -1,4 +1,4 @@
-export EDITOR="code"
+export EDITOR="nvim"
 
 # Set defaults for using `less`.
 # -R displays escaped characters like '/' correctly
