@@ -51,6 +51,7 @@ Everything is organized into **topic directories**. Special file conventions:
 - **xcode/** - Aliases
 
 ### Applications
+- **brave/** - Install, default browser config, and extension checklist
 - **claude/** - Claude CLI aliases and PATH
 - **commercetools/** - API/CLI aliases
 - **obsidian/** - Aliases

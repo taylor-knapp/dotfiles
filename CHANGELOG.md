@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-03-07
+
+- Added `brave/` topic — install script (Brave + `defaultbrowser` for setting default browser) and extensions checklist
+
 ## 2026-03-06
 
 - Replaced NVM with fnm (Fast Node Manager) — eliminates ~1s version-switch delay; auto-switches on cd via `fnm env --use-on-cd`
