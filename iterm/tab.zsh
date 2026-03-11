@@ -63,18 +63,18 @@ _iterm_tab_refresh() {
 }
 
 # Abbreviate a name to its initials: agent-gateway-services → ags, audit-log → al
-# Strips non-alphanumeric leading chars (e.g. .dotfiles → dotfiles → dot)
+# No separators: first 5 chars (dotfiles → dotfi). Strips leading non-alnum chars.
 _iterm_tab_initials() {
   setopt localoptions extended_glob
   local name="${1##[^a-zA-Z0-9]##}" result=""
+  if [[ "$name" != *[-_]* ]]; then
+    echo "${name[1,5]}"
+    return
+  fi
   local -a words=("${(@s/ /)${name//[-_]/ }}")
   for w in "${words[@]}"; do
     [[ -n "$w" ]] && result+="${w[1]}"
   done
-  # Single-char result isn't useful — use first 3 chars instead
-  if (( ${#result} <= 1 )); then
-    result="${name[1,3]}"
-  fi
   echo "$result"
 }
 
@@ -85,27 +85,20 @@ _iterm_tab_set_title() {
     branch=$(git symbolic-ref --short HEAD 2>/dev/null) || branch="detached"
     repo_abbr=$(_iterm_tab_initials "$_iterm_tab_repo")
 
-    # Build title: tool: repo[/worktree] branch
+    # Build title with full repo name first
     if [[ "$_iterm_tab_wt_name" == "main" ]]; then
-      title="${tool}: ${repo_abbr} ${branch}"
+      title="${tool}: ${_iterm_tab_repo} ${branch}"
     else
-      title="${tool}: ${repo_abbr}/${_iterm_tab_wt_name} ${branch}"
+      title="${tool}: ${_iterm_tab_repo}/${_iterm_tab_wt_name} ${branch}"
     fi
 
-    # Truncate branch if title exceeds 30 chars
+    # Abbreviate repo to initials only if title exceeds 30 chars
     if (( ${#title} > 30 )); then
-      local prefix branch_max trunc_branch
       if [[ "$_iterm_tab_wt_name" == "main" ]]; then
-        prefix="${tool}: ${repo_abbr} "
+        title="${tool}: ${repo_abbr} ${branch}"
       else
-        prefix="${tool}: ${repo_abbr}/${_iterm_tab_wt_name} "
+        title="${tool}: ${repo_abbr}/${_iterm_tab_wt_name} ${branch}"
       fi
-      branch_max=$(( 30 - ${#prefix} - 1 ))  # -1 for *
-      if (( branch_max < 4 )); then branch_max=4; fi
-      trunc_branch="${branch[1,$branch_max]}"
-      trunc_branch="${trunc_branch%[-_]}"
-      trunc_branch="${trunc_branch%[-_]}"
-      title="${prefix}${trunc_branch}*"
     fi
 
     printf '\e]1;%s\a' "$title"
