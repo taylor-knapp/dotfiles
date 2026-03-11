@@ -42,6 +42,7 @@ Everything is organized into **topic directories**. Special file conventions:
 - **k8s/** - Kubernetes aliases, install, PATH
 - **postgres/** - Install and PATH
 - **mongo/** - Install
+- **tmux/** - Terminal multiplexer with easy-motion, thumbs, Catppuccin theme
 - **homebrew/** - Install script
 
 ### Editors & IDEs
@@ -55,7 +56,7 @@ Everything is organized into **topic directories**. Special file conventions:
 - **claude/** - Claude CLI aliases and PATH
 - **commercetools/** - API/CLI aliases
 - **obsidian/** - Aliases
-- **iterm/** - Shell integration
+- **iterm/** - Shell integration, auto tab title (`repo (worktree:branch tool)`) and deterministic tab color per directory
 - **rancher/** - Rancher Desktop install and PATH
 - **magnet/** - Window layout overrides and install
 - **renovate/** - Local config
@@ -70,6 +71,7 @@ Everything is organized into **topic directories**. Special file conventions:
 - **fnm manages Node versions.** [fnm](https://github.com/Schniz/fnm) replaces NVM — it's Rust-based and auto-switches on `cd` via `fnm env --use-on-cd` with near-zero overhead.
 - **zsh-defer** defers non-critical sources (syntax highlighting, gcloud completion, iterm integration, terraform) until after the first prompt is drawn.
 - **kube-ps1 is on-demand.** Type `kube-on` to load Kubernetes context into your prompt.
+- **tmux prefix is `Ctrl+a`** (not default `Ctrl+b`). `Ctrl+a Space` triggers easy-motion (2-char jump), `Ctrl+a F` triggers thumbs (quick-copy). Plugins managed by [TPM](https://github.com/tmux-plugins/tpm) — `prefix + I` to install, `prefix + U` to update.
 - **Profiling:** Run `ZPROF=1 zsh -i -c exit` to see a startup timing breakdown.
 - **Homebrew shellenv is cached** in `zsh/zprofile.symlink` for faster startup. If Homebrew is reinstalled or moved, re-run `/opt/homebrew/bin/brew shellenv` and update that file.
 

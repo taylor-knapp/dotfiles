@@ -30,3 +30,7 @@ defaults write com.googlecode.iterm2 EnableAPIServer -bool true
 
 # New panes/tabs reuse the working directory of the current session
 /usr/libexec/PlistBuddy -c "Set ':New Bookmarks:0:Custom Directory' Recycle" ~/Library/Preferences/com.googlecode.iterm2.plist 2>/dev/null
+
+# Tab title: show only session name (set by tab.zsh), removes "(-zsh)" job suffix.
+# Uses iTerm's Python API (via gw-layout's shared venv) so it applies immediately.
+"$(dirname "$0")/set-title-components.py"

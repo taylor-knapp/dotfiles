@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-03-10
+
+- Added `iterm/tab.zsh` — auto-sets tab title to `repo...:branch (tool)` (or `repo.../worktree:branch (tool)` for named worktrees) with deterministic tab color per git root
+- Configured iTerm to show session name only in tab title (removes `(-zsh)` job suffix)
+
+## 2026-03-09
+
+- Added `tmux/` topic — tmux config with `Ctrl+a` prefix, tmux-easy-motion (flash.nvim-like label jumping), tmux-thumbs (quick-copy URLs/paths/SHAs), Catppuccin status bar, TPM plugin manager, vi copy mode, and shell aliases
+
 ## 2026-03-07
 
 - Added `brave/` topic — install script (Brave + `defaultbrowser` for setting default browser) and extensions checklist
