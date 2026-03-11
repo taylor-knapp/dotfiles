@@ -1,8 +1,9 @@
 # iTerm tab title + color — auto-updates based on cwd and running tool
 #
-# Title format (git, main wt):    repo:branch (tool)          — truncated to repo*:branch* (tool) if >30 chars
-# Title format (git, named wt):   repo/worktree:branch (tool) — truncated to repo*/wt:branch* (tool) if >30 chars
-# Title format (non-git):         dirname (tool)
+# Title format (git, main wt):    tool: repo branch           — branch truncated if >30 chars
+# Title format (git, named wt):   tool: repo/worktree branch  — branch truncated if >30 chars
+# Title format (non-git):         tool: dirname
+# Repo is always abbreviated to initials: agent-gateway-services → ags
 #
 # Requires iTerm profile "Title Components" = Session Name only (no Job).
 # Set via install.sh or: Profile > General > Title > Session Name
@@ -61,51 +62,55 @@ _iterm_tab_refresh() {
   printf '\e]6;1;bg;blue;brightness;%d\a' "$_iterm_tab_color_b"
 }
 
+# Abbreviate a name to its initials: agent-gateway-services → ags, audit-log → al
+# Strips non-alphanumeric leading chars (e.g. .dotfiles → dotfiles → dot)
+_iterm_tab_initials() {
+  setopt localoptions extended_glob
+  local name="${1##[^a-zA-Z0-9]##}" result=""
+  local -a words=("${(@s/ /)${name//[-_]/ }}")
+  for w in "${words[@]}"; do
+    [[ -n "$w" ]] && result+="${w[1]}"
+  done
+  # Single-char result isn't useful — use first 3 chars instead
+  if (( ${#result} <= 1 )); then
+    result="${name[1,3]}"
+  fi
+  echo "$result"
+}
+
 _iterm_tab_set_title() {
-  local tool="${1:-cli}" title repo_display
+  local tool="${1:-cli}" title repo_abbr
   if [[ -n "$_iterm_tab_repo" ]]; then
     local branch
     branch=$(git symbolic-ref --short HEAD 2>/dev/null) || branch="detached"
+    repo_abbr=$(_iterm_tab_initials "$_iterm_tab_repo")
 
-    # Build full title first to check length
+    # Build title: tool: repo[/worktree] branch
     if [[ "$_iterm_tab_wt_name" == "main" ]]; then
-      title="${_iterm_tab_repo}:${branch} (${tool})"
+      title="${tool}: ${repo_abbr} ${branch}"
     else
-      title="${_iterm_tab_repo}/${_iterm_tab_wt_name}:${branch} (${tool})"
+      title="${tool}: ${repo_abbr}/${_iterm_tab_wt_name} ${branch}"
     fi
 
-    # Truncate repo then branch if total title exceeds 30 chars
+    # Truncate branch if title exceeds 30 chars
     if (( ${#title} > 30 )); then
-      repo_display="${_iterm_tab_repo[1,6]}"
-      repo_display="${repo_display%[-_]}"  # strip trailing - or _
-      repo_display="${repo_display%[-_]}"
-      repo_display="${repo_display}*"
+      local prefix branch_max trunc_branch
       if [[ "$_iterm_tab_wt_name" == "main" ]]; then
-        title="${repo_display}:${branch} (${tool})"
+        prefix="${tool}: ${repo_abbr} "
       else
-        title="${repo_display}/${_iterm_tab_wt_name}:${branch} (${tool})"
+        prefix="${tool}: ${repo_abbr}/${_iterm_tab_wt_name} "
       fi
-    fi
-    # Still over? Truncate branch to fit within 30 chars
-    if (( ${#title} > 30 )); then
-      local prefix suffix branch_max trunc_branch
-      if [[ "$_iterm_tab_wt_name" == "main" ]]; then
-        prefix="${repo_display}:"
-      else
-        prefix="${repo_display}/${_iterm_tab_wt_name}:"
-      fi
-      suffix=" (${tool})"
-      branch_max=$(( 30 - ${#prefix} - ${#suffix} ))  # * appended after
+      branch_max=$(( 30 - ${#prefix} - 1 ))  # -1 for *
       if (( branch_max < 4 )); then branch_max=4; fi
       trunc_branch="${branch[1,$branch_max]}"
       trunc_branch="${trunc_branch%[-_]}"
       trunc_branch="${trunc_branch%[-_]}"
-      title="${prefix}${trunc_branch}*${suffix}"
+      title="${prefix}${trunc_branch}*"
     fi
 
     printf '\e]1;%s\a' "$title"
   else
-    printf '\e]1;%s (%s)\a' "${PWD:t}" "$tool"
+    printf '\e]1;%s: %s\a' "$tool" "${PWD:t}"
   fi
 }
 
