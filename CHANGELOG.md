@@ -2,6 +2,7 @@
 
 ## 2026-03-12
 
+- Removed agent-safehouse — `cl` is now a plain alias to `claude`, install script only installs Claude Code
 - `claude/alias.zsh` — added `SAFEHOUSE_ADD_DIRS` to grant Claude read/write access to `claudie`, `.dotfiles`, `.config/nvim`, `uaa-shared`, `notes`, `tickets`
 
 - `claude/install.sh` — safehouse install now checks: install if missing, upgrade if Homebrew-managed, error if installed via another method
