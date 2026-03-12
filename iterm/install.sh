@@ -1,8 +1,5 @@
-# Install iterm shell integration.
+# Install iTerm2 shell integration and preferences.
 # https://iterm2.com/documentation-shell-integration.html
-
-# todo: there are some plist files I have saved to dropbox that should really be added here instead.
-
 
 # The default install can be found below. This file customizes it to only work for zsh and not update my .zshrc.
 # Default install: curl -L https://iterm2.com/shell_integration/install_shell_integration.sh | bash
@@ -15,7 +12,6 @@ function die() {
 type printf > /dev/null 2>&1 || die "Shell integration requires the printf binary to be in your path."
 
 URL="https://iterm2.com/shell_integration/zsh"
-SCRIPT="${HOME}/.zshrc"
 FILENAME="${HOME}/.iterm2_shell_integration.zsh"
 
 echo "Downloading script from ${URL} and saving it to ${FILENAME}..."
@@ -25,12 +21,15 @@ chmod +x "${FILENAME}"
 
 echo "iterm shell integration installed!"
 
-# Enable the Python API server (used by gw-layout for pane management)
-defaults write com.googlecode.iterm2 EnableAPIServer -bool true
+# --- iTerm2 Preferences ---
+# The full plist lives at iterm/com.googlecode.iterm2.plist in this repo.
+# We point iTerm's "Load preferences from custom folder" at this directory
+# so iTerm reads/writes directly to the repo copy. Commit when you want to
+# snapshot for a new machine.
 
-# New panes/tabs reuse the working directory of the current session
-/usr/libexec/PlistBuddy -c "Set ':New Bookmarks:0:Custom Directory' Recycle" ~/Library/Preferences/com.googlecode.iterm2.plist 2>/dev/null
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Tab title: show only session name (set by tab.zsh), removes "(-zsh)" job suffix.
-# Uses iTerm's Python API (via gw-layout's shared venv) so it applies immediately.
-"$(dirname "$0")/set-title-components.py"
+defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
+defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$SCRIPT_DIR"
+
+echo "iTerm preferences configured (loading from $SCRIPT_DIR)."

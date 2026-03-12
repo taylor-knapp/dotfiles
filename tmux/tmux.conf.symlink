@@ -1,0 +1,74 @@
+# ─── General ───────────────────────────────────────────────────────────────────
+
+set -g default-terminal "tmux-256color"
+set -ag terminal-overrides ",xterm-256color:RGB"
+set -g escape-time 0
+set -g focus-events on
+set -g mouse on
+set -g history-limit 50000
+
+# ─── Prefix ───────────────────────────────────────────────────────────────────
+
+unbind C-b
+set -g prefix C-a
+bind C-a send-prefix
+
+# ─── Indexing ──────────────────────────────────────────────────────────────────
+
+set -g base-index 1
+setw -g pane-base-index 1
+set -g renumber-windows on
+
+# ─── Navigation ────────────────────────────────────────────────────────────────
+
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# ─── Splits ────────────────────────────────────────────────────────────────────
+
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+unbind '"'
+unbind %
+
+# ─── Copy mode ─────────────────────────────────────────────────────────────────
+
+setw -g mode-keys vi
+bind -T copy-mode-vi v send-keys -X begin-selection
+bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
+
+# ─── Reload ────────────────────────────────────────────────────────────────────
+
+bind r source-file ~/.tmux.conf \; display "Config reloaded"
+
+# ─── Plugins ───────────────────────────────────────────────────────────────────
+
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'IngoMeyer441/tmux-easy-motion'
+set -g @plugin 'fcsonline/tmux-thumbs'
+set -g @plugin 'catppuccin/tmux'
+
+# Easy-motion: prefix + Space → 2-char bidirectional search (flash.nvim-like)
+set -g @easy-motion-prefix "Space"
+set -g @easy-motion-default-motion "bd-f2"
+
+# Thumbs: prefix + F → label URLs/paths/SHAs for quick copy
+set -g @thumbs-key F
+
+# Catppuccin
+set -g @catppuccin_flavor "mocha"
+
+# ─── TPM (keep at bottom) ─────────────────────────────────────────────────────
+
+run '~/.tmux/plugins/tpm/tpm'
+
+# ─── Direct Ctrl+s for easy-motion (no prefix needed) ─────────────────────────
+
+bind -n C-s command-prompt -1 -p "char 1:,char 2:" {
+    set -g @tmp-easy-motion-argument1 "%1"
+    set -g @tmp-easy-motion-argument2 "%2"
+    run-shell -b '~/.dotfiles/tmux/scripts/easy-motion-jump.sh "#{session_id}" "#{window_id}" "#{pane_id}" "bd-f2" "#{q:@tmp-easy-motion-argument1}#{q:@tmp-easy-motion-argument2}"'
+}

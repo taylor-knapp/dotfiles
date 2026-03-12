@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-03-12
+
+- `claude/alias.zsh` — added `SAFEHOUSE_ADD_DIRS` to grant Claude read/write access to `claudie`, `.dotfiles`, `.config/nvim`, `uaa-shared`, `notes`, `tickets`
+
+- `claude/install.sh` — safehouse install now checks: install if missing, upgrade if Homebrew-managed, error if installed via another method
+- Added `claude/install.sh` — installs `claude-code` and `agent-safehouse` via Homebrew
+- `cl` now wraps claude through `safehouse` (`cl() { safehouse claude "$@"; }`) instead of a plain alias
+- `gco` prompt now offers `[r]emote fetch / [c]reate` in a single prompt instead of two sequential y/n questions; if remote fetch finds nothing, follows up with a create offer
+
+## 2026-03-11
+
+- Migrated iTerm2 prefs from Dropbox sync to repo — stored cleaned plist at `iterm/com.googlecode.iterm2.plist`, install script points iTerm's "custom folder" here so UI changes write directly to the repo copy
+- Fixed smart truncation not persisting — root cause was Dropbox plist overwriting local prefs on every launch
+- Replaced `set-title-components.py` (iTerm2 Python API) with a PlistBuddy command in `iterm/install.sh` — works outside of iTerm2
+- Configured `git difftool` to use `nvimdiff` with no prompt in `git/gitconfig.symlink`
+
 ## 2026-03-10
 
 - Added `iterm/tab.zsh` — auto-sets tab title to `repo...:branch (tool)` (or `repo.../worktree:branch (tool)` for named worktrees) with deterministic tab color per git root

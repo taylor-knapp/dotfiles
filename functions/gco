@@ -33,10 +33,10 @@ if [[ "$output" == *"did not match any"* ]] || \
     return $?
   fi
 
-  # Local refs may be stale — offer to fetch and retry
-  echo -n "gco: '$branch' not found locally. Fetch from remote? [y/n] "
+  # Local refs may be stale — offer to fetch or create
+  echo -n "gco: '$branch' not found locally. [r]emote fetch / [c]reate / anything else cancels: "
   read -r reply
-  if [[ "$reply" == [yY] ]]; then
+  if [[ "$reply" == [rR] ]]; then
     git fetch --all --quiet
     remote_ref=$(git branch -r --list "*/$branch" 2>/dev/null | head -1 | tr -d ' ')
     if [[ -n "$remote_ref" ]]; then
@@ -44,11 +44,14 @@ if [[ "$output" == *"did not match any"* ]] || \
       git checkout --track "$remote_ref"
       return $?
     fi
-  fi
-
-  echo -n "gco: '$branch' does not exist locally or on any remote. Create it? [y/n] "
-  read -r reply
-  if [[ "$reply" == [yY] ]]; then
+    # Not on remote either — offer to create
+    echo -n "gco: '$branch' not found on any remote. Create it? [y/n] "
+    read -r reply
+    if [[ "$reply" == [yY] ]]; then
+      git checkout -b "$@"
+      return $?
+    fi
+  elif [[ "$reply" == [cC] ]]; then
     git checkout -b "$@"
     return $?
   fi
