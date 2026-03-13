@@ -10,18 +10,19 @@
 
 Everything is organized into **topic directories**. Special file conventions:
 
-| Pattern | Behavior |
-|---|---|
-| `topic/*.zsh` | Automatically sourced into your shell |
-| `topic/path.zsh` | Loaded first; sets up `$PATH` |
-| `topic/completion.zsh` | Loaded last; sets up autocomplete |
-| `topic/install.sh` | Runs during `script/install` |
-| `topic/*.symlink` | Symlinked into `$HOME` (without `.symlink` extension) |
-| `bin/*` | Added to `$PATH` globally |
+| Pattern                | Behavior                                              |
+| ---------------------- | ----------------------------------------------------- |
+| `topic/*.zsh`          | Automatically sourced into your shell                 |
+| `topic/path.zsh`       | Loaded first; sets up `$PATH`                         |
+| `topic/completion.zsh` | Loaded last; sets up autocomplete                     |
+| `topic/install.sh`     | Runs during `script/install`                          |
+| `topic/*.symlink`      | Symlinked into `$HOME` (without `.symlink` extension) |
+| `bin/*`                | Added to `$PATH` globally                             |
 
 ## Structure
 
 ### Shell
+
 - **zsh/** - Primary shell. Powerlevel10k, zsh-defer, completions, aliases
 - **bash/** - Bash profile and rc (symlinked)
 - **system/** - System-wide aliases, env vars, keyboard config, macOS Automator workflows
@@ -29,6 +30,7 @@ Everything is organized into **topic directories**. Special file conventions:
 - **bin/** - Utility scripts added to `$PATH` (git helpers, `e`, `dns-flush`, `set-defaults`, etc.)
 
 ### Languages & Runtimes
+
 - **node/** - Node.js aliases and install
 - **python/** - PATH config
 - **ruby/** - gemrc, irbrc
@@ -37,6 +39,7 @@ Everything is organized into **topic directories**. Special file conventions:
 - **rust/** - Cargo bin PATH config
 
 ### Tools
+
 - **git/** - Aliases, gitconfig, global gitignore, commit template
 - **docker/** - Aliases
 - **k8s/** - Kubernetes aliases, install, PATH
@@ -46,12 +49,14 @@ Everything is organized into **topic directories**. Special file conventions:
 - **homebrew/** - Install script
 
 ### Editors & IDEs
+
 - **vim/** - vimrc (symlinked)
 - **vscode/** - PATH config
 - **jetbrains/** - Launcher scripts for IntelliJ, DataGrip, WebStorm
 - **xcode/** - Aliases
 
 ### Applications
+
 - **brave/** - Install, default browser config, and extension checklist
 - **claude/** - Claude CLI aliases and PATH
 - **commercetools/** - API/CLI aliases
@@ -62,6 +67,7 @@ Everything is organized into **topic directories**. Special file conventions:
 - **renovate/** - Local config
 
 ### System
+
 - **macos/** - macOS defaults and install
 - **script/** - Bootstrap and install entry points
 

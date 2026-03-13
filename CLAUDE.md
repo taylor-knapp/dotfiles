@@ -33,6 +33,7 @@ eval "$(fnm env --shell zsh)" && time fnm use --silent-if-unchanged
 ```
 
 **Key gotchas:**
+
 - `time` can't measure functions that `cd` in the current shell — wrap in `( subshell )`
 - Aliases (e.g. `cl`) don't expand inside functions — use the real command name
 - `node -v` through fnm shims is ~1.2s; use `fnm current` (~11ms) to check versions

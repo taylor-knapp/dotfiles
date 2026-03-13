@@ -4,12 +4,12 @@ A set of zsh functions for managing git worktrees with optional iTerm2 pane layo
 
 ## Components
 
-| File | Type | Description |
-|---|---|---|
-| `gw` | zsh function | Main entry point — create, navigate, and launch tools in worktrees |
-| `gw-link` | zsh function | Symlinks shared files from the main worktree into child worktrees |
-| `_gw` | zsh completion | Tab completion for worktree names, branches, and tool arguments |
-| `gw-layout` | python script (`bin/`) | iTerm2 pane layout manager using the iterm2 Python API |
+| File        | Type                   | Description                                                        |
+| ----------- | ---------------------- | ------------------------------------------------------------------ |
+| `gw`        | zsh function           | Main entry point — create, navigate, and launch tools in worktrees |
+| `gw-link`   | zsh function           | Symlinks shared files from the main worktree into child worktrees  |
+| `_gw`       | zsh completion         | Tab completion for worktree names, branches, and tool arguments    |
+| `gw-layout` | python script (`bin/`) | iTerm2 pane layout manager using the iterm2 Python API             |
 
 ## Usage
 
@@ -59,12 +59,12 @@ If `.gwlinks` doesn't exist, it falls back to: `.vscode/`, `.local/`, `local/`, 
 
 When multiple tools are specified, `gw-layout` arranges iTerm2 panes:
 
-| Tools | Layout |
-|---|---|
-| 1 tool | full screen |
-| `cl` + `nvim` | V-split (cl 20% left, nvim 80% right) |
-| `cl` + `cli` | H-split (cl 90% top, cli 10% bottom) |
-| `nvim` + `cli` | H-split (nvim 90% top, cli 10% bottom) |
+| Tools                 | Layout                                                        |
+| --------------------- | ------------------------------------------------------------- |
+| 1 tool                | full screen                                                   |
+| `cl` + `nvim`         | V-split (cl 20% left, nvim 80% right)                         |
+| `cl` + `cli`          | H-split (cl 90% top, cli 10% bottom)                          |
+| `nvim` + `cli`        | H-split (nvim 90% top, cli 10% bottom)                        |
 | `cl` + `nvim` + `cli` | V-split + H-split (cl left, nvim top-right, cli bottom-right) |
 
 Requires iTerm2 with Python API enabled. The venv at `~/.local/venvs/gw-layout` is auto-created on first run.

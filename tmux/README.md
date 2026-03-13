@@ -17,44 +17,44 @@ Prefix: `Ctrl+a`
 
 ### Core
 
-| Key | Action |
-|---|---|
-| `prefix + \|` | Split horizontal |
-| `prefix + -` | Split vertical |
-| `prefix + h/j/k/l` | Navigate panes |
-| `prefix + r` | Reload config |
-| `prefix + I` | Install plugins (TPM) |
-| `prefix + U` | Update plugins (TPM) |
+| Key                | Action                |
+| ------------------ | --------------------- |
+| `prefix + \|`      | Split horizontal      |
+| `prefix + -`       | Split vertical        |
+| `prefix + h/j/k/l` | Navigate panes        |
+| `prefix + r`       | Reload config         |
+| `prefix + I`       | Install plugins (TPM) |
+| `prefix + U`       | Update plugins (TPM)  |
 
 ### Easy-Motion
 
-| Key | Action |
-|---|---|
+| Key              | Action                                                                         |
+| ---------------- | ------------------------------------------------------------------------------ |
 | `prefix + Space` | 2-char bidirectional search — type 2 chars, labels appear, press label to jump |
 
 ### Thumbs
 
-| Key | Action |
-|---|---|
+| Key          | Action                                                       |
+| ------------ | ------------------------------------------------------------ |
 | `prefix + F` | Highlight URLs/paths/SHAs — press label to copy to clipboard |
 
 ### Copy Mode
 
-| Key | Action |
-|---|---|
-| `prefix + [` | Enter copy mode |
-| `v` | Begin selection (vi mode) |
-| `y` | Yank to system clipboard |
+| Key          | Action                    |
+| ------------ | ------------------------- |
+| `prefix + [` | Enter copy mode           |
+| `v`          | Begin selection (vi mode) |
+| `y`          | Yank to system clipboard  |
 
 ## Shell Aliases
 
-| Alias | Command |
-|---|---|
-| `t` | `tmux new-session -A -s main` (attach or create) |
-| `ta` | `tmux attach -t` |
-| `tls` | `tmux list-sessions` |
-| `tks` | `tmux kill-session -t` |
-| `tka` | `tmux kill-server` |
+| Alias | Command                                          |
+| ----- | ------------------------------------------------ |
+| `t`   | `tmux new-session -A -s main` (attach or create) |
+| `ta`  | `tmux attach -t`                                 |
+| `tls` | `tmux list-sessions`                             |
+| `tks` | `tmux kill-session -t`                           |
+| `tka` | `tmux kill-server`                               |
 
 ## Common Workflows
 

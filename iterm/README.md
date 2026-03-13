@@ -21,9 +21,9 @@ cli: Downloads             # non-git directory
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `tab.zsh` | Sourced into zsh — sets tab title via `precmd`/`preexec` hooks, sets tab color on `cd` |
+| File         | Purpose                                                                                  |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| `tab.zsh`    | Sourced into zsh — sets tab title via `precmd`/`preexec` hooks, sets tab color on `cd`   |
 | `install.sh` | One-time setup — configures iTerm preferences (title components, smart truncation, etc.) |
 
 ## Setup
@@ -38,6 +38,7 @@ bash install.sh
 ```
 
 This does:
+
 - Downloads iTerm shell integration for zsh
 - Sets tab title to show **session name only** (removes the `(-zsh)` job suffix)
 - Disables **smart truncation** (always truncates from the right, preserving the beginning of the title)
