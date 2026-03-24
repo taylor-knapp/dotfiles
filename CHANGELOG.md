@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-03-17
+
+- Added `bin/iterm-open-nvim` — Cmd+click file paths in iTerm2 open in nvim via a new tmux session
+- Configured iTerm2 Semantic History in plist to run `iterm-open-nvim` on file clicks
+- Restored agent-safehouse install/upgrade logic in `claude/install.sh`
+
 ## 2026-03-13
 
 - Added `glogs` alias — same as `glog` but includes GPG signature status (`G`/`N`/etc.) after the commit hash. Kept separate from `glog` because `%G?` triggers per-commit GPG verification which is slow.
