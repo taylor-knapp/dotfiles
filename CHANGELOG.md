@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-03-24
+
+- `gw main` now navigates to the main worktree root (alias for `gw root`) instead of trying to create a worktree called "main"
+
 ## 2026-03-17
 
 - Added `bin/iterm-open-nvim` — Cmd+click file paths in iTerm2 open in nvim via a new tmux session

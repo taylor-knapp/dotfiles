@@ -18,7 +18,7 @@ _gw() {
 
   case "$state" in
     worktree)
-      local -a special=('root:main worktree root')
+      local -a special=('root:main worktree root' 'main:main worktree root (alias for root)')
       local wt_base="${main_root}-worktrees"
       if [[ -n "$main_root" && -d "$wt_base" ]]; then
         _alternative \

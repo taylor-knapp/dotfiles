@@ -9,6 +9,7 @@
 #   gw <name> cl nvim            # open with claude + nvim panes
 #   gw <name> <branch> cli       # checkout branch, open with cli pane
 #   gw root                      # cd to main worktree root
+#   gw main                      # cd to main worktree root (alias for root)
 #   gw root cl nvim              # cd to root + open with tools
 #
 # Tools: cl (or claude), nvim, cli — positional, any order
@@ -45,8 +46,8 @@ if [[ -z "$name" ]]; then
   return 0
 fi
 
-# --- Special case: gw root ---
-if [[ "$name" == "root" ]]; then
+# --- Special case: gw root / gw main ---
+if [[ "$name" == "root" || "$name" == "main" ]]; then
   if [[ -n "$branch" ]]; then
     echo "gw: 'root' does not accept a branch argument" >&2
     return 1
