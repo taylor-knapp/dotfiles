@@ -1,1 +1,1 @@
-alias cl=claude
+alias cl=~/code/claudie/sandbox/claude-sandboxed
