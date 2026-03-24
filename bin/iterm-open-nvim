@@ -1,0 +1,2 @@
+#!/usr/bin/env zsh
+tmux new-session "nvim +${2:-1} '${1}'"

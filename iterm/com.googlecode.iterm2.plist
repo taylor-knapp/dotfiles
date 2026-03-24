@@ -535,6 +535,13 @@
 			<false/>
 			<key>Send Terminal Generated Alerts</key>
 			<true/>
+			<key>Semantic History</key>
+			<dict>
+				<key>Action</key>
+				<string>kSemanticHistoryRawCommandAction</string>
+				<key>Text</key>
+				<string>/Users/taylorknapp/.dotfiles/bin/iterm-open-nvim \1 \2</string>
+			</dict>
 			<key>Shortcut</key>
 			<string></string>
 			<key>Show Mark Indicators</key>
