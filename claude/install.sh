@@ -13,4 +13,6 @@ if test "$(uname)" = "Darwin"; then
   else
     echo "safehouse is installed but not via Homebrew — skipping update" >&2
   fi
+  # https://github.com/JuliusBrussee/caveman
+  curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash
 fi

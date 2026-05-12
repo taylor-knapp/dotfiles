@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-12
+
+- `claude/install.sh` — added caveman install (https://github.com/JuliusBrussee/caveman)
+
+## 2026-04-03
+
+- Added `cj` alias for `claude-jailed` in `claude/alias.zsh`
+
 ## 2026-03-24
 
 - `gw main` now navigates to the main worktree root (alias for `gw root`) instead of trying to create a worktree called "main"

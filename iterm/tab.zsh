@@ -118,7 +118,7 @@ _iterm_tab_precmd() {
 _iterm_tab_preexec() {
   local cmd="${1%% *}"
   case "$cmd" in
-    claude|cl) _iterm_tab_set_title "claude" ;;
+    claude|cl|cj) _iterm_tab_set_title "claude" ;;
     nvim|vim)  _iterm_tab_set_title "nvim" ;;
   esac
 }
