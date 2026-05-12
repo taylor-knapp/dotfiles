@@ -3,6 +3,7 @@
 ## 2026-05-12
 
 - `claude/install.sh` — added caveman install (https://github.com/JuliusBrussee/caveman)
+- Removed `jetbrains/datagrip` and `jetbrains/idea` launcher scripts; regenerated `jetbrains/storm` from Toolbox
 
 ## 2026-04-03
 
