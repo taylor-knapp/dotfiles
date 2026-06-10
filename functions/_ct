@@ -1,0 +1,4 @@
+#compdef ct
+_files -W $PROJECTS/ct -/
+
+# See further documentation in `functions/ct`.

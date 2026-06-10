@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-06-10
+
+- Added `ct` function (`functions/ct`) + completion (`functions/_ct`) — jumps to `$PROJECTS/ct/<tab>`, mirrors `c`
+
 ## 2026-05-12
 
 - `claude/install.sh` — added caveman install (https://github.com/JuliusBrussee/caveman)

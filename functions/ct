@@ -1,0 +1,11 @@
+#!/bin/zsh
+#
+# Quickly jump into a commercetools project directory.
+#
+# Type:
+#
+#   ct <tab>
+#
+# ...to autocomplete on projects under `$PROJECTS/ct`.
+
+cd "$PROJECTS/ct/$1"
