@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-06-11
+
+- `iterm/com.googlecode.iterm2.plist` — enabled `Blinking Cursor`
+
 ## 2026-06-10
 
 - Added `ct` function (`functions/ct`) + completion (`functions/_ct`) — jumps to `$PROJECTS/ct/<tab>`, mirrors `c`
