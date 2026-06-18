@@ -127,3 +127,7 @@ esac
 
 # Print profiling output if ZPROF was set (see top of file)
 [[ -n "$ZPROF" ]] && zprof
+
+# Bind the escape sequences iterm sends for option+arrow left/right to word jump in zsh.
+bindkey "\e[1;3D" backward-word
+bindkey "\e[1;3C" forward-word

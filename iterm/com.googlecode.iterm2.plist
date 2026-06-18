@@ -2,10 +2,34 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>AIFeatureFunctionCalling</key>
+	<true/>
+	<key>AIFeatureHostedCodeInterpeter</key>
+	<true/>
+	<key>AIFeatureHostedFileSearch</key>
+	<true/>
+	<key>AIFeatureHostedWebSearch</key>
+	<true/>
+	<key>AIFeatureStreamingResponses</key>
+	<true/>
+	<key>AITermAPI</key>
+	<integer>2</integer>
+	<key>AIVectorStore</key>
+	<integer>0</integer>
 	<key>AddNewTabAtEndOfTabs</key>
 	<false/>
+	<key>AiMaxTokens</key>
+	<integer>1050000</integer>
+	<key>AiModel</key>
+	<string>gpt-5.5</string>
+	<key>AiResponseMaxTokens</key>
+	<integer>128000</integer>
+	<key>AitermURL</key>
+	<string>https://api.openai.com/v1/responses</string>
 	<key>AlternateMouseScroll</key>
 	<true/>
+	<key>Default Bookmark Guid</key>
+	<string>33673CE8-D77A-4C81-9BA7-24CEA36A0CA6</string>
 	<key>EnableAPIServer</key>
 	<true/>
 	<key>GlobalKeyMap</key>
@@ -136,6 +160,8 @@
 	<true/>
 	<key>HideMenuBarInFullscreen</key>
 	<false/>
+	<key>HotkeyMigratedFromSingleToMulti</key>
+	<true/>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -368,6 +394,8 @@
 				<key>Red Component</key>
 				<real>0.73333334922790527</real>
 			</dict>
+			<key>Guid</key>
+			<string>33673CE8-D77A-4C81-9BA7-24CEA36A0CA6</string>
 			<key>Horizontal Spacing</key>
 			<real>1</real>
 			<key>Idle Code</key>
@@ -401,16 +429,18 @@
 					<key>Text</key>
 					<string>0x01</string>
 				</dict>
-				<key>0xf702-0x280000-0x0</key>
+				<key>0xf702-0x280000-0x7b</key>
 				<dict>
 					<key>Action</key>
 					<integer>10</integer>
-					<key>Label</key>
-					<string></string>
-					<key>Text</key>
-					<string>b</string>
-					<key>Version</key>
+					<key>Apply Mode</key>
 					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>1</integer>
+					<key>Text</key>
+					<string>[1;3D</string>
+					<key>Version</key>
+					<integer>2</integer>
 				</dict>
 				<key>0xf702-0x300000-0x7b</key>
 				<dict>
@@ -430,16 +460,18 @@
 					<key>Text</key>
 					<string>0x05</string>
 				</dict>
-				<key>0xf703-0x280000-0x0</key>
+				<key>0xf703-0x280000-0x7c</key>
 				<dict>
 					<key>Action</key>
 					<integer>10</integer>
-					<key>Label</key>
-					<string></string>
-					<key>Text</key>
-					<string>f</string>
-					<key>Version</key>
+					<key>Apply Mode</key>
 					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>1</integer>
+					<key>Text</key>
+					<string>[1;3C</string>
+					<key>Version</key>
+					<integer>2</integer>
 				</dict>
 				<key>0xf703-0x300000-0x7c</key>
 				<dict>
@@ -525,6 +557,13 @@
 				<key>Red Component</key>
 				<real>0.70980000495910645</real>
 			</dict>
+			<key>Semantic History</key>
+			<dict>
+				<key>Action</key>
+				<string>kSemanticHistoryRawCommandAction</string>
+				<key>Text</key>
+				<string>/Users/taylorknapp/.dotfiles/bin/iterm-open-nvim \1 \2</string>
+			</dict>
 			<key>Send Code When Idle</key>
 			<false/>
 			<key>Send Idle Alert</key>
@@ -535,13 +574,6 @@
 			<false/>
 			<key>Send Terminal Generated Alerts</key>
 			<true/>
-			<key>Semantic History</key>
-			<dict>
-				<key>Action</key>
-				<string>kSemanticHistoryRawCommandAction</string>
-				<key>Text</key>
-				<string>/Users/taylorknapp/.dotfiles/bin/iterm-open-nvim \1 \2</string>
-			</dict>
 			<key>Shortcut</key>
 			<string></string>
 			<key>Show Mark Indicators</key>

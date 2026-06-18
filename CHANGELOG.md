@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-18
+
+- `iterm/com.googlecode.iterm2.plist` — changed Option+Left/Right to send escape sequences `[1;3D`/`[1;3C` for Neovim instead of word-jump
+- `zsh/zshrc.symlink` - added key binding to translate the escape sequences to word-jumps
+
 ## 2026-06-11
 
 - `iterm/com.googlecode.iterm2.plist` — enabled `Blinking Cursor`
