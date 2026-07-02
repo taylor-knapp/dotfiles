@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-07-02
+
+- `node/aliases.zsh` — silenced the startup `_fnm_autoswitch` call (`>/dev/null 2>&1`). It runs before the first prompt in repos with `.nvmrc`, and fnm's "Using Node vX" output tripped Powerlevel10k's instant-prompt warning. The `chpwd` hook still prints on interactive `cd`.
+
+## 2026-06-23
+
+- `iterm/com.googlecode.iterm2.plist` — changed default Background Color from pure black to `#282c34` (R 0.157, G 0.173, B 0.204) to match Ghostty's lighter gray default.
+- Added `ghostty/` topic — Ghostty terminal config ported from `iterm/`. `config` (symlinked to `~/.config/ghostty/config`), `tab.zsh` (title hooks, gated on `$TERM_PROGRAM == ghostty`), `install.sh`, `README.md`. Per-tab color and shell-integration download did not port (Ghostty has no per-tab color escape; auto-injects integration).
+- `ghostty/config` — set `shell-integration-features = no-title` so `tab.zsh` titles aren't clobbered by Ghostty's built-in title feature; bumped `background-opacity` 0.97 → 0.98.
+- `ghostty/CLAUDE.md` — how to search Ghostty docs (`ghostty +show-config --default --docs | grep`, CLI actions, offline bundle docs). ghostty.org 403s automated fetchers.
+- `ghostty/dump-docs.sh` + `ghostty/.gitignore` — script generates a gitignored `ghostty/ghostty-docs.txt` offline dump (config ref + actions + keybinds + themes + bundled markdown); finds `ghostty` on PATH or the app bundle. Wired into `install.sh` (best-effort). `CLAUDE.md` instructs reading it first and flagging the user when the dump is >30 days old.
+- `ghostty/install.sh` — installs an idempotent daily cron (09:00) running `dump-docs.sh`, so the docs dump auto-refreshes on Ghostty upgrades. README/CLAUDE.md updated.
+- `ghostty/tab.zsh` — dropped the OSC 11 per-project background tint. Ghostty tab color (1.3.0) is macOS UI-only (no escape/keybind/config), and OSC 11 is a single solid color with no gradient/top-fade option, so there's no good per-directory tab-color analog. Title hooks unchanged.
+
 ## 2026-06-18
 
 - `iterm/com.googlecode.iterm2.plist` — changed Option+Left/Right to send escape sequences `[1;3D`/`[1;3C` for Neovim instead of word-jump

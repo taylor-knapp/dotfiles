@@ -1,0 +1,58 @@
+# Ghostty config — ported from iterm/com.googlecode.iterm2.plist
+# Symlinked to ~/.config/ghostty/config by install.sh.
+# Reference: https://ghostty.org/docs/config
+
+# --- Font ---
+# iTerm used "JetBrainsMonoNFM-Regular 12" (JetBrains Mono Nerd Font Mono).
+# Verify the exact family name with: ghostty +list-fonts | grep -i jetbrains
+font-family = JetBrainsMono Nerd Font Mono
+font-size = 12
+
+# --- Colors (classic iTerm/xterm default palette) ---
+# Background intentionally NOT set — keep Ghostty's lighter gray default
+# instead of iTerm's pure black.
+foreground = #bbbbbb
+
+cursor-color = #bbbbbb
+cursor-text = #ffffff
+cursor-style-blink = true
+
+selection-background = #b5d5ff
+selection-foreground = #000000
+
+# Bright bold (iTerm "Bold Color" #ffffff / "Use Bright Bold")
+bold-is-bright = true
+
+# 16-color ANSI palette
+palette = 0=#000000
+palette = 1=#bb0000
+palette = 2=#00bb00
+palette = 3=#bbbb00
+palette = 4=#0000bb
+palette = 5=#bb00bb
+palette = 6=#00bbbb
+palette = 7=#bbbbbb
+palette = 8=#555555
+palette = 9=#ff5555
+palette = 10=#55ff55
+palette = 11=#ffff55
+palette = 12=#5555ff
+palette = 13=#ff55ff
+palette = 14=#55ffff
+palette = 15=#ffffff
+
+# Let tab.zsh own the title. Ghostty's shell-integration "title" feature
+# auto-sets the title to the running command/cwd and clobbers our OSC 0
+# escape, so disable just that feature (keep cursor/sudo/cwd).
+shell-integration-features = no-title
+
+# --- Window ---
+# iTerm Transparency 0.0275 → opacity ~0.97, plus background blur.
+background-opacity = 0.98
+background-blur = true
+
+# Reuse current working directory for new splits/tabs (iTerm "reuse cwd").
+window-inherit-working-directory = true
+
+# New tabs open next to the current tab (iTerm "open next to current").
+window-new-tab-position = current

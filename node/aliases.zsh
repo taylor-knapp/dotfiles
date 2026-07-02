@@ -10,7 +10,9 @@ if command -v fnm >/dev/null 2>&1; then
     fnm use --silent-if-unchanged
   }
   add-zsh-hook chpwd _fnm_autoswitch
-  _fnm_autoswitch
+  # Startup call silenced: it runs before the first prompt, so any
+  # "Using Node vX" output trips Powerlevel10k's instant-prompt warning.
+  _fnm_autoswitch >/dev/null 2>&1
 fi
 
 alias pn='pnpm'

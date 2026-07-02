@@ -62,6 +62,7 @@ Everything is organized into **topic directories**. Special file conventions:
 - **commercetools/** - API/CLI aliases
 - **obsidian/** - Aliases
 - **iterm/** - Shell integration, auto tab title (`repo (worktree:branch tool)`) and deterministic tab color per directory
+- **ghostty/** - Ghostty terminal config (ported from iterm); auto tab title, classic palette, JetBrains Mono Nerd Font
 - **rancher/** - Rancher Desktop install and PATH
 - **magnet/** - Window layout overrides and install
 - **renovate/** - Local config

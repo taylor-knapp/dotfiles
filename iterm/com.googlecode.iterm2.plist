@@ -320,11 +320,11 @@
 			<key>Background Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<integer>0</integer>
+				<real>0.20392156862745098</real>
 				<key>Green Component</key>
-				<integer>0</integer>
+				<real>0.17254901960784313</real>
 				<key>Red Component</key>
-				<integer>0</integer>
+				<real>0.15686274509803921</real>
 			</dict>
 			<key>Background Image Location</key>
 			<string></string>
@@ -411,6 +411,19 @@
 			</array>
 			<key>Keyboard Map</key>
 			<dict>
+				<key>0x69-0x40000-0x22</key>
+				<dict>
+					<key>Action</key>
+					<integer>10</integer>
+					<key>Apply Mode</key>
+					<integer>1</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>[105;5u</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
 				<key>0x7f-0x100000-0x33</key>
 				<dict>
 					<key>Action</key>
@@ -591,7 +604,7 @@
 			<key>Title Components</key>
 			<integer>1</integer>
 			<key>Transparency</key>
-			<real>0.027522321428571375</real>
+			<real>0.01</real>
 			<key>Unlimited Scrollback</key>
 			<false/>
 			<key>Use Bold Font</key>
@@ -648,7 +661,7 @@
 		</dict>
 	</dict>
 	<key>ShowFullScreenTabBar</key>
-	<true/>
+	<false/>
 	<key>SoundForEsc</key>
 	<false/>
 	<key>SplitPaneDimmingAmount</key>
@@ -659,5 +672,7 @@
 	<false/>
 	<key>WordCharacters</key>
 	<string>/-+\~_.</string>
+	<key>findMode_iTerm</key>
+	<integer>0</integer>
 </dict>
 </plist>
