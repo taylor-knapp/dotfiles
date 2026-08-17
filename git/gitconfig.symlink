@@ -19,7 +19,7 @@
 	gpgsign = true
 [core]
 	excludesfile = /Users/taylorknapp/.gitignore_global
-    editor = vim
+    editor = nvim
 [apply]
         whitespace = nowarn
 [mergetool "sourcetree"]
