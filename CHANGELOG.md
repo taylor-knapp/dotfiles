@@ -2,6 +2,10 @@
 
 ## 2026-09-27
 
+- `python/path.zsh` — only adds pyenv shims to `$PATH` when `~/.pyenv/shims` exists; no more `command not found: pyenv` at startup (and no `$(pyenv root)` subshell).
+
+- `claude/install.sh` — brew-installs `ccusage` (Claude Code usage reports).
+- Added `go/install.sh` — brew-installs the Go toolchain. The `go/` topic only set `$PATH` before, so `go` itself was never installed.
 - `neovim/install.sh` — installs JetBrains Mono Nerd Font (icons render as `?` without a Nerd Font).
 - `neovim/install.sh` — runs `node/install.sh` when `npm` is missing; Mason needs npm for jsonls/eslint.
 - Removed `ghostty/` topic and its README/AGENTS.md references.
