@@ -18,6 +18,12 @@ else
   echo "  Install neovim manually: https://neovim.io"
 fi
 
+# Mason installs some LSPs (jsonls, eslint) via npm
+command -v npm >/dev/null 2>&1 || sh "$SCRIPT_DIR/../node/install.sh"
+
+# Icons (file tree, statusline) need a Nerd Font — set it as the iTerm font
+brew list --cask font-jetbrains-mono-nerd-font >/dev/null 2>&1 || brew install --cask font-jetbrains-mono-nerd-font
+
 # 2. Symlink config (back up any existing non-symlink config)
 mkdir -p "$HOME/.config"
 if [ -e "$CONFIG_DST" ] && [ ! -L "$CONFIG_DST" ]; then
