@@ -2,6 +2,7 @@
 
 ## 2026-09-27
 
+- Removed `ghostty/` topic and its README/AGENTS.md references.
 - Added `AGENTS.md` — repo goal, topic layout/conventions, and rules for coding agents.
 - Merged `CLAUDE.md` into `AGENTS.md` (change checklist + performance testing); `CLAUDE.md` now just imports `@AGENTS.md` and `@README.md`.
 - `git/gitconfig.symlink` — moved `[include] ~/.gitconfig.local` to the end so machine-local settings (e.g. `commit.gpgsign = false`) override shared ones.

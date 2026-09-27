@@ -17,18 +17,18 @@ Everything lives in **topic directories** (`git/`, `zsh/`, `neovim/`, `tmux/`, �
 | `topic/*.symlink`      | Symlinked into `$HOME` without the extension          |
 | `bin/*`                | On `$PATH`                                            |
 
-Configs under `~/.config/<app>` (e.g. `ghostty/`, `neovim/`) are symlinked by that topic's `install.sh`.
+Configs under `~/.config/<app>` (e.g. `neovim/`) are symlinked by that topic's `install.sh`.
 
 Entry points: `script/bootstrap` (symlinks + installers), `script/install` (runs every `install.sh`).
 
-Key topics: `zsh/` (p10k, zsh-defer; Oh My Zsh is NOT sourced), `git/`, `neovim/` (full nvim config in `neovim/config`), `tmux/`, `ghostty/`, `iterm/`, `node/` (fnm), `macos/`, `homebrew/`.
+Key topics: `zsh/` (p10k, zsh-defer; Oh My Zsh is NOT sourced), `git/`, `neovim/` (full nvim config in `neovim/config`), `tmux/`, `iterm/`, `node/` (fnm), `macos/`, `homebrew/`.
 
 ## After Every Change
 
 1. **CHANGELOG.md** — Always add an entry under today's date. Create a new date heading if one doesn't exist. Keep entries concise.
 2. **README.md** — Update if the change affects the project structure, conventions, or anything documented there (new topics, changed file conventions, removed features, etc.). Skip if the change is purely internal.
 
-Some topics have their own `CLAUDE.md`/`README.md` (e.g. `ghostty/`, `neovim/config/`); read them before editing there. See `README.md` for the full topic list and notes.
+Some topics have their own `CLAUDE.md`/`README.md` (e.g. `neovim/config/`); read them before editing there. See `README.md` for the full topic list and notes.
 
 ## Performance Testing
 
