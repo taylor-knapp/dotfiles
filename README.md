@@ -51,6 +51,7 @@ Everything is organized into **topic directories**. Special file conventions:
 ### Editors & IDEs
 
 - **vim/** - vimrc (symlinked)
+- **neovim/** - Neovim install (`brew install neovim` + ripgrep, tree-sitter-cli) and full config in `neovim/config`, symlinked to `~/.config/nvim`
 - **vscode/** - PATH config
 - **jetbrains/** - Launcher scripts for IntelliJ, DataGrip, WebStorm
 - **xcode/** - Aliases

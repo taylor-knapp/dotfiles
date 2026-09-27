@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-27
+
+- Added `AGENTS.md` — repo goal, topic layout/conventions, and rules for coding agents.
+- Merged `CLAUDE.md` into `AGENTS.md` (change checklist + performance testing); `CLAUDE.md` now just imports `@AGENTS.md` and `@README.md`.
+- `git/gitconfig.symlink` — moved `[include] ~/.gitconfig.local` to the end so machine-local settings (e.g. `commit.gpgsign = false`) override shared ones.
+- Added `neovim/` topic — `install.sh` brew-installs neovim, ripgrep, tree-sitter-cli and symlinks `neovim/config` → `~/.config/nvim` (backs up an existing non-symlink dir). Config moved in from `~/.config/nvim` (formerly the `nvim-config` repo).
+
 ## 2026-07-02
 
 - `node/aliases.zsh` — silenced the startup `_fnm_autoswitch` call (`>/dev/null 2>&1`). It runs before the first prompt in repos with `.nvmrc`, and fnm's "Using Node vX" output tripped Powerlevel10k's instant-prompt warning. The `chpwd` hook still prints on interactive `cd`.

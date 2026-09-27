@@ -1,0 +1,10 @@
+# Claude Code workspace settings (local to this machine)
+.claude/
+
+# macOS
+.DS_Store
+
+# Vim temp files
+*.swp
+*.swo
+*~
