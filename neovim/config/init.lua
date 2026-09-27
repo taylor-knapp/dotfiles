@@ -8,6 +8,8 @@ vim.keymap.set("n", "<leader>rs", function()
   vim.cmd('luafile ~/.config/nvim/init.lua')
 end, { desc = "Reload config (clear maps)" })
 
+
+
 -- Load plugins via vim.pack (Neovim 0.11+ built-in manager)
 require('plugins')
 
