@@ -8,5 +8,5 @@ fi
 # command line interface to it that we can use to just install everything, but
 # often errors out so we use this as an opportunity to remind ourselves to install them!
 
-echo "› softwareupdate -l"
-softwareupdate -l
+echo "› Run manually if wanted: softwareupdate -l"
+# softwareupdate -l
