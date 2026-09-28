@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# Start Lute and open it in the browser.
+# Data lives in iCloud Drive so it syncs between machines. Override with LUTE_DATA.
+# Run Lute on one machine at a time: SQLite does not handle concurrent writers.
+
+set -e
+DIR="$(dirname "$(realpath "$0")")"
+PORT="${LUTE_PORT:-5001}"
+DATA="${LUTE_DATA:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/lute}"
+URL="http://localhost:$PORT"
+
+[ -x "$DIR/.venv/bin/python" ] || "$DIR/install.sh"
+
+if curl -s -o /dev/null "$URL"; then
+  open "$URL"
+  exit 0
+fi
+
+mkdir -p "$DATA/backups"
+cat > "$DIR/.venv/config.yml" <<YML
+ENV: prod
+DBNAME: lute.db
+DATAPATH: $DATA
+BACKUP_PATH: $DATA/backups
+YML
+
+(sleep 3 && open "$URL") &
+exec "$DIR/.venv/bin/python" -m lute.main --port "$PORT" --config "$DIR/.venv/config.yml"

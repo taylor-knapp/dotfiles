@@ -8,3 +8,5 @@ git/gitconfig.local.symlink
 
 # hide any file named local - they contain sensitive information!
 local.*
+# lute venv
+/lute/.venv
