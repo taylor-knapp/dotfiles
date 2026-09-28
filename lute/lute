@@ -17,6 +17,21 @@ if curl -s -o /dev/null "$URL"; then
   exit 0
 fi
 
+# Offline dictionaries for Lute, one server per file (see dictserver.py).
+# In Lute: URI http://localhost:<port>/[LUTE], type Embedded.
+# Servers started here are stopped when Lute exits.
+DICTS="$HOME/Documents/Dictionaries"
+PIDS=""
+trap 'kill $PIDS 2>/dev/null' EXIT
+trap 'exit 130' INT TERM HUP
+for d in "dict-fr-en.df 8765" "dict-fr-fr.df 8766"; do
+  set -- $d
+  if ! curl -s -o /dev/null "http://localhost:$2/"; then
+    "$DIR/.venv/bin/python" "$DIR/dictserver.py" "$DICTS/$1" "$2" &
+    PIDS="$PIDS $!"
+  fi
+done
+
 mkdir -p "$DATA/backups"
 cat > "$DIR/.venv/config.yml" <<YML
 ENV: prod
@@ -26,4 +41,4 @@ BACKUP_PATH: $DATA/backups
 YML
 
 (sleep 3 && open "$URL") &
-exec "$DIR/.venv/bin/python" -m lute.main --port "$PORT" --config "$DIR/.venv/config.yml"
+"$DIR/.venv/bin/python" -m lute.main --port "$PORT" --config "$DIR/.venv/config.yml"

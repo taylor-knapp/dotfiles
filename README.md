@@ -62,6 +62,7 @@ Everything is organized into **topic directories**. Special file conventions:
 - **claude/** - Claude CLI aliases and PATH
 - **commercetools/** - API/CLI aliases
 - **obsidian/** - Aliases
+- **lute/** - Lute v3 language reader (venv install, `lute` launcher) plus offline reader-dict `.df` dictionary servers (fr-en `:8765`, fr-fr `:8766`)
 - **iterm/** - Shell integration, auto tab title (`repo (worktree:branch tool)`) and deterministic tab color per directory
 - **rancher/** - Rancher Desktop install and PATH
 - **magnet/** - Window layout overrides and install
