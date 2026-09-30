@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-30
+
+- Added `lute/dicts.sh` — downloads the reader-dict fr-en and fr-fr (no-etymology) `.df` dictionaries into `~/Documents/Dictionaries` when missing. `lute` runs it on every start.
+
 ## 2026-09-28
 
 - Added `lute/dictserver.py` — serves a reader-dict `.df` file over HTTP for Lute. `lute` starts one per dictionary in the background: `dict-fr-en.df` on `localhost:8765`, `dict-fr-fr.df` on `localhost:8766` (from `~/Documents/Dictionaries`). Warns with setup steps if a file is missing. Servers started by `lute` are stopped when Lute exits.

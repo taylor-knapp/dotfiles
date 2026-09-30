@@ -21,6 +21,7 @@ fi
 # In Lute: URI http://localhost:<port>/[LUTE], type Embedded.
 # Servers started here are stopped when Lute exits.
 DICTS="$HOME/Documents/Dictionaries"
+"$DIR/dicts.sh" "$DICTS" || echo "Dictionary download failed; continuing without it." >&2
 PIDS=""
 trap 'kill $PIDS 2>/dev/null' EXIT
 trap 'exit 130' INT TERM HUP
