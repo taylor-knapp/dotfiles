@@ -3,6 +3,7 @@
 ## 2026-09-30
 
 - Added `lute/dicts.sh` — downloads the reader-dict fr-en and fr-fr (no-etymology) `.df` dictionaries into `~/Documents/Dictionaries` when missing. `lute` runs it on every start.
+- `lute` — fr-en dictionary server moved `8765` → `8767`; `oktapus` already listens on 8765, and the "already running?" curl check mistook it for the dict server, so fr-en never started. Dropped that check: a busy port now fails loudly instead.
 
 ## 2026-09-28
 

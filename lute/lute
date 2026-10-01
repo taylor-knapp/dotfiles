@@ -25,12 +25,11 @@ DICTS="$HOME/Documents/Dictionaries"
 PIDS=""
 trap 'kill $PIDS 2>/dev/null' EXIT
 trap 'exit 130' INT TERM HUP
-for d in "dict-fr-en.df 8765" "dict-fr-fr.df 8766"; do
+# Not 8765: oktapus listens there. A busy port fails loudly ("Address already in use").
+for d in "dict-fr-en.df 8767" "dict-fr-fr.df 8766"; do
   set -- $d
-  if ! curl -s -o /dev/null "http://localhost:$2/"; then
-    "$DIR/.venv/bin/python" "$DIR/dictserver.py" "$DICTS/$1" "$2" &
-    PIDS="$PIDS $!"
-  fi
+  "$DIR/.venv/bin/python" "$DIR/dictserver.py" "$DICTS/$1" "$2" &
+  PIDS="$PIDS $!"
 done
 
 mkdir -p "$DATA/backups"
