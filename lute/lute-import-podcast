@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+"""
+Import podcast transcripts (and episode audio) into a running Lute as books,
+oldest episode first.
+
+Usage: lute-import-podcast FEED_URL [TAG] [TRANSCRIPTS_JSON]
+  e.g. lute-import-podcast https://feeds.buzzsprout.com/2374277.rss escargot
+
+TRANSCRIPTS_JSON: for feeds without <podcast:transcript>, a file mapping
+each episode's <link> to its transcript (text or HTML). The link becomes
+the book's source URI.
+
+Reads <podcast:transcript> HTML links from the RSS feed and posts each one
+to Lute's "new book" form, with the <enclosure> audio attached. Episodes
+already in Lute (episode id found in a book's source URI) are skipped; if
+one is unarchived and has no audio, its audio is added. Re-running only
+adds what's missing. Audio already in Lute's useraudio dir whose size
+matches the feed's <enclosure length> is reused instead of downloaded. Archived books are left alone (see lute-prune-audio).
+Env: LUTE_PORT (5001), LUTE_DATA (iCloud lute dir), LUTE_LANGUAGE (French).
+"""
+
+import html
+import json
+import os
+import re
+import sqlite3
+import subprocess
+import sys
+import tempfile
+import urllib.parse
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+PODCAST_NS = "{https://podcastindex.org/namespace/1.0}"
+LUTE = f"http://localhost:{os.environ.get('LUTE_PORT', '5001')}"
+DATA = os.environ.get(
+    "LUTE_DATA", str(Path.home() / "Library/Mobile Documents/com~apple~CloudDocs/lute")
+)
+LANGUAGE = os.environ.get("LUTE_LANGUAGE", "French")
+
+
+def curl(*args):
+    # curl, not urllib: urllib hung for hours on a stalled CDN download (despite
+    # its timeout) and on posting a 150 MB episode to Lute; curl does both fine.
+    return subprocess.run(
+        ["curl", "-fsS", "--max-time", "600", "--speed-limit", "1000", "--speed-time", "60", *args],
+        capture_output=True, check=True,
+    ).stdout
+
+
+def fetch(url, *args):
+    # Retries only for GETs: a retried POST could create a book twice.
+    # Buzzsprout 403s curl's and Python's default User-Agents.
+    return curl("-L", "-A", "Mozilla/5.0", "--retry", "3", "--retry-all-errors", *args, url)
+
+
+def transcript_text(page):
+    "One line per <p>, tags stripped."
+    paras = (html.unescape(re.sub(r"<[^>]+>", "", p)).strip() for p in page.split("</p>"))
+    return "\n".join(p for p in paras if p)
+
+
+def post(path, fields, audio_url, local_audio=None):
+    "POST a Lute form with the episode audio as audiofile. True if Lute accepted it."
+    with tempfile.TemporaryDirectory() as d:
+        audio = local_audio
+        if not audio:
+            audio = Path(d, "audio" + os.path.splitext(urllib.parse.urlparse(audio_url).path)[1])
+            fetch(audio_url, "-o", str(audio))
+        Path(d, "text").write_text(str(fields.pop("text", "")), encoding="utf-8")
+        form = [a for k, v in fields.items() for a in ("--form-string", f"{k}={v}")]
+        if (Path(d) / "text").stat().st_size:
+            form += ["-F", f"text=<{d}/text"]
+        # Success redirects (to the book or the book list); failure re-renders the form.
+        return curl("-o", "/dev/null", "-w", "%{redirect_url}", *form,
+                    "-F", f"audiofile=@{audio}", LUTE + path) != b""
+
+
+def main(feed_url, tag=None, transcripts_json=None):
+    transcripts = json.load(open(transcripts_json)) if transcripts_json else None
+    # Read-only: Lute owns the DB, we only check what's already imported.
+    db = sqlite3.connect(Path(DATA, "lute.db").as_uri() + "?mode=ro", uri=True)
+    books = db.execute(
+        "select BkID, BkTitle, BkSourceURI, BkArchived, BkAudioFilename from books"
+        " where BkSourceURI is not null"
+    ).fetchall()
+    row = db.execute("select LgID from languages where LgName = ?", (LANGUAGE,)).fetchone()
+    if not row:
+        sys.exit(f"No Lute language named {LANGUAGE!r}")
+
+    # Audio Lute already has (e.g. orphaned when a synced DB was rolled back),
+    # keyed by size to match <enclosure length>. Lute stores its own copy, so
+    # the originals become unreferenced; lute-prune-audio removes them.
+    local = {f.stat().st_size: f for f in Path(DATA, "useraudio").iterdir() if f.is_file()}
+
+    items = ET.fromstring(fetch(feed_url)).iter("item")
+    for item in reversed(list(items)):
+        title = item.findtext("title").strip()
+        if transcripts is None:
+            t = item.find(f"{PODCAST_NS}transcript[@type='text/html']")
+            url = t is not None and t.get("url")
+            # Buzzsprout: .../<show>/<episode id>/transcript
+            key = url and "/" + url.rstrip("/").split("/")[-2]
+            text = None
+        else:
+            url = key = item.findtext("link")
+            text = transcripts.get(url)
+        if not url or (transcripts is not None and not text):
+            print(f"no transcript: {title}")
+            continue
+        enclosure = item.find("enclosure")
+        audio_url = enclosure.get("url")
+        local_audio = local.get(int(enclosure.get("length") or 0))
+        book = next((b for b in books if key in b[2]), None)
+
+        if book is None:
+            form = {
+                "language_id": row[0],
+                "title": title[:200],  # books.BkTitle is VARCHAR(200)
+                "text": transcript_text(text or fetch(url).decode()),
+                "split_by": "paragraphs",
+                "threshold_page_tokens": 250,
+                "source_uri": url,
+                "book_tags": json.dumps([{"value": tag}] if tag else []),
+            }
+            ok = post("/book/new", form, audio_url, local_audio)
+            print(f"{'added' if ok else 'FAILED'}: {title}")
+        elif not book[3] and not book[4]:
+            book_id, book_title, source_uri = book[:3]
+            tags = [t for (t,) in db.execute(
+                "select T2Text from booktags join tags2 on BtT2ID = T2ID where BtBkID = ?",
+                (book_id,),
+            )]
+            # The edit form replaces title, source and tags, so resend the current ones.
+            form = {
+                "title": book_title,
+                "source_uri": source_uri,
+                "book_tags": json.dumps([{"value": t} for t in tags]),
+            }
+            ok = post(f"/book/edit/{book_id}", form, audio_url, local_audio)
+            print(f"{'audio added' if ok else 'audio FAILED'}: {book_title}")
+
+
+if __name__ == "__main__":
+    if not 2 <= len(sys.argv) <= 4:
+        sys.exit(__doc__)
+    main(*sys.argv[1:])

@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""
+Free disk space used by Lute audio for books you're done with.
+
+Usage: lute-prune-audio [-n] [DIR...]   (-n: dry run, change nothing)
+
+1. Archived books with audio: unlinks the audio via Lute's edit form.
+2. Deletes files in <LUTE_DATA>/useraudio (and any DIRs given, for audio
+   moved out of Lute and linked by absolute path) that no book references.
+   Lute never deletes audio itself, so this catches deleted books too.
+Needs Lute running. Env: LUTE_PORT (5001), LUTE_DATA (iCloud lute dir).
+"""
+
+import json
+import os
+import re
+import sqlite3
+import sys
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+LUTE = f"http://localhost:{os.environ.get('LUTE_PORT', '5001')}"
+DATA = Path(
+    os.environ.get(
+        "LUTE_DATA", Path.home() / "Library/Mobile Documents/com~apple~CloudDocs/lute"
+    )
+)
+
+
+def main(dry_run, dirs):
+    # Read-only (and fails if the DB is missing, so a wrong path can't
+    # make every audio file look unreferenced).
+    db = sqlite3.connect((DATA / "lute.db").as_uri() + "?mode=ro", uri=True)
+
+    archived = db.execute(
+        "select BkID, BkTitle, BkSourceURI from books"
+        " where BkArchived = 1 and BkAudioFilename is not null and BkAudioFilename != ''"
+    ).fetchall()
+    for book_id, title, source_uri in archived:
+        print(f"unlink audio: {title}")
+        if dry_run:
+            continue
+        tags = [t for (t,) in db.execute(
+            "select T2Text from booktags join tags2 on BtT2ID = T2ID where BtBkID = ?",
+            (book_id,),
+        )]
+        # The edit form replaces title, source and tags, so resend the current ones.
+        form = {
+            "title": title,
+            "source_uri": source_uri or "",
+            "book_tags": json.dumps([{"value": t} for t in tags]),
+            "audio_filename": "",
+        }
+        data = urllib.parse.urlencode(form).encode()
+        with urllib.request.urlopen(f"{LUTE}/book/edit/{book_id}", data) as r:
+            # Success redirects to /; failure re-renders the edit form.
+            if "/book/" in r.url:
+                print(f"  FAILED, keeping its audio: {title}")
+
+    # In a dry run the archived books still reference their files; count them anyway.
+    keep = "BkArchived = 0" if dry_run else "1"
+    # Lute joins audio filenames onto useraudio; an absolute one stays absolute.
+    used = {DATA / "useraudio" / f for (f,) in db.execute(
+        f"select BkAudioFilename from books where {keep} and BkAudioFilename != ''")}
+    freed = 0
+    for f in (f for d in [DATA / "useraudio", *dirs] for f in Path(d).expanduser().iterdir()):
+        # Only Lute-named audio (YYYYMMDD_HHMMSS_<uuid>.ext); the dir also holds Lute's README.md.
+        if re.fullmatch(r"\d{8}_\d{6}_[0-9a-f]{32}\.\w+", f.name) and f not in used:
+            freed += f.stat().st_size
+            print(f"delete: {f}")
+            if not dry_run:
+                f.unlink()
+    print(f"{'would free' if dry_run else 'freed'} {freed / 1e6:.0f} MB")
+
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    dry_run = args[:1] == ["-n"]
+    dirs = args[1:] if dry_run else args
+    if any(a.startswith("-") for a in dirs):
+        sys.exit(__doc__)
+    main(dry_run, dirs)

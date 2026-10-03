@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-10-02
+
+- Added `amphetamine/install.sh` — installs Amphetamine from the Mac App Store with `mas` (app ID `937984704`).
+
+## 2026-10-01
+
+- Added `lute/lute-import-podcast FEED_URL [TAG]` — imports a podcast's `<podcast:transcript>` HTML transcripts into a running Lute as books (oldest first) via Lute's `/book/new` form. Skips episodes already in Lute, so re-running only adds new ones.
+- `lute-import-podcast` — attaches each episode's `<enclosure>` audio; existing unarchived books without audio get it added via Lute's edit form.
+- `lute-import-podcast` — optional `TRANSCRIPTS_JSON` arg (`{episode <link>: transcript}`) for feeds without `<podcast:transcript>`, e.g. innerFrench, whose transcripts sit behind Cloudflare and must be fetched from a logged-in browser.
+- `lute-import-podcast` — downloads and posts to Lute with `curl` (GETs retried 3×; 10 min cap; aborts transfers under 1 KB/s for 60s). urllib hung for hours on a stalled Podbean download and on posting a 150 MB episode; dropped the hand-rolled multipart encoder.
+- `lute-import-podcast` — reuses audio already in `useraudio/` when its size matches the feed's `<enclosure length>` (e.g. files orphaned when iCloud rolled the DB back) instead of re-downloading.
+- `lute-prune-audio [-n] [DIR...]` — also prunes extra audio dirs (audio moved out of Lute's iCloud `useraudio/` and linked by absolute path, e.g. `~/Documents/inner-french`).
+- Added `lute/lute-prune-audio [-n]` — unlinks audio from archived books, then deletes `useraudio/` files no book references (Lute never deletes audio, even for deleted books). `-n` is a dry run.
+
 ## 2026-09-30
 
 - Added `lute/dicts.sh` — downloads the reader-dict fr-en and fr-fr (no-etymology) `.df` dictionaries into `~/Documents/Dictionaries` when missing. `lute` runs it on every start.

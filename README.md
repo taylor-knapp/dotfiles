@@ -58,11 +58,12 @@ Everything is organized into **topic directories**. Special file conventions:
 
 ### Applications
 
+- **amphetamine/** - Install Amphetamine (keep-awake) from the Mac App Store via `mas`
 - **brave/** - Install, default browser config, and extension checklist
 - **claude/** - Claude CLI aliases and PATH
 - **commercetools/** - API/CLI aliases
 - **obsidian/** - Aliases
-- **lute/** - Lute v3 language reader (venv install, `lute` launcher) plus offline reader-dict `.df` dictionary servers (fr-en `:8767`, fr-fr `:8766`)
+- **lute/** - Lute v3 language reader (venv install, `lute` launcher) plus offline reader-dict `.df` dictionary servers (fr-en `:8767`, fr-fr `:8766`), `lute-import-podcast` to import podcast RSS transcripts + audio as books, and `lute-prune-audio` to delete audio of archived/deleted books
 - **iterm/** - Shell integration, auto tab title (`repo (worktree:branch tool)`) and deterministic tab color per directory
 - **rancher/** - Rancher Desktop install and PATH
 - **magnet/** - Window layout overrides and install
