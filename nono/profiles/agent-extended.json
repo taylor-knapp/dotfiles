@@ -1,0 +1,38 @@
+{
+  "$schema": "https://nono.sh/schemas/profile.json",
+  "extends": "agent-base",
+  "meta": {
+    "name": "agent-extended",
+    "description": "agent-base + broader home/code access, docker socket"
+  },
+  "filesystem": {
+    "read": [
+      "$HOME/.humio",
+      "$HOME/.config",
+      "$HOME/.local/bin",
+      "$HOME/.local/share/argos-translate",
+      "$HOME/.local/cache/argos-translate",
+      "/Applications/Rancher Desktop.app"
+    ],
+    "allow": [
+      "$HOME/.config/mcp-auth-proxy",
+      "$HOME/.fly",
+      "$HOME/.rd",
+      "$HOME/.local/share/nvim",
+      "$HOME/.local/state/nvim",
+      "$HOME/.cache/nvim",
+      "$HOME/code/commercetools-docs",
+      "$HOME/code/uaa-shared",
+      "$HOME/code/tickets",
+      "$HOME/code/notes",
+      "$HOME/code/claudie/.git"
+    ],
+    "allow_file": [
+      "$HOME/code/claudie/settings.json",
+      "$HOME/.config/nvim/nvim-pack-lock.json"
+    ],
+    "unix_socket": [
+      "$HOME/.rd/docker.sock"
+    ]
+  }
+}

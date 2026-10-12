@@ -1,0 +1,174 @@
+{
+  "$schema": "https://nono.sh/schemas/profile.json",
+  "extends": [
+    "default",
+    "node-dev"
+  ],
+  "meta": {
+    "name": "agent-base",
+    "description": "Essential fs + network policy for coding agents (cwd + basics; used by --directory-only)"
+  },
+  "workdir": {
+    "access": "readwrite"
+  },
+  "filesystem": {
+    "read": [
+      "$HOME/code/claudie",
+      "$HOME/.dotfiles/git",
+      "$HOME/.certs",
+      "$HOME/.local/share/fnm"
+    ],
+    "allow": [
+      "/tmp/claude",
+      "$HOME/.local/state/fnm_multishells"
+    ],
+    "deny": [
+      "$HOME/.ssh",
+      "$HOME/.aws",
+      "$HOME/.azure",
+      "**/.git/hooks",
+      "**/.git/config",
+      "$HOME/.gnupg-claude"
+    ]
+  },
+  "network": {
+    "allow_domain": [
+      "api.anthropic.com",
+      "claude.ai",
+      "console.anthropic.com",
+      "statsig.anthropic.com",
+      "sentry.io",
+      "claude.com",
+      "code.claude.com",
+      "github.com",
+      "api.github.com",
+      "docs.github.com",
+      "api.githubcopilot.com",
+      "api.enterprise.githubcopilot.com",
+      "telemetry.enterprise.githubcopilot.com",
+      "commercetools.com",
+      "*.commercetools.com",
+      "circleci.com",
+      "*.circleci.com",
+      "coderabbit.ai",
+      "*.coderabbit.ai",
+      "depot.dev",
+      "*.depot.dev",
+      "escemo.com",
+      "*.escemo.com",
+      "fly.io",
+      "*.fly.io",
+      "mynah.fly.dev",
+      "mynah-staging.fly.dev",
+      "api.machines.dev",
+      "modelcontextprotocol.io",
+      "*.modelcontextprotocol.io",
+      "ucp.dev",
+      "*.ucp.dev",
+      "mcp.atlassian.com",
+      "cf.mcp.atlassian.com",
+      "developer.atlassian.com",
+      "cloud.humio.com",
+      "docs.cloud.google.com",
+      "storage.googleapis.com",
+      "proxy.golang.org",
+      "openai.com",
+      "stackoverflow.com",
+      "httpwg.org",
+      "www.rfc-editor.org",
+      "iterm2.com",
+      "ghostty.org",
+      "gail.wharton.upenn.edu",
+      "www.leapsome.com",
+      "nono.sh",
+      "*.nono.sh"
+    ]
+  },
+  "environment": {
+    "deny_vars": [
+      "SSH_AUTH_SOCK",
+      "GPG_AGENT_INFO"
+    ],
+    "set_vars": {
+      "NODE_EXTRA_CA_CERTS": "$HOME/.certs/zscaler-root-ca.pem",
+      "GIT_CONFIG_COUNT": "5",
+      "GIT_CONFIG_KEY_0": "credential.https://github.com.helper",
+      "GIT_CONFIG_VALUE_0": "",
+      "GIT_CONFIG_KEY_1": "credential.https://github.com.helper",
+      "GIT_CONFIG_VALUE_1": "!gh auth git-credential",
+      "GIT_CONFIG_KEY_2": "url.https://github.com/.insteadOf",
+      "GIT_CONFIG_VALUE_2": "git@github.com:",
+      "GIT_CONFIG_KEY_3": "url.https://github.com/.insteadOf",
+      "GIT_CONFIG_VALUE_3": "ssh://git@github.com/",
+      "GNUPGHOME": "$HOME/.gnupg-claude",
+      "GIT_CONFIG_KEY_4": "commit.gpgsign",
+      "GIT_CONFIG_VALUE_4": "true"
+    }
+  },
+  "rollback": {
+    "exclude_patterns": [
+      "node_modules",
+      ".next",
+      "dist",
+      "build",
+      "coverage",
+      ".turbo",
+      ".pnpm-store",
+      "__pycache__",
+      "target"
+    ],
+    "exclude_globs": [
+      "*.log",
+      "*.tmp.[0-9]*.[0-9]*"
+    ]
+  },
+  "command_policies": {
+    "commands": {
+      "gpg": {
+        "executable": "/opt/homebrew/bin/gpg",
+        "from": {
+          "session": {
+            "sandbox": {
+              "fs_read": [
+                "$HOME/.gnupg-claude"
+              ],
+              "fs_write": [
+                "$HOME/.gnupg-claude"
+              ],
+              "unix_socket_bind": [
+                "$HOME/.gnupg-claude/S.gpg-agent"
+              ],
+              "environment": {
+                "set_vars": {
+                  "GNUPGHOME": "$HOME/.gnupg-claude"
+                }
+              }
+            },
+            "invocation_policy": {
+              "default": "deny",
+              "allow": [
+                {
+                  "argv": {
+                    "prefix": [
+                      "--status-fd=2",
+                      "-bsau"
+                    ]
+                  },
+                  "reason": "git commit signing"
+                },
+                {
+                  "argv": {
+                    "contains": [
+                      "--verify"
+                    ]
+                  },
+                  "reason": "git signature verification"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

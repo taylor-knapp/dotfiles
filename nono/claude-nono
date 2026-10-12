@@ -1,0 +1,85 @@
+#!/bin/bash
+# Claude Code under nono. Successor to claudie's sandbox/claude-sandboxed.
+#   --directory-only  cwd + essentials only (profile claude-directory; no docker, no extra ~/code dirs)
+#   --online          allow all outbound domains (still proxied/audited)
+#   --no-omai         skip env from ~/code/claudie/omai/settings.json (local gateway)
+#   --playwright      start a chromium server outside the sandbox, pass PLAYWRIGHT_WS_ENDPOINT in
+# Everything else passes through to claude.
+set -euo pipefail
+
+NONO_DIR="$(dirname "$(realpath "$0")")"
+CLAUDIE="$HOME/code/claudie"
+CT_ROOT="$HOME/code/ct"
+PROFILE=claude-sandboxed
+NONO_ARGS=(--rollback --trust-proxy-ca)  # proxy CA in keychain -> Go CLIs (gh) trust it
+CLAUDE_ARGS=()
+USE_OMAI=true PLAYWRIGHT=false
+for a in "$@"; do
+  case "$a" in
+    --directory-only|--directory) PROFILE=claude-directory ;;
+    --online) NONO_ARGS+=(--allow-domain '*') ;;
+    --no-omai) USE_OMAI=false ;;
+    --playwright) PLAYWRIGHT=true ;;
+    *) CLAUDE_ARGS+=("$a") ;;
+  esac
+done
+
+# localhost port from a URL (gateway / playwright ws endpoint)
+url_port() { python3 -c 'import sys,urllib.parse as u;print(u.urlparse(sys.argv[1]).port or "")' "$1"; }
+
+# omai: export settings.json `env` block (gateway URL/token/models). nono passes env through.
+OMAI="$CLAUDIE/omai/settings.json"
+if [ "$USE_OMAI" = true ] && [ -s "$OMAI" ]; then
+  eval "$(python3 - "$OMAI" <<'PY'
+import json, re, shlex, sys
+env = json.load(open(sys.argv[1])).get("env") or {}
+for k, v in env.items():
+    if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", k):
+        print(f"export {k}={shlex.quote(str(v))}")
+PY
+)"
+  port="$(url_port "${ANTHROPIC_BASE_URL:-}")"
+  [ -n "$port" ] && NONO_ARGS+=(--open-port "$port")
+fi
+
+# Per-repo grants (profile globs like $HOME/code/*-worktrees hang nono 0.79).
+# main = repo owning the shared .git, so this also works from inside a worktree.
+if common="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"; then
+  main="$(dirname "$common")"
+  [ -d "$main-worktrees" ] && NONO_ARGS+=(--allow "$main-worktrees")
+  [ "$main" != "$(git rev-parse --show-toplevel)" ] && NONO_ARGS+=(--allow "$main")  # in a worktree
+  case "$main/" in "$CT_ROOT"/*) NONO_ARGS+=(--read "$CT_ROOT") ;; esac
+fi
+
+# Playwright server runs OUTSIDE the sandbox (full network); claude connects via ws on localhost.
+if [ "$PLAYWRIGHT" = true ]; then
+  PW_BIN="${CLAUDE_PLAYWRIGHT_BIN:-$CLAUDIE/node_modules/.bin/playwright}"
+  [ -x "$PW_BIN" ] || { echo "[claude-nono] playwright not found at $PW_BIN (set CLAUDE_PLAYWRIGHT_BIN)" >&2; exit 1; }
+  mkdir -p /tmp/claude
+  PW_LOG="/tmp/claude/playwright-$$.log"
+  "$PW_BIN" launch-server --browser chromium >"$PW_LOG" 2>&1 &
+  PW_PID=$!
+  trap 'kill "$PW_PID" 2>/dev/null || true' EXIT
+  PLAYWRIGHT_WS_ENDPOINT=""
+  for _ in $(seq 1 100); do
+    PLAYWRIGHT_WS_ENDPOINT="$(grep -oE 'ws://[^[:space:]]+' "$PW_LOG" 2>/dev/null | head -1 || true)"
+    [ -n "$PLAYWRIGHT_WS_ENDPOINT" ] && break
+    kill -0 "$PW_PID" 2>/dev/null || break
+    sleep 0.1
+  done
+  if [ -z "$PLAYWRIGHT_WS_ENDPOINT" ]; then
+    echo "[claude-nono] playwright server gave no ws endpoint within 10s (first run: $PW_BIN install chromium)" >&2
+    cat "$PW_LOG" >&2
+    exit 1
+  fi
+  export PLAYWRIGHT_WS_ENDPOINT
+  NONO_ARGS+=(--open-port "$(url_port "$PLAYWRIGHT_WS_ENDPOINT")")
+  echo "[claude-nono] Playwright server: $PLAYWRIGHT_WS_ENDPOINT" >&2
+fi
+
+# MCP servers off by default for this project; must run before claude reads ~/.claude.json.
+printf '{"cwd":%s}' "$(python3 -c 'import json,os;print(json.dumps(os.getcwd()))')" \
+  | bash "$NONO_DIR/disable-all-mcp.sh" || true
+
+# Not exec'd: EXIT trap must stop the playwright server.
+nono run -p "$PROFILE" "${NONO_ARGS[@]}" -- claude --permission-mode auto ${CLAUDE_ARGS[@]+"${CLAUDE_ARGS[@]}"}

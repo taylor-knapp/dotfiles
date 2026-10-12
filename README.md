@@ -68,6 +68,7 @@ Everything is organized into **topic directories**. Special file conventions:
 - **rancher/** - Rancher Desktop install and PATH
 - **magnet/** - Window layout overrides and install
 - **renovate/** - Local config
+- **nono/** - [nono](https://nono.sh) agent sandbox: install, packs, and profiles (`agent-base`, `agent-extended`, `claude-sandboxed`, `claude-directory`) symlinked to `~/.config/nono/profiles`, rollback `config.toml`. `claude-nokeychain.sh` generates `profiles/claude-nokeychain.json`, a Keychain-free copy of the `nolabs-ai/claude` pack profile (re-run after `nono update`). `cln` (`nono/claude-nono`) launches Claude Code sandboxed
 
 ### System
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-12
+
+- nono: added `nono/claude-nokeychain.sh` — generates `nono/profiles/claude-nokeychain.json` (jq copy of the `nolabs-ai/claude` pack profile minus its `~/Library/Keychains` allow + `bypass_protection`). Child profiles can't remove inherited bypasses, hence the copy. `claude-sandboxed` and `claude-directory` now extend it. Run by `nono/install.sh`; re-run after `nono update`. `install.sh` skips `brew install nono` if already present.
+- nono: removed `$HOME/code/*-worktrees` glob from `agent-extended` (globs hang nono 0.79). `cln` now grants per repo: `--allow <repo>-worktrees` if it exists, `--allow <main repo>` when run in a worktree, `--read ~/code/ct` automatically when the repo is under it (`--ct` flag removed).
+- nono: `claude-nokeychain.sh` now adds an `oauth_capture` credential provider (`claude_code`) + `anthropic_oauth` route, so Claude Code's OAuth token reaches `api.anthropic.com` via nono's proxy (sandbox only sees a phantom token).
+
+## 2026-10-08
+
+- Added `nono/profiles/` (`agent-base`, `claude-sandboxed`) — nono port of claudie's `claude-sandboxed` safehouse profiles + `claude-netproxy` domain allowlist. `nono/install.sh` pulls `nolabs-ai/claude` + `nolabs-ai/opencode` packs and symlinks profiles into `~/.config/nono/profiles`.
+- nono: `gpg` is now a mediated command (only git sign/verify argv allowed; session can no longer read `~/.gnupg-claude`) — replaces `gpg-claude-wrap.sh`. Added rollback exclusions, `nono/config.toml` (rollback retention), and `nono/claude-nono` wrapper (`cln`): `--rollback`, `--online`, omai env (`--no-omai`), `--directory-only` (profile `claude-directory`), `--playwright`, `--ct`, MCP disabled by default (`nono/disable-all-mcp.sh`, copied from claudie). Profiles split: `agent-base` (essentials) / `agent-extended` (broader access). `claude-sandboxed` extends `nolabs-ai/claude`.
+- nono: `claude-nono` passes `--trust-proxy-ca` so Go CLIs (`gh`) trust nono proxy CA.
+
 ## 2026-10-02
 
 - Added `amphetamine/install.sh` — installs Amphetamine from the Mac App Store with `mas` (app ID `937984704`).

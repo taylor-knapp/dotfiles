@@ -1,0 +1,6 @@
+# nono user config -> ~/.config/nono/config.toml
+
+# Rollback retention (enable per-run with --rollback; see bin/claude-nono)
+[rollback]
+max_sessions = 20
+max_storage_gb = 5

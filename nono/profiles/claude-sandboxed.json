@@ -1,0 +1,11 @@
+{
+  "$schema": "https://nono.sh/schemas/profile.json",
+  "extends": ["claude-nokeychain", "agent-extended"],
+  "meta": {
+    "name": "claude-sandboxed",
+    "description": "Claude Code with agent-base fs + network policy"
+  },
+  "environment": {
+    "set_vars": { "CLAUDE_SANDBOX_PROFILE": "claude-sandboxed" }
+  }
+}

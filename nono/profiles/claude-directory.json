@@ -1,0 +1,16 @@
+{
+  "$schema": "https://nono.sh/schemas/profile.json",
+  "extends": [
+    "claude-nokeychain",
+    "agent-base"
+  ],
+  "meta": {
+    "name": "claude-directory",
+    "description": "Claude Code limited to cwd + agent-base essentials"
+  },
+  "environment": {
+    "set_vars": {
+      "CLAUDE_SANDBOX_PROFILE": "claude-directory"
+    }
+  }
+}

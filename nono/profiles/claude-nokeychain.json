@@ -1,0 +1,196 @@
+{
+  "extends": "default",
+  "meta": {
+    "name": "claude-nokeychain",
+    "version": "1.0.0",
+    "description": "nolabs-ai/claude minus Keychain access (generated)",
+    "author": "nolabs-ai"
+  },
+  "groups": {
+    "include": [
+      {
+        "name": "claude_code_macos",
+        "when": "macos"
+      },
+      {
+        "name": "claude_code_linux",
+        "when": "linux"
+      },
+      {
+        "name": "user_caches_macos",
+        "when": "macos"
+      },
+      {
+        "name": "claude_cache_linux",
+        "when": "linux"
+      },
+      "node_runtime",
+      "rust_runtime",
+      "python_runtime",
+      {
+        "name": "vscode_macos",
+        "when": "macos"
+      },
+      {
+        "name": "vscode_linux",
+        "when": "linux"
+      },
+      {
+        "name": "linux_sysfs_read",
+        "when": "linux"
+      },
+      "nix_runtime",
+      "git_config",
+      "unlink_protection"
+    ]
+  },
+  "security": {
+    "signal_mode": "isolated",
+    "capability_elevation": false
+  },
+  "filesystem": {
+    "allow": [
+      "$HOME/.claude",
+      "$HOME/.local/state/claude/locks",
+      "$HOME/.cache/claude",
+      "$NONO_CONFIG/profile-drafts",
+      "/tmp/claude-$UID"
+    ],
+    "read": [
+      "$NONO_PACKAGES",
+      "$NONO_CONFIG/profiles"
+    ],
+    "allow_file": [
+      "$HOME/.claude.json",
+      "$HOME/.claude.json.lock",
+      "$HOME/.claude.lock"
+    ],
+    "bypass_protection": [],
+    "unix_socket_dir_bind": [
+      {
+        "path": "$XDG_RUNTIME_DIR/cc-socks",
+        "when": "linux"
+      }
+    ]
+  },
+  "network": {
+    "block": false
+  },
+  "workdir": {
+    "access": "readwrite"
+  },
+  "session_hooks": {
+    "before": {
+      "script": "/Users/taylorknapp/.config/nono/packages/nolabs-ai/claude/bin/ensure-dirs.sh",
+      "timeout_secs": 10
+    }
+  },
+  "open_urls": {
+    "allow_origins": [
+      "https://claude.ai",
+      "https://claude.com",
+      "https://api.anthropic.com",
+      "https://platform.claude.com"
+    ],
+    "allow_localhost": true
+  },
+  "diagnostics": {
+    "suppress_system_services": [
+      "forbidden-exec-sugid"
+    ]
+  },
+  "allow_launch_services": true,
+  "rollback": {
+    "exclude_patterns": [
+      "node_modules",
+      ".next",
+      "__pycache__",
+      "target"
+    ],
+    "exclude_globs": [
+      "*.tmp.[0-9]*.[0-9a-f]*"
+    ]
+  },
+  "credential_providers": {
+    "claude_code": {
+      "type": "oauth_capture",
+      "token_endpoints": [
+        {
+          "host": "https://platform.claude.com",
+          "path": "/v1/oauth/token",
+          "response_fields": [
+            {
+              "path": "access_token",
+              "kind": "opaque",
+              "format": "sk-ant-oat01-{}"
+            },
+            {
+              "path": "refresh_token",
+              "kind": "opaque"
+            },
+            {
+              "path": "id_token",
+              "kind": "jwt"
+            }
+          ],
+          "request_body": "auto",
+          "request_nonce_fields": [
+            "access_token",
+            "refresh_token"
+          ]
+        }
+      ],
+      "api_hosts": [
+        "https://api.anthropic.com"
+      ],
+      "credential_store": {
+        "type": "keychain_json",
+        "service": "Claude Code-credentials",
+        "account_candidates": [
+          "unknown",
+          "$USER",
+          "claude-code-user"
+        ],
+        "phantom_fields": [
+          "claudeAiOauth.accessToken",
+          "claudeAiOauth.refreshToken"
+        ]
+      },
+      "helpers": {
+        "status": [
+          "claude",
+          "auth",
+          "status",
+          "--json"
+        ],
+        "login": [
+          "claude",
+          "auth",
+          "login"
+        ],
+        "logout": [
+          "claude",
+          "auth",
+          "logout"
+        ]
+      }
+    }
+  },
+  "credential_routes": [
+    {
+      "name": "anthropic_oauth",
+      "provider": "claude_code",
+      "endpoint_policy": {
+        "default": {
+          "decision": "deny"
+        },
+        "allow": [
+          {
+            "method": "POST",
+            "path": "/v1/messages"
+          }
+        ]
+      }
+    }
+  ]
+}
