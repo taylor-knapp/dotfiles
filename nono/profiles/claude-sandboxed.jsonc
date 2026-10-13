@@ -7,5 +7,12 @@
   },
   "environment": {
     "set_vars": { "CLAUDE_SANDBOX_PROFILE": "claude-sandboxed" }
+  },
+  "filesystem": {
+    "suppress_save_prompt": [
+      "~/Library/Application Support/BraveSoftware/Brave-Browser",
+      "~/Library/Application Support/Chromium",
+      "~/Library/Application Support/Google/Chrome"
+    ]
   }
 }
