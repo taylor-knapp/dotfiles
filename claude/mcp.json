@@ -1,0 +1,100 @@
+{
+  "mcpServers": {
+    "ag-nico-test-project-tk-all": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-logger.mjs",
+        "/tmp/claude/mcp-logs/ag-nico-test-project-tk-all.log",
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-wrapper-ag.sh",
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-env/nico-test-project-tk-all.env"
+      ]
+    },
+    "ag-audit-log-aws-test-tk-all": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-logger.mjs",
+        "/tmp/claude/mcp-logs/ag-audit-log-aws-test-tk-all.log",
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-wrapper-ag.sh",
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-env/audit-log-aws-test-tk-all.env"
+      ]
+    },
+    "ag-tk-1": {
+      "command": "node",
+      "args": [
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-logger.mjs",
+        "/tmp/claude/mcp-logs/ag-tk-1.log",
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-wrapper-ag.sh",
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-env/tk-1.env"
+      ]
+    },
+    "ag-tk-all": {
+      "command": "node",
+      "args": [
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-logger.mjs",
+        "/tmp/claude/mcp-logs/ag-tk-all.log",
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-wrapper-ag.sh",
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-env/tk-all.env"
+      ]
+    },
+    "ag-agent-gateway-test-tk-all-identity": {
+      "type": "http",
+      "url": "https://mcp.eu-central-1.aws.escemo.com/projects/agent-gateway-test/ag-agent-gateway-test-tk-all-identity"
+    },
+    "ag-nico-test-project-tk-all-identity": {
+      "type": "http",
+      "url": "https://mcp.europe-west1.gcp.commercetools.com/projects/nico-test-project/nico-test-project-tk-all-identity"
+    },
+    "ag-agent-gateway-ucp-shopper-catalog": {
+      "type": "http",
+      "url": "https://mcp.europe-west1.gcp.commercetools.com/projects/agent-gateway/ucp-shopper-catalog"
+    },
+    "agatha": {
+      "args": ["mcp"],
+      "command": "oktapus",
+      "type": "stdio"
+    },
+    "atlassian": {
+      "type": "http",
+      "url": "https://mcp.atlassian.com/v1/mcp"
+    },
+    "ct-commerce-mcp": {
+      "command": "node",
+      "args": [
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-logger.mjs",
+        "/tmp/claude/mcp-logs/ct-commerce-mcp.log",
+        "/Users/taylorknapp/.dotfiles/claude/scripts/ct-commerce-mcp/ct-commerce-mcp-wrapper.sh"
+      ]
+    },
+    "ct-dev-content": {
+      "type": "http",
+      "url": "https://docs.commercetools.com/apis/mcp"
+    },
+    "circleci": {
+      "command": "node",
+      "args": [
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-logger.mjs",
+        "/tmp/claude/mcp-logs/circleci.log",
+        "/Users/taylorknapp/.dotfiles/claude/scripts/circleci-mcp-wrapper.sh"
+      ]
+    },
+    "grafana-mcp": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/taylorknapp/.claude/plugins/marketplaces/caveman/src/mcp-servers/caveman-shrink/index.js",
+        "node",
+        "/Users/taylorknapp/.dotfiles/claude/scripts/mcp-logger.mjs",
+        "/tmp/claude/mcp-logs/grafana-mcp.log",
+        "mcp-auth-proxy",
+        "-url",
+        "https://grafana-mcp.sso.sre.europe-west1.gcp.commercetools.com/sse"
+      ]
+    },
+    "anki": {
+      "type": "http",
+      "url": "http://127.0.0.1:3141/"
+    }
+  }
+}

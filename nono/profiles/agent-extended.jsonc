@@ -25,10 +25,10 @@
       "$HOME/code/uaa-shared",
       "$HOME/code/tickets",
       "$HOME/code/notes",
-      "$HOME/code/claudie/.git"
+      "$HOME/.dotfiles/claude/memory"
     ],
     "allow_file": [
-      "$HOME/code/claudie/settings.json",
+      "$HOME/.dotfiles/claude/settings.json",
       "$HOME/.config/nvim/nvim-pack-lock.json"
     ],
     "unix_socket": [

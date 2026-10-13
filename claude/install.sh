@@ -18,3 +18,6 @@ if test "$(uname)" = "Darwin"; then
   # https://github.com/JuliusBrussee/caveman
   curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash
 fi
+
+# Link config into ~/.claude, merge MCP servers
+"$HOME/.dotfiles/claude/deploy.sh"

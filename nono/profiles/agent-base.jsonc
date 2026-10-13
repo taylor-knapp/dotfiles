@@ -13,7 +13,7 @@
   },
   "filesystem": {
     "read": [
-      "$HOME/code/claudie",
+      "$HOME/.dotfiles/claude",
       "$HOME/.dotfiles/git",
       "$HOME/.certs",
       "$HOME/.local/share/fnm"

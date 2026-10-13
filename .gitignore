@@ -8,5 +8,10 @@ git/gitconfig.local.symlink
 
 # hide any file named local - they contain sensitive information!
 local.*
+# claude: per-user MCP creds/client config, omai-managed settings
+/claude/scripts/mcp-env/
+/claude/scripts/ct-commerce-mcp/clients/
+/claude/omai/
+
 # lute venv
 /lute/.venv
