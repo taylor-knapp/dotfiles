@@ -2,6 +2,8 @@
 
 ## 2026-10-13
 
+- claude: `update-context`/`c` skills retargeted to the dotfiles layout (AGENTS.md + skills + hooks/settings + nono profiles); dropped `.agents/`/`rules/` targets, stale commit-signing example, AskUserQuestion.
+- claude: condensed `AGENTS.md` (~1.4k → ~330 words); dropped rules made stale by nono (commit signing, `git -C`, https push, Claude sandbox notes) and missing skills; removed `.agents/` includes; macOS defaults guidance moved to `macos-defaults` skill.
 - claude: absorbed `~/code/claudie` (deprecated). `claude/` now holds `settings.json`, `AGENTS.md` (linked as `~/.claude/CLAUDE.md`), `mcp.json`, hooks, statusline + MCP wrapper scripts, `omai/`, auto-memory dir, and skills (`pr`, `francais`, `anki`, `update-context`, `c`, `note`). `claude/deploy.sh` (run by `install.sh`) links them into `~/.claude` and prunes old claudie skill links. Dropped settings `sandbox` block + its `enforce-sandbox-on-tools`/`block-settings-edit` hooks (nono enforces fs). nono profiles, `claude-nono` omai path repointed; removed `cl`/`cj` safehouse aliases.
 - nono: `claude-nono --allow-dir=PATH` (repeatable) grants read-write to PATH (`nono --allow`) and passes `claude --add-dir PATH`.
 - nono: `nonop <name>` (`nono/nonop`) promotes `~/.config/nono/profile-drafts/<name>.jsonc` into `nono/profiles/` (`nono profile promote` only reads `.json`). Checks `.base` hash, validates, shows diff, confirms.

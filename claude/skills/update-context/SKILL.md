@@ -1,32 +1,32 @@
 ---
 name: update-context
-description: Apply research-backed writing principles when adding or editing agent context (AGENTS.md, CLAUDE.md, .agents/ files). Use when the user asks to "remember", "update yourself", "add a memory", "update context", "update agents", or modifies any context/instruction file.
-allowed-tools: Read, Edit, Write, Glob, Grep, Bash, AskUserQuestion
+description: Apply research-backed writing principles when adding or editing agent context (AGENTS.md, skills, hooks, settings). Use when the user asks to "remember", "update yourself", "add a memory", "update context", "update agents", or modifies any context/instruction file.
+allowed-tools: Read, Edit, Write, Glob, Grep, Bash
 disable-model-invocation: true
 ---
 
 # Update Agent Context
 
-Write context instructions optimized for Claude (Opus 4.5/4.6, Sonnet 4.6) and Claude Code's system prompt architecture.
+Write context instructions optimized for current Claude models and Claude Code's system prompt architecture.
 
 ## Trigger Conditions
 
 Activate this skill when:
 
 - User says "remember," "update yourself," "add a memory," "update context," "update agent deets," or similar
-- User asks to modify AGENTS.md, CLAUDE.md, or any `.agents/*.md` file
+- User asks to modify AGENTS.md, a skill, a hook, or settings.json
 - You need to record a new rule, preference, or operational note
 
 ## Target Files
 
-| File                          | Purpose                                                                   |
-| ----------------------------- | ------------------------------------------------------------------------- |
-| `~/.dotfiles/claude/AGENTS.md`    | Universal rules, preferences, standing orders                             |
-| `~/.dotfiles/claude/.agents/*.md` | Domain-specific context (validation, workflow, tickets, code style, etc.) |
-| `~/.dotfiles/claude/CLAUDE.md`    | Top-level entry point (keep minimal — mostly `@` references)              |
-| `~/.dotfiles/claude/rules/*.md`   | Modular rules — always-on (no frontmatter) or path-triggered (with `paths:`) |
+| File | Purpose |
+| --- | --- |
+| `~/.dotfiles/claude/AGENTS.md` | Universal rules, preferences, standing orders. Linked as `~/.claude/CLAUDE.md` |
+| `~/.dotfiles/claude/skills/*/SKILL.md` | Action/domain-specific rules, loaded on trigger |
+| `~/.dotfiles/claude/settings.json` | Deny rules, hook wiring. Linked as `~/.claude/settings.json` |
+| `~/.dotfiles/claude/hooks/*.sh` | Hook scripts, referenced by path from settings.json |
 
-Editing these files = editing the live global Claude Code config (symlinked via deploy.sh).
+Editing these = editing live global config. New skill dirs need `~/.dotfiles/claude/deploy.sh` to get linked into `~/.claude/skills`.
 
 ## Claude Code Context Hierarchy
 
@@ -42,7 +42,6 @@ Context loads in a specific order. More specific wins on conflicts. All levels c
 | `.claude/rules/*.md` (with `paths:`) | Pattern-triggered | On file read | Yes |
 | `.claude/agents/*.md` | On-demand subagents | When invoked | N/A (fresh context) |
 | `skills/*/SKILL.md` | Action-specific | When skill triggers | N/A (loaded on demand) |
-| `AGENTS.md` | Cross-tool universal | Session start | Yes |
 
 **Key behavior:** `CLAUDE.md` and rules survive context compaction (`/compact`) — Claude re-reads them from disk. Conversational instructions are lost. This makes these files the only safe place for instructions that must survive long sessions.
 
@@ -64,7 +63,7 @@ Understanding these Claude-specific behaviors should inform every edit:
 
 5. **Positive framing outperforms negative framing.** Anthropic's docs: "Tell Claude what to do instead of what not to do." Based on Ironic Process Theory — representing "don't do X" requires Claude to first activate the concept of X.
 
-6. **`@` referenced files are loaded at startup, skill files are loaded on trigger.** Files referenced with `@` in CLAUDE.md/AGENTS.md are pulled into context automatically — they still consume instruction budget. True progressive disclosure comes from **skill files**, which only load when the skill is triggered. Split content into `.agents/` subfiles for organization and reusability, but know they cost the same as inlining.
+6. **`@` referenced files are loaded at startup, skill files are loaded on trigger.** Files referenced with `@` in CLAUDE.md/AGENTS.md are pulled into context automatically — they still consume instruction budget. True progressive disclosure comes from **skill files**, which only load when the skill is triggered. Prefer skills over `@` includes for anything not needed in every session.
 
 ## Writing Checklist
 
@@ -81,30 +80,23 @@ Claude Code's enforcement hierarchy, from most to least reliable:
 
 Where to create guardrails:
 
-- Hook: `~/.dotfiles/claude/hooks/` — symlinked to `~/.claude/hooks/`, applies globally
-- Deny rule: `~/.dotfiles/claude/settings.json` — symlinked to `~/.claude/settings.json`, applies globally
+- Hook: script in `~/.dotfiles/claude/hooks/`, wired up in `settings.json`, applies globally
+- Deny rule: `~/.dotfiles/claude/settings.json`, applies globally
+- Sandbox (fs, network, per-command argv policy): nono profiles in `~/.dotfiles/nono/profiles/`
 - Linter: eslint, prettier config (per-project)
 
 If a guardrail exists, the written instruction only needs to explain the _why_ so future sessions understand the guardrail's purpose — not re-state the rule.
 
 ### 2. Does it already exist?
 
-Search AGENTS.md and `.agents/` for overlapping content before adding. Update existing rules rather than duplicating. Redundancy across files is intentional only for 3-5 critical rules (commit signing, memory ban, etc.).
+Search AGENTS.md and `skills/` for overlapping content before adding. Update existing rules rather than duplicating. Redundancy across files is intentional only for 3-5 critical rules.
 
 ### 3. Where does it belong?
 
-- Universal (applies to all work): AGENTS.md or CLAUDE.md
-- Domain-specific (validation, git workflow, tickets, code style): relevant `.agents/*.md` file
-- File-type or directory-specific: `.claude/rules/*.md` with `paths:` frontmatter
-- Always-on policy that doesn't fit AGENTS.md: `.claude/rules/*.md` without frontmatter
-- Action-specific (commit, PR, rebase): relevant `skills/*/SKILL.md`
-
-**Decision framework:**
-- Put it in `CLAUDE.md`/`AGENTS.md` if it applies to all work and Claude would make mistakes without it
-- Put it in `.claude/rules/` (no frontmatter) if it's a specific policy area but applies broadly
-- Put it in `.claude/rules/` (with `paths:`) if it genuinely only applies when working with specific file types or directories
-- Create a `.claude/agents/` file if it's a specialized, repeatable workflow that benefits from isolation and fresh context
-- Put it in a skill file if it only matters during a specific action
+- Universal, and Claude would make mistakes without it: `AGENTS.md`
+- Action- or domain-specific (PR, macOS defaults, tickets): `skills/*/SKILL.md` — new skill if none fits
+- One repo only: that repo's `CLAUDE.md` or `.claude/rules/*.md` (`paths:` frontmatter only works at project level)
+- Specialized repeatable workflow needing fresh context: `.claude/agents/*.md`
 
 If a rule is critical enough to repeat, place it in both the central file and the point-of-use file.
 
@@ -199,25 +191,22 @@ After writing:
 **Bad:**
 
 ```markdown
-## COMMIT SIGNING — NUCLEAR PROTOCOL
+## GITHUB FILES — NUCLEAR PROTOCOL
 
-> HALT. READ THIS BEFORE EVERY COMMIT OR MILLIONS DIE.
+> HALT. READ THIS BEFORE EVERY FETCH OR MILLIONS DIE.
 
-NEVER EVER run bare `git commit`. It WILL fail with "gpg failed to sign
-the data" and your mission is over. This is ABSOLUTELY CRITICAL.
+NEVER EVER use WebFetch on GitHub. It is EXTREMELY DANGEROUS and your
+mission is over. This is ABSOLUTELY CRITICAL.
 ```
 
 **Good:**
 
 ```markdown
-## Commit Signing
+## GitHub Files
 
-Use `git -c commit.gpgsign=false commit` for all commits — the GPG
-socket is unreachable from the sandbox. A PostToolUse hook signs
-commits after the fact.
-
-The `-c` flag must precede `commit`. After the subcommand, `-c` means
-"reuse commit message," not config override.
+Fetch GitHub file content with `gh api repos/{owner}/{repo}/contents/{path}`
+rather than raw.githubusercontent.com or WebFetch — the sandbox can only
+allow GitHub by domain, so raw fetches are a prompt-injection vector.
 ```
 
-Both convey identical information. The second spends its tokens on rationale and specificity instead of emphasis and emotional framing — same budget, better allocation. It leads with the positive directive and reserves no emphasis budget on a rule that's already enforced by a hook.
+Both convey identical information. The second spends its tokens on rationale and specificity instead of emphasis and emotional framing — same budget, better allocation. It leads with the positive directive and spends no emphasis budget.

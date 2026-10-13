@@ -1,6 +1,6 @@
 # Writing Effective LLM Context Instructions — Research Reference
 
-Comprehensive reference for writing system prompts, CLAUDE.md files, AGENTS.md files, and `.agents/` subfiles. Based on academic research, official documentation from Anthropic and OpenAI, and practitioner findings (as of March 2026).
+Comprehensive reference for writing system prompts, CLAUDE.md files, and AGENTS.md files. Based on academic research, official documentation from Anthropic and OpenAI, and practitioner findings (as of March 2026).
 
 ---
 
@@ -105,7 +105,7 @@ Sources:
 2. At the point of use (the relevant skill file)
 3. As a mechanical guardrail (hook, linter, deny rule)
 
-Example: Commit signing appears in AGENTS.md + commit skill + the pre-tool-use hook. This triple reinforcement is why it's one of the most reliably followed rules.
+Example: the `cd` ban appears as a settings.json deny rule + a PreToolUse hook whose block message explains the why.
 
 Sources:
 
@@ -153,7 +153,7 @@ Sources:
 
 True progressive disclosure in Claude Code comes from **skill files** (`skills/*/SKILL.md`), which are only loaded when the skill is triggered. Action-specific rules (commit format, PR template, rebase procedure) belong in skill files so they don't consume instruction budget during unrelated tasks.
 
-**Application:** Use `.agents/` subfiles with `@` references for organization. Use skill files for rules that only matter during specific actions.
+**Application:** Avoid `@` includes for size reduction. Use skill files for rules that only matter during specific actions.
 
 Sources:
 
@@ -354,7 +354,7 @@ Brief rationale for why this section exists (1 line).
 ### Organization
 
 - Universal rules in the central file (AGENTS.md)
-- Domain-specific rules in `.agents/` subfiles with `@` references (organization — still loaded at startup)
+- Domain/action-specific rules in skill files (loaded on trigger)
 - Action-specific rules in skill files (true progressive disclosure — loaded only on trigger)
 - Critical rules repeated at both central file and point of use
 - Mechanical enforcement (hooks, deny rules, linters) wherever possible
