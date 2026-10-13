@@ -16,11 +16,7 @@
       "$HOME/code/claudie",
       "$HOME/.dotfiles/git",
       "$HOME/.certs",
-      "$HOME/.local/share/fnm",
-      // Agents can read profiles, but an only edit them in ~/.config/nono/profile-drafts/
-      // which then can be synced with the nonop custom command.
-      "$HOME/.dotfiles/nono/profiles",
-      "$HOME/.config/nono/profiles"
+      "$HOME/.local/share/fnm"
     ],
     "allow": [
       "/tmp/claude",
