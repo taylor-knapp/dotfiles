@@ -2,6 +2,8 @@
 
 ## 2026-10-13
 
+- nono: `nonop <name>` (`nono/nonop`) promotes `~/.config/nono/profile-drafts/<name>.jsonc` into `nono/profiles/` (`nono profile promote` only reads `.json`). Checks `.base` hash, validates, shows diff, confirms.
+- nono: `agent-base` mediates `git` — session still denied `.git/config`/hooks; mediated git gets repo write + allowlisted subcommands (no `config`, no global opts, no `--output`/`--exec`/`--upload-pack`/`--template`), can call `gpg` for signing (gpg gets read on `@git:toplevel` so `getcwd` works; `user.signingkey` overridden to the `~/.gnupg-claude` key; command-level `GNUPGHOME` is absolute since command `set_vars` do not expand `$HOME`); git env overrides (gh credential helper, https insteadOf, gpg signing) now live in the git command sandbox, not session env, which does not reach command sandboxes.
 - nono: `claude-nono --login` runs `claude auth login` (then starts the normal session) under new profile `claude-login` (extends `claude-sandboxed` + `listen_port_range` 49152–65535 for the OAuth callback, `interactive`, `--allow-launch-services`). Normal sessions get no listen ports/browser opens. `oauth_capture` keeps real tokens host-side; phantoms in `~/.claude` keep later sessions logged in and refreshing.
 
 ## 2026-10-12

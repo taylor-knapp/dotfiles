@@ -1,0 +1,29 @@
+#!/bin/bash
+# Promote a .jsonc profile draft into dotfiles (`nono profile promote` only reads .json drafts).
+#   nonop <name>   ~/.config/nono/profile-drafts/<name>.jsonc -> nono/profiles/<name>.jsonc
+# Refuses if the live profile changed since the draft's .base hash. Validates, shows diff, asks,
+# then removes the draft. Run outside the sandbox: profiles/ is read-only inside.
+set -euo pipefail
+
+name="${1:?usage: nonop <profile-name>}"
+DRAFTS="$HOME/.config/nono/profile-drafts"
+draft="$DRAFTS/$name.jsonc" base="$DRAFTS/$name.base"
+live="$(dirname "$(realpath "$0")")/profiles/$name.jsonc"
+
+[ -f "$draft" ] || { echo "nonop: no draft at $draft" >&2; exit 1; }
+if [ -f "$live" ] && [ -f "$base" ] \
+  && [ "$(shasum -a 256 "$live" | cut -d' ' -f1)" != "$(tr -d '[:space:]' <"$base")" ]; then
+  echo "nonop: $live changed since draft was made; re-draft first" >&2; exit 1
+fi
+
+nono profile validate "$draft" >/dev/null || { nono profile validate "$draft"; exit 1; }
+
+old="$live"; [ -f "$live" ] || old=/dev/null
+diff -u --color=auto "$old" "$draft" || true
+echo
+read -rp "Apply to $live? [y/N] " ok
+[ "$ok" = y ] || { echo "aborted"; exit 1; }
+
+cp "$draft" "$live"
+rm -f "$draft" "$base"
+echo "Promoted $name. Start a new session to pick it up."

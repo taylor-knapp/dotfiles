@@ -16,7 +16,11 @@
       "$HOME/code/claudie",
       "$HOME/.dotfiles/git",
       "$HOME/.certs",
-      "$HOME/.local/share/fnm"
+      "$HOME/.local/share/fnm",
+      // Agents can read profiles, but an only edit them in ~/.config/nono/profile-drafts/
+      // which then can be synced with the nonop custom command.
+      "$HOME/.dotfiles/nono/profiles",
+      "$HOME/.config/nono/profiles"
     ],
     "allow": [
       "/tmp/claude",
@@ -93,19 +97,7 @@
       "GPG_AGENT_INFO"
     ],
     "set_vars": {
-      "NODE_EXTRA_CA_CERTS": "$HOME/.certs/zscaler-root-ca.pem",
-      "GIT_CONFIG_COUNT": "5",
-      "GIT_CONFIG_KEY_0": "credential.https://github.com.helper",
-      "GIT_CONFIG_VALUE_0": "",
-      "GIT_CONFIG_KEY_1": "credential.https://github.com.helper",
-      "GIT_CONFIG_VALUE_1": "!gh auth git-credential",
-      "GIT_CONFIG_KEY_2": "url.https://github.com/.insteadOf",
-      "GIT_CONFIG_VALUE_2": "git@github.com:",
-      "GIT_CONFIG_KEY_3": "url.https://github.com/.insteadOf",
-      "GIT_CONFIG_VALUE_3": "ssh://git@github.com/",
-      "GNUPGHOME": "$HOME/.gnupg-claude",
-      "GIT_CONFIG_KEY_4": "commit.gpgsign",
-      "GIT_CONFIG_VALUE_4": "true"
+      "NODE_EXTRA_CA_CERTS": "$HOME/.certs/zscaler-root-ca.pem" 
     }
   },
   "rollback": {
@@ -127,9 +119,109 @@
   },
   "command_policies": {
     "commands": {
+      // Session can't touch .git/config (filesystem.deny); mediated git can, but only
+      // for allowlisted subcommands. Prefix match on argv[0] also blocks global opts
+      // (-c, -C, --git-dir, --exec-path) since they precede the subcommand.
+      "git": {
+        "executable": "/opt/homebrew/bin/git",
+        "can_use": ["gpg"],
+        "from": {
+          "session": {
+            "sandbox": {
+              "fs_read": ["/opt/homebrew", "$HOME/.config/gh", "$HOME/.gnupg-claude"],
+              "fs_read_file": ["@git:config-files"],
+              "fs_write": ["@git:toplevel", "@git:common-dir"],
+              // Session env does not reach command sandboxes; repeat git overrides here
+              "environment": {
+                "set_vars": {
+                  "GIT_CONFIG_COUNT": "7",
+                  "GIT_CONFIG_KEY_0": "credential.https://github.com.helper",
+                  "GIT_CONFIG_VALUE_0": "",
+                  "GIT_CONFIG_KEY_1": "credential.https://github.com.helper",
+                  "GIT_CONFIG_VALUE_1": "!gh auth git-credential",
+                  "GIT_CONFIG_KEY_2": "url.https://github.com/.insteadOf",
+                  "GIT_CONFIG_VALUE_2": "git@github.com:",
+                  "GIT_CONFIG_KEY_3": "url.https://github.com/.insteadOf",
+                  "GIT_CONFIG_VALUE_3": "ssh://git@github.com/",
+                  "GNUPGHOME": "/Users/taylorknapp/.gnupg-claude",
+                  "GIT_CONFIG_KEY_4": "commit.gpgsign",
+                  "GIT_CONFIG_VALUE_4": "true",
+                  "GIT_CONFIG_KEY_5": "gpg.program",
+                  "GIT_CONFIG_VALUE_5": "gpg",
+                  "GIT_CONFIG_KEY_6": "user.signingkey",
+                  "GIT_CONFIG_VALUE_6": "9AD1D3F6CB258967"
+                }
+              },
+              "network": {
+                "allow_domain": ["github.com", "api.github.com", "codeload.github.com", "objects.githubusercontent.com"]
+              }
+            },
+            "invocation_policy": {
+              "default": "deny",
+              "deny": [
+                { "argv": { "contains": ["--output"] }, "reason": "arbitrary file write" },
+                { "argv": { "contains": ["-o"] }, "reason": "arbitrary file write" },
+                { "argv": { "contains": ["--exec"] }, "reason": "rebase exec runs code in git sandbox" },
+                { "argv": { "contains": ["-x"] }, "reason": "rebase exec runs code in git sandbox" },
+                { "argv": { "contains": ["--upload-pack"] }, "reason": "runs code in git sandbox" },
+                { "argv": { "contains": ["--receive-pack"] }, "reason": "runs code in git sandbox" },
+                { "argv": { "contains": ["--template"] }, "reason": "copies hooks into .git" },
+                { "argv": { "prefix": ["remote", "set-url"] }, "reason": "url rewrite" }
+              ],
+              "allow": [
+                { "argv": { "prefix": ["status"] } },
+                { "argv": { "prefix": ["log"] } },
+                { "argv": { "prefix": ["diff"] } },
+                { "argv": { "prefix": ["show"] } },
+                { "argv": { "prefix": ["blame"] } },
+                { "argv": { "prefix": ["ls-files"] } },
+                { "argv": { "prefix": ["rev-parse"] } },
+                { "argv": { "prefix": ["rev-list"] } },
+                { "argv": { "prefix": ["merge-base"] } },
+                { "argv": { "prefix": ["add"] } },
+                { "argv": { "prefix": ["rm"] } },
+                { "argv": { "prefix": ["mv"] } },
+                { "argv": { "prefix": ["restore"] } },
+                { "argv": { "prefix": ["reset"] } },
+                { "argv": { "prefix": ["commit"] } },
+                { "argv": { "prefix": ["stash"] } },
+                { "argv": { "prefix": ["switch"] } },
+                { "argv": { "prefix": ["checkout"] } },
+                { "argv": { "prefix": ["branch"] } },
+                { "argv": { "prefix": ["tag"] } },
+                { "argv": { "prefix": ["merge"] } },
+                { "argv": { "prefix": ["rebase"] } },
+                { "argv": { "prefix": ["cherry-pick"] } },
+                { "argv": { "prefix": ["revert"] } },
+                { "argv": { "prefix": ["fetch"] } },
+                { "argv": { "prefix": ["pull"] } },
+                { "argv": { "prefix": ["push"] } },
+                { "argv": { "prefix": ["remote"] } },
+                { "argv": { "prefix": ["worktree"] } }
+              ]
+            }
+          }
+        }
+      },
       "gpg": {
         "executable": "/opt/homebrew/bin/gpg",
         "from": {
+          "git": {
+            "sandbox": {
+              // Inherits git's cwd (repo); getcwd needs read on it
+              "fs_read": ["/opt/homebrew", "$HOME/.gnupg-claude", "@git:toplevel"],
+              "fs_write": ["$HOME/.gnupg-claude"],
+              "unix_socket_bind": ["$HOME/.gnupg-claude/S.gpg-agent"],
+              "environment": { "set_vars": { "GNUPGHOME": "/Users/taylorknapp/.gnupg-claude" } }
+            },
+            "invocation_policy": {
+              "default": "deny",
+              "allow": [
+                { "argv": { "prefix": ["--status-fd=2", "-bsau"] }, "reason": "git commit signing" },
+                { "argv": { "contains": ["--verify"] }, "reason": "git signature verification" }
+              ]
+            }
+          },
           "session": {
             "sandbox": {
               "fs_read": [
@@ -143,7 +235,7 @@
               ],
               "environment": {
                 "set_vars": {
-                  "GNUPGHOME": "$HOME/.gnupg-claude"
+                  "GNUPGHOME": "/Users/taylorknapp/.gnupg-claude"
                 }
               }
             },
