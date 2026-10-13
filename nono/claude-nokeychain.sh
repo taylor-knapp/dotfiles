@@ -11,6 +11,7 @@ jq --arg pack "$pack" '
   | .meta.description = "nolabs-ai/claude minus Keychain access (generated)"
   | .filesystem.allow |= nokc
   | .filesystem.bypass_protection |= nokc
+  | .filesystem.suppress_save_prompt |= [ "$HOME/Library/Keychains" ]
   | .session_hooks.before.script |= sub("\\$PACK_DIR"; $pack)
   # Keychain is denied, so nono proxy supplies the OAuth token: sandbox sees a
   # phantom, real token stays host-side. See nono docs: Sandboxed OAuth Logins.

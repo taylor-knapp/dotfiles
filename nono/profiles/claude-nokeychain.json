@@ -73,7 +73,7 @@
       }
     ],
     "suppress_save_prompt": [
-      "~/Library/Keychains"
+      "$HOME/Library/Keychains"
     ]
   },
   "network": {

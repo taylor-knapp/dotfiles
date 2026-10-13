@@ -1,0 +1,11 @@
+{
+  "$schema": "https://nono.sh/schemas/profile.json",
+  "extends": "claude-sandboxed",
+  "meta": {
+    "name": "claude-login",
+    "description": "claude-sandboxed + OAuth callback listener; used only by `claude-nono --login`"
+  },
+  "network": {
+    "listen_port_range": [[49152, 65535]]
+  }
+}

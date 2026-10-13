@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-13
+
+- nono: `claude-nono --login` runs `claude auth login` (then starts the normal session) under new profile `claude-login` (extends `claude-sandboxed` + `listen_port_range` 49152–65535 for the OAuth callback, `interactive`, `--allow-launch-services`). Normal sessions get no listen ports/browser opens. `oauth_capture` keeps real tokens host-side; phantoms in `~/.claude` keep later sessions logged in and refreshing.
+
 ## 2026-10-12
 
 - nono: added `nono/claude-nokeychain.sh` — generates `nono/profiles/claude-nokeychain.json` (jq copy of the `nolabs-ai/claude` pack profile minus its `~/Library/Keychains` allow + `bypass_protection`). Child profiles can't remove inherited bypasses, hence the copy. `claude-sandboxed` and `claude-directory` now extend it. Run by `nono/install.sh`; re-run after `nono update`. `install.sh` skips `brew install nono` if already present.

@@ -2,7 +2,8 @@
 # Claude Code under nono. Successor to claudie's sandbox/claude-sandboxed.
 #   --directory-only  cwd + essentials only (profile claude-directory; no docker, no extra ~/code dirs)
 #   --online          allow all outbound domains (still proxied/audited)
-#   --no-omai         skip env from ~/code/claudie/omai/settings.json (local gateway)
+#   --login           run `claude auth login` first (profile claude-login: callback ports + browser open), then session
+#   --no-omai        skip env from ~/code/claudie/omai/settings.json (local gateway)
 #   --playwright      start a chromium server outside the sandbox, pass PLAYWRIGHT_WS_ENDPOINT in
 # Everything else passes through to claude.
 set -euo pipefail
@@ -13,11 +14,12 @@ CT_ROOT="$HOME/code/ct"
 PROFILE=claude-sandboxed
 NONO_ARGS=(--rollback --trust-proxy-ca --allow-cwd)  # proxy CA in keychain -> Go CLIs (gh) trust it
 CLAUDE_ARGS=()
-USE_OMAI=true PLAYWRIGHT=false
+USE_OMAI=true PLAYWRIGHT=false LOGIN=false
 for a in "$@"; do
   case "$a" in
     --directory-only|--directory) PROFILE=claude-directory ;;
     --online) NONO_ARGS+=(--allow-domain '*') ;;
+    --login) LOGIN=true ;;
     --no-omai) USE_OMAI=false ;;
     --playwright) PLAYWRIGHT=true ;;
     *) CLAUDE_ARGS+=("$a") ;;
@@ -40,6 +42,13 @@ PY
 )"
   port="$(url_port "${ANTHROPIC_BASE_URL:-}")"
   [ -n "$port" ] && NONO_ARGS+=(--open-port "$port")
+fi
+
+# Separate login sandbox (callback listener + browser open) runs `claude auth login`,
+# then the normal session starts without those grants. nono's oauth_capture keeps real
+# tokens in host Keychain; sandbox gets phantoms in ~/.claude, so later sessions stay logged in.
+if [ "$LOGIN" = true ]; then
+  nono -s run -p claude-login --allow-launch-services --trust-proxy-ca --allow-cwd -- claude auth login
 fi
 
 # Per-repo grants (profile globs like $HOME/code/*-worktrees hang nono 0.79).
