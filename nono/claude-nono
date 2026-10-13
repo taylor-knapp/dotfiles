@@ -11,7 +11,7 @@ NONO_DIR="$(dirname "$(realpath "$0")")"
 CLAUDIE="$HOME/code/claudie"
 CT_ROOT="$HOME/code/ct"
 PROFILE=claude-sandboxed
-NONO_ARGS=(--rollback --trust-proxy-ca)  # proxy CA in keychain -> Go CLIs (gh) trust it
+NONO_ARGS=(--rollback --trust-proxy-ca --allow-cwd)  # proxy CA in keychain -> Go CLIs (gh) trust it
 CLAUDE_ARGS=()
 USE_OMAI=true PLAYWRIGHT=false
 for a in "$@"; do
