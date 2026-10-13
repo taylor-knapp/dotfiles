@@ -71,6 +71,9 @@
         "path": "$XDG_RUNTIME_DIR/cc-socks",
         "when": "linux"
       }
+    ],
+    "suppress_save_prompt": [
+      "~/Library/Keychains"
     ]
   },
   "network": {
