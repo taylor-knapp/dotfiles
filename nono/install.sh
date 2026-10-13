@@ -11,9 +11,6 @@ nono pull nolabs-ai/opencode
 # Keychain-free copy of the claude pack profile (re-run after `nono update`)
 "$HOME/.dotfiles/nono/claude-nokeychain.sh"
 
-# Symlink profiles into ~/.config/nono/profiles
-mkdir -p "$HOME/.config/nono/profiles"
-for f in "$HOME"/.dotfiles/nono/profiles/*.json; do
-  ln -sf "$f" "$HOME/.config/nono/profiles/$(basename "$f")"
-done
+# Symlink profiles and config into nono config directory
+ln -sfn "$HOME/.dotfiles/nono/profiles" "$HOME/.config/nono/profiles"
 ln -sf "$HOME/.dotfiles/nono/config.toml" "$HOME/.config/nono/config.toml"
