@@ -4,7 +4,7 @@
 # Re-run after `nono update`.
 set -e
 pack="$HOME/.config/nono/packages/nolabs-ai/claude"
-out="$HOME/.dotfiles/nono/profiles/claude-nokeychain.json"
+out="$HOME/.dotfiles/nono/profiles/claude-nokeychain.jsonc"
 jq --arg pack "$pack" '
   def nokc: map(select((.path? // .) != "$HOME/Library/Keychains"));
   .meta.name = "claude-nokeychain"

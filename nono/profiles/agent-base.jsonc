@@ -20,7 +20,10 @@
     ],
     "allow": [
       "/tmp/claude",
-      "$HOME/.local/state/fnm_multishells"
+      "$HOME/.local/state/fnm_multishells",
+      // The default profile allows read access to $HOME/.gitconfig, but we want also to allow 
+      // read access to $HOME/.gitconfig.local for local overrides. 
+      "$HOME/.gitconfig.local"
     ],
     "deny": [
       "$HOME/.ssh",
