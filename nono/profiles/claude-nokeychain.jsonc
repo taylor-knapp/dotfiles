@@ -103,17 +103,6 @@
     ]
   },
   "allow_launch_services": true,
-  "rollback": {
-    "exclude_patterns": [
-      "node_modules",
-      ".next",
-      "__pycache__",
-      "target"
-    ],
-    "exclude_globs": [
-      "*.tmp.[0-9]*.[0-9a-f]*"
-    ]
-  },
   "credential_providers": {
     "claude_code": {
       "type": "oauth_capture",
