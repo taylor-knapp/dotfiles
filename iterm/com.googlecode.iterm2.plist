@@ -782,5 +782,7 @@
 	</data>
 	<key>findMode_iTerm</key>
 	<integer>2</integer>
+	<key>kTurnOffSlowTriggersOfferUserDefaultsKey</key>
+	<false/>
 </dict>
 </plist>
