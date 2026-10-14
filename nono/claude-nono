@@ -91,5 +91,12 @@ fi
 printf '{"cwd":%s}' "$(python3 -c 'import json,os;print(json.dumps(os.getcwd()))')" \
   | bash "$NONO_DIR/disable-all-mcp.sh" || true
 
+# GitHub token for this repo's owner (custom_credentials in agent-base); none for other owners.
+owner="$(git remote get-url origin 2>/dev/null | sed -E 's#.*github.com[:/]([^/]+)/.*#\1#' || true)"
+case "$owner" in
+  commercetools) NONO_ARGS+=(--credential github_commercetools) ;;
+  taylor-knapp)  NONO_ARGS+=(--credential github_personal) ;;
+esac
+
 # Not exec'd: EXIT trap must stop the playwright server.
 nono run -p "$PROFILE" "${NONO_ARGS[@]}" -- claude --permission-mode auto ${CLAUDE_ARGS[@]+"${CLAUDE_ARGS[@]}"}

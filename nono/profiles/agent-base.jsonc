@@ -26,20 +26,39 @@
       "$HOME/.gitconfig.local"
     ],
     // globs (**/) seem to apply, even outside the working directory.
-    "deny": [
-      "$HOME/.ssh",
-      "$HOME/.aws",
-      "$HOME/.azure",
-      "**/.git/hooks",
-      "**/.git/config",
-      "$HOME/.gnupg-claude",
-      "**/.env",
-      "**/.env.*",
-      "**/*.client.env",
-      "**/secrets/**"
+    "deny": [ 
+      { "path": "$HOME/.ssh" },
+      { "path": "$HOME/.aws" },
+      { "path": "$HOME/.azure" },
+      { "path": "**/.git/hooks" },
+      { "path": "**/.git/config" },
+      { "path": "$HOME/.gnupg-claude" },
+      { "path": "**/.env" },
+      { "path": "**/.env.*" },
+      { "path": "**/*.client.env" },
+      { "path": "**/secrets/**" }
     ]
   },
   "network": {
+    // Fine-grained GitHub PATs, one per resource owner. claude-nono enables one per session
+    // (--credential) from the origin remote's owner. Real tokens live in Keychain (service
+    // "nono", account = credential_key); the sandbox sees only a phantom GH_TOKEN.
+    "custom_credentials": {
+      "github_personal": {
+        "upstream": "https://api.github.com",
+        "credential_key": "github_personal",
+        "env_var": "GH_TOKEN",
+        "inject_header": "Authorization",
+        "credential_format": "token {}"
+      },
+      "github_commercetools": {
+        "upstream": "https://api.github.com",
+        "credential_key": "github_commercetools",
+        "env_var": "GH_TOKEN",
+        "inject_header": "Authorization",
+        "credential_format": "token {}"
+      }
+    },
     "allow_domain": [
       "api.anthropic.com",
       "claude.ai",

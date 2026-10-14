@@ -2,6 +2,8 @@
 
 ## 2026-10-14
 
+- nono: `agent-base` defines two GitHub proxy credentials, `github_personal` and `github_commercetools`. Each one injects a fine-grained PAT from Keychain (service `nono`) into `api.github.com` requests, and the sandbox sees only a phantom `GH_TOKEN`. `claude-nono` enables one of them from the owner of the `origin` remote. Other owners get no token.
+
 - claude: `install.sh` now installs Claude Code, ccusage, and caveman on all platforms (no longer macOS-only) and drops agent-safehouse. Adds `simple-english` plugin marketplace + install.
 - claude: default model switched to Haiku 5.5 (`settings.json` `model`, `ANTHROPIC_MODEL`); Haiku effort lowered from `xhigh` to `low`.
 - claude: statusline line 2 ends with the base input price per million tokens. Opus shows `$4 Mtok`, and Sonnet shows `$2 Mtok`. Haiku shows `$0.10 Mtok` in green up to 100K used tokens and `$0.50 Mtok` in red above that.
