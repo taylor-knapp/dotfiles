@@ -5,6 +5,8 @@
 - claude: `install.sh` now installs Claude Code, ccusage, and caveman on all platforms (no longer macOS-only) and drops agent-safehouse. Adds `simple-english` plugin marketplace + install.
 - claude: default model switched to Haiku 5.5 (`settings.json` `model`, `ANTHROPIC_MODEL`); Haiku effort lowered from `xhigh` to `low`.
 - claude: statusline line 2 ends with the base input price per million tokens. Opus shows `$4 Mtok`, and Sonnet shows `$2 Mtok`. Haiku shows `$0.10 Mtok` in green up to 100K used tokens and `$0.50 Mtok` in red above that.
+- nono: `agent-base` now mirrors the `claude/settings.json` deny rules. The session cannot run `/usr/bin/security`. `git push` is denied. The session cannot read or write `.env`, `.env.*`, or `secrets/**` in the workdir.
+- nono: `agent-base` allows `osascript` only with the exact notification scripts that the `claude/settings.json` Stop and Notification hooks run. Every other `osascript` call is denied. The session cannot run `/usr/bin/open`.
 - nono: `claude-login` is now a standalone profile with no `extends`. It allows only what `claude auth login` needs: the claude install, `~/.claude`, `~/.claude.json`, `~/Library/Keychains` (the whole folder, because Keychain saves write temp files there), the claude hosts, the OAuth callback ports, and browser opens. `claude-nono --login` no longer passes `--allow-cwd`. The parent `agent-base` profile denied `security` with an explicit deny, which a child profile cannot override.
 
 ## 2026-10-13

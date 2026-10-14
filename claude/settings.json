@@ -22,18 +22,7 @@
   },
   "permissions": {
     "deny": [
-      "Bash(security *)",
-      "Bash(/usr/bin/security *)",
-      "Bash(open *)",
-      "Bash(/usr/bin/open *)",
-      "Bash(osascript *)",
-      "Bash(/usr/bin/osascript *)",
-      "Bash(cd *)",
-      "Bash(git push)",
-      "Read(**/.env)",
-      "Read(**/.env.*)",
-      "Read(**/secrets/**)",
-      "Bash(# === CircleCI: require confirmation ===)",
+      "Bash(# === Specific MCP tool call blocks must remain here. ===)",
       "mcp__circleci__create_prompt_template",
       "mcp__circleci__recommend_prompt_template_tests",
       "mcp__circleci__run_evaluation_tests",
@@ -161,7 +150,7 @@
   "effortLevel": "low",
   "modelSettings": {
     "claude-opus-5-5": {
-      "effortLevel": "medium"
+      "effortLevel": "low"
     },
     "claude-haiku-5-5": {
       "effortLevel": "low"

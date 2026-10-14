@@ -25,13 +25,18 @@
       // read access to $HOME/.gitconfig.local for local overrides. 
       "$HOME/.gitconfig.local"
     ],
+    // globs (**/) seem to apply, even outside the working directory.
     "deny": [
       "$HOME/.ssh",
       "$HOME/.aws",
       "$HOME/.azure",
       "**/.git/hooks",
       "**/.git/config",
-      "$HOME/.gnupg-claude"
+      "$HOME/.gnupg-claude",
+      "**/.env",
+      "**/.env.*",
+      "**/*.client.env",
+      "**/secrets/**"
     ]
   },
   "network": {
@@ -162,7 +167,8 @@
                 { "argv": { "contains": ["--upload-pack"] }, "reason": "runs code in git sandbox" },
                 { "argv": { "contains": ["--receive-pack"] }, "reason": "runs code in git sandbox" },
                 { "argv": { "contains": ["--template"] }, "reason": "copies hooks into .git" },
-                { "argv": { "prefix": ["remote", "set-url"] }, "reason": "url rewrite" }
+                { "argv": { "prefix": ["remote", "set-url"] }, "reason": "url rewrite" },
+                { "argv": { "prefix": ["push"] }, "reason": "mirrors Claude Bash(git push) deny" }
               ],
               "allow": [
                 { "argv": { "prefix": ["status"] } },
@@ -191,7 +197,6 @@
                 { "argv": { "prefix": ["revert"] } },
                 { "argv": { "prefix": ["fetch"] } },
                 { "argv": { "prefix": ["pull"] } },
-                { "argv": { "prefix": ["push"] } },
                 { "argv": { "prefix": ["remote"] } },
                 { "argv": { "prefix": ["worktree"] } }
               ]
@@ -259,6 +264,32 @@
             }
           }
         }
+      },
+      // Only the exact notification scripts from claude/settings.json Stop/Notification hooks
+      "osascript": {
+        "executable": "/usr/bin/osascript",
+        "from": {
+          "session": {
+            "sandbox": {},
+            "invocation_policy": {
+              "default": "deny",
+              "allow": [
+                {
+                  "argv": { "exact": ["-e", "display notification \"Response ready\" with title \"Claude Code - Finished\" sound name \"Submarine\""] },
+                  "reason": "Stop hook notification"
+                },
+                {
+                  "argv": { "exact": ["-e", "display notification \"Input needed\" with title \"Claude Code - Question\" sound name \"Submarine\""] },
+                  "reason": "Notification hook"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "security": {
+        "executable": "/usr/bin/security",
+        "from": { "session": "deny" }
       }
     }
   }
