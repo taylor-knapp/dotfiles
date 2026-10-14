@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-14
+
+- claude: `install.sh` now installs Claude Code, ccusage, and caveman on all platforms (no longer macOS-only) and drops agent-safehouse. Adds `simple-english` plugin marketplace + install.
+- claude: default model switched to Haiku 5.5 (`settings.json` `model`, `ANTHROPIC_MODEL`); Haiku effort lowered from `xhigh` to `low`.
+
 ## 2026-10-13
 
 - claude: `update-context`/`c` skills retargeted to the dotfiles layout (AGENTS.md + skills + hooks/settings + nono profiles); dropped `.agents/`/`rules/` targets, stale commit-signing example, AskUserQuestion.

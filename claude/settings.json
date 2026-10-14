@@ -1,7 +1,7 @@
 {
   "cleanupPeriodDays": 120,
   "env": {
-    "ANTHROPIC_MODEL": "claude-opus-5-5[1m]",
+    "ANTHROPIC_MODEL": "claude-haiku-5-5[1m]",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-5-5",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-5-5[1m]",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5-5[1m]",
@@ -40,7 +40,7 @@
       "mcp__circleci__run_rollback_pipeline"
     ]
   },
-  "model": "opus",
+  "model": "haiku",
   "disableBundledSkills": true,
   "hooks": {
     "UserPromptSubmit": [
@@ -135,7 +135,8 @@
     "typescript-lsp@claude-plugins-official": true,
     "caveman@caveman": true,
     "ponytail@ponytail": true,
-    "nono@nolabs-ai": true
+    "nono@nolabs-ai": true,
+    "simple-english@simple-english": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -149,6 +150,12 @@
         "source": "github",
         "repo": "DietrichGebert/ponytail"
       }
+    },
+    "simple-english": {
+      "source": {
+        "source": "github",
+        "repo": "AminBlg/SimpleEnglish"
+      }
     }
   },
   "effortLevel": "low",
@@ -157,7 +164,7 @@
       "effortLevel": "medium"
     },
     "claude-haiku-5-5": {
-      "effortLevel": "xhigh"
+      "effortLevel": "low"
     }
   },
   "advisorModel": "opus",

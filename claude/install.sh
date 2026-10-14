@@ -1,23 +1,15 @@
 #!/bin/sh
 #
-# Install Claude Code and agent-safehouse
+# Install Claude Code, packages, and link configuration to ~/.claude
 
-if test "$(uname)" = "Darwin"; then
-  # https://code.claude.com/docs/en/quickstart
-  curl -fsSL https://claude.ai/install.sh | bash
-  # https://agent-safehouse.dev/
-  if ! command -v safehouse >/dev/null 2>&1; then
-    brew install eugene1g/safehouse/agent-safehouse
-  elif brew list eugene1g/safehouse/agent-safehouse >/dev/null 2>&1; then
-    brew upgrade eugene1g/safehouse/agent-safehouse
-  else
-    echo "safehouse is installed but not via Homebrew — skipping update" >&2
-  fi
-  # https://github.com/ccusage/ccusage
-  brew install ccusage
-  # https://github.com/JuliusBrussee/caveman
-  curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash
-fi
+# https://code.claude.com/docs/en/quickstart
+curl -fsSL https://claude.ai/install.sh | bash
+# https://github.com/ccusage/ccusage
+brew install ccusage
+# https://github.com/JuliusBrussee/caveman
+curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash
+# https://github.com/AminBlg/SimpleEnglish
+claude plugin marketplace add AminBlg/SimpleEnglish && claude plugin install simple-english@simple-english
 
 # Link config into ~/.claude, merge MCP servers
 "$HOME/.dotfiles/claude/deploy.sh"
