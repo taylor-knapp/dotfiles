@@ -5,7 +5,7 @@
 #
 # OUTPUT FORMAT:
 #   Line 1: Model (CtxSize) | repo (branch) | ctx [bar] X% | blk [bar] Y% (Zhrs) | wk [bar] W%
-#   Line 2: Costs: $A session | $B blk | $C mo
+#   Line 2: Costs: $A session | $B blk | $C mo | $D Mtok
 #
 # COMPONENTS:
 #   - Model:     Current Claude model (e.g., "Opus 4.6")
@@ -25,6 +25,8 @@
 #   - $A session: Cost of this conversation
 #   - $B blk:    Cost of current 5-hour block (from ccusage)
 #   - $C mo:     Cost over last 30 days (from ccusage)
+#   - $D Mtok:   Base input price per million tokens for the current model
+#                Opus $4, Sonnet $2, Haiku $0.10 (green) up to 100K used tokens, $0.50 (red) above
 #
 # COLOR THRESHOLDS (same for all bars):
 #   Green  = <70%
@@ -137,6 +139,23 @@ if [[ $compact_window -gt 0 ]] 2>/dev/null; then
 else
     ctx_effective_pct=$context_used
 fi
+
+# ==== Base token price (per million input tokens) ====
+# Opus and Sonnet have fixed prices. Haiku is tiered on used context tokens:
+# green $0.10 at or below 100K, red $0.50 above 100K.
+used_tokens=$(( context_used * context_total / 100 ))
+base_token_segment=""
+case "$model" in
+    *Opus*)   base_token_segment=" | \$4 Mtok" ;;
+    *Sonnet*) base_token_segment=" | \$2 Mtok" ;;
+    *Haiku*)
+        if [[ $used_tokens -le 100000 ]]; then
+            base_token_segment=" | ${GREEN}\$0.10 Mtok${RESET}"
+        else
+            base_token_segment=" | ${RED}\$0.50 Mtok${RESET}"
+        fi
+        ;;
+esac
 
 # ==== Get repo name, branch, and worktree info ====
 # One rev-parse for all four values; --path-format applies to the options after it,
@@ -383,12 +402,12 @@ if [[ "$api_available" != "true" && -f "$ccusage_cache_file" ]]; then
     week_cost_display=$(printf "\$%.0f" "$week_cost")
     month_cost_display=$(printf "\$%.0f" "$month_cost")
 
-    printf "${RESET}%s | %s | ctx [%s${RESET}] %s%% | blk [%s${RESET}] %s%% (%shrs) | %s wk%s\nCosts: %s session | %s blk | %s mo${RESET}" \
+    printf "${RESET}%s | %s | ctx [%s${RESET}] %s%% | blk [%s${RESET}] %s%% (%shrs) | %s wk%s\nCosts: %s session | %s blk | %s mo%s${RESET}" \
         "$model_display" "$location" \
         "$ctx_bar" "$ctx_effective_pct" \
         "$blk_bar" "$block_percent" "$remaining_hrs" \
         "$week_cost_display" "$cc_stale" \
-        "$session_cost_display" "$block_cost_display" "$month_cost_display"
+        "$session_cost_display" "$block_cost_display" "$month_cost_display" "$base_token_segment"
     exit 0
 fi
 
@@ -402,18 +421,18 @@ if [[ "$api_available" == "true" ]]; then
     block_cost_display=$(printf "\$%.2f" "$block_cost")
     month_cost_display=$(printf "\$%.0f" "$month_cost")
 
-    printf "${RESET}%s | %s | ctx [%s${RESET}] %s%% | blk [%s${RESET}] %s%% (%shrs) | wk [%s${RESET}] %s%%%s%s\nCosts: %s session | %s blk | %s mo${RESET}" \
+    printf "${RESET}%s | %s | ctx [%s${RESET}] %s%% | blk [%s${RESET}] %s%% (%shrs) | wk [%s${RESET}] %s%%%s%s\nCosts: %s session | %s blk | %s mo%s${RESET}" \
         "$model_display" "$location" \
         "$ctx_bar" "$ctx_effective_pct" \
         "$blk_bar" "$block_percent" "$remaining_hrs" \
         "$wk_bar" "$week_percent" "$week_day" "$api_stale" \
-        "$session_cost_display" "$block_cost_display" "$month_cost_display"
+        "$session_cost_display" "$block_cost_display" "$month_cost_display" "$base_token_segment"
 else
     # No data at all — minimal output
     ctx_bar=$(make_bar "$ctx_effective_pct" "$ctx_effective_pct")
     session_cost_display=$(printf "\$%.2f" "$session_cost")
-    printf "${RESET}%s | %s | ctx [%s${RESET}] %s%% | %s s${RESET}" \
+    printf "${RESET}%s | %s | ctx [%s${RESET}] %s%% | %s s%s${RESET}" \
         "$model_display" "$location" \
         "$ctx_bar" "$ctx_effective_pct" \
-        "$session_cost_display"
+        "$session_cost_display" "$base_token_segment"
 fi

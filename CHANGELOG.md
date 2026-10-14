@@ -4,6 +4,7 @@
 
 - claude: `install.sh` now installs Claude Code, ccusage, and caveman on all platforms (no longer macOS-only) and drops agent-safehouse. Adds `simple-english` plugin marketplace + install.
 - claude: default model switched to Haiku 5.5 (`settings.json` `model`, `ANTHROPIC_MODEL`); Haiku effort lowered from `xhigh` to `low`.
+- claude: statusline line 2 ends with the base input price per million tokens. Opus shows `$4 Mtok`, and Sonnet shows `$2 Mtok`. Haiku shows `$0.10 Mtok` in green up to 100K used tokens and `$0.50 Mtok` in red above that.
 
 ## 2026-10-13
 
