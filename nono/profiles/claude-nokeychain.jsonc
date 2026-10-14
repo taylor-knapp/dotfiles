@@ -102,7 +102,6 @@
       "forbidden-exec-sugid"
     ]
   },
-  "allow_launch_services": true,
   "credential_providers": {
     "claude_code": {
       "type": "oauth_capture",

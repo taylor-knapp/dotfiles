@@ -1,11 +1,32 @@
 {
   "$schema": "https://nono.sh/schemas/profile.json",
-  "extends": "claude-sandboxed",
   "meta": {
     "name": "claude-login",
-    "description": "claude-sandboxed + OAuth callback listener; used only by `claude-nono --login`"
+    "description": "Standalone: only `claude auth login` (browser OAuth, callback listener, Keychain save); used by `claude-nono --login`"
+  },
+  "groups": {
+    // claude_code_macos: claude install (read) + Keychain paths.
+    "include": ["system_read_macos", "system_write_macos", "claude_code_macos"]
+  },
+  "filesystem": {
+    "allow": ["$HOME/.claude", "$HOME/Library/Keychains"],
+    "allow_file": ["$HOME/.claude.json", "$HOME/.claude.json.lock", "$HOME/.claude.lock"],
+    "read_file": ["$HOME/.local/bin/claude"],
+    // deny_keychains_macos is a required group; needs explicit allow + bypass. Dir, not db file:
+    // Keychain writes go through temp files (login.keychain-db.sb-*) + rename.
+    "bypass_protection": ["$HOME/Library/Keychains"]
   },
   "network": {
+    "allow_domain": ["claude.ai", "claude.com", "platform.claude.com", "api.anthropic.com"],
+    // OAuth callback listener
     "listen_port_range": [[49152, 65535]]
+  },
+  "open_urls": {
+    "allow_origins": ["https://claude.ai", "https://claude.com", "https://platform.claude.com"],
+    "allow_localhost": true
+  },
+  "allow_launch_services": true,
+  "workdir": {
+    "access": "none"
   }
 }
