@@ -14,3 +14,6 @@ nono pull nolabs-ai/opencode
 # Symlink profiles and config into nono config directory
 ln -sfn "$HOME/.dotfiles/nono/profiles" "$HOME/.config/nono/profiles"
 ln -sf "$HOME/.dotfiles/nono/config.toml" "$HOME/.config/nono/config.toml"
+
+# Update nono profile json schema to the latest version
+nono profile schema > "$HOME/.dotfiles/nono/profile.schema.json"

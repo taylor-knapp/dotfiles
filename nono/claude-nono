@@ -101,5 +101,13 @@ case "$owner" in
   taylor-knapp)  NONO_ARGS+=(--credential github_personal) ;;
 esac
 
+# Repo-local .nono.json (repo root, else cwd) layers on top of $PROFILE.
+LOCAL="$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.nono.json"
+if [ -f "$LOCAL" ]; then
+  NONO_ARGS+=(--extends "$PROFILE")
+  PROFILE="$LOCAL"
+  echo "[claude-nono] Local profile: $LOCAL" >&2
+fi
+
 # Not exec'd: EXIT trap must stop the playwright server.
 nono run -p "$PROFILE" "${NONO_ARGS[@]}" -- claude --permission-mode auto ${CLAUDE_ARGS[@]+"${CLAUDE_ARGS[@]}"}

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/nolabs-ai/nono/refs/heads/main/crates/nono/schema/capability-manifest.schema.json",
+  "$schema": "../profile.schema.json",
   "extends": ["claude-nokeychain", "agent-extended"],
   "meta": {
     "name": "claude-sandboxed",

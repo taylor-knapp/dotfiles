@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-15
+
+- nono: add `nono/AGENTS.md`, which lists the nono CLI commands that agents use to learn, inspect, and validate profiles.
+- nono: `cln` loads `.nono.json` from the repo root, or from the cwd outside a repo. The local profile extends `claude-sandboxed`, or `claude-directory` with `--directory-only`.
+
 ## 2026-10-14
 
 - nono: `agent-base` defines two GitHub proxy credentials, `github_personal` and `github_commercetools`. Each one injects a fine-grained PAT from Keychain (service `nono`) into `api.github.com` requests, and the sandbox sees only a phantom `GH_TOKEN`. `claude-nono` enables one of them from the owner of the `origin` remote. Other owners get no token.
