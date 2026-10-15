@@ -135,13 +135,8 @@
         "https://api.anthropic.com"
       ],
       "credential_store": {
-        "type": "keychain_json",
-        "service": "Claude Code-credentials",
-        "account_candidates": [
-          "unknown",
-          "$USER",
-          "claude-code-user"
-        ],
+        "type": "file_json",
+        "path": "$HOME/.claude/.credentials.json",
         "phantom_fields": [
           "claudeAiOauth.accessToken",
           "claudeAiOauth.refreshToken"

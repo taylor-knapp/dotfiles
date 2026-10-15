@@ -50,6 +50,9 @@ fi
 # Login lands in host Keychain; later sessions' oauth_capture store reads it host-side.
 if [ "$LOGIN" = true ]; then
   nono -s run -p claude-login --allow-launch-services --trust-proxy-ca -- claude auth login
+  # Because we don't allow the regular sandbox profile access to the Keychain, we must export the credentials to a file that claude uses for storage if it doesn't have keychain access.
+  # These values are actually the phantoms produced by nono, and the real values are stored in local nono state, ~/.local/state/nono/oauth-capture/providers.json.
+  security find-generic-password -s "Claude Code-credentials" -w > ~/.claude/.credentials.json
 fi
 
 # Per-repo grants (profile globs like $HOME/code/*-worktrees hang nono 0.79).
