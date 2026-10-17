@@ -27,6 +27,14 @@ for a in "$@"; do
   esac
 done
 
+# Refuse the personal account before any side effects (login, playwright, MCP config).
+# Missing login or failed status gives no email, so the check passes.
+account="$(claude auth status --json 2>/dev/null | python3 -c 'import json,sys;print(json.load(sys.stdin).get("email") or "")' 2>/dev/null || true)"
+if [ "$account" = "taylor.r.knapp@gmail.com" ]; then
+  echo "[claude-nono] refusing to run as $account (claude auth status --json); log out or switch accounts first" >&2
+  exit 1
+fi
+
 # localhost port from a URL (gateway / playwright ws endpoint)
 url_port() { python3 -c 'import sys,urllib.parse as u;print(u.urlparse(sys.argv[1]).port or "")' "$1"; }
 

@@ -1,0 +1,19 @@
+{
+  "$schema": "../profile.schema.json",
+  // agent-base, not agent-extended: extended grants work dirs under ~/code and ~/.config.
+  "extends": ["claude-nokeychain", "agent-base"],
+  "meta": {
+    "name": "claude-personal",
+    "description": "Claude Code for the personal account; no access to ~/code/ct (used by claude-nono-personal)"
+  },
+  "environment": {
+    "set_vars": { "CLAUDE_SANDBOX_PROFILE": "claude-personal" }
+  },
+  "filesystem": {
+    "deny": [
+      { "path": "$HOME/code/ct" },
+      // Session transcripts of work repos
+      { "path": "$HOME/.claude/projects/-Users-taylorknapp-code-ct*" }
+    ]
+  }
+}

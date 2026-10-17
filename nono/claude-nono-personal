@@ -1,0 +1,57 @@
+#!/bin/bash
+# Claude Code under nono for the personal account (profile claude-personal; no access to ~/code/ct).
+#   --login           run `claude auth login` first (profile claude-login), then session
+#   --online          allow all outbound domains (still proxied/audited)
+#   --allow-dir=PATH  grant rw to PATH (nono --allow) + claude --add-dir; repeatable; refused under ~/code/ct
+# Everything else passes through to claude. No omai, no playwright, no repo-local .nono.json.
+set -euo pipefail
+
+rp() { python3 -c 'import os,sys;print(os.path.realpath(os.path.expanduser(sys.argv[1])))' "$1"; }
+NONO_DIR="$(dirname "$(rp "$0")")"
+CT_ROOT="$(rp "$HOME/code/ct")"
+EMAIL=taylor.r.knapp@gmail.com
+NONO_ARGS=(--trust-proxy-ca --allow-cwd)
+CLAUDE_ARGS=()
+LOGIN=false
+
+die() { echo "[claude-nono-personal] $*" >&2; exit 1; }
+# Resolved path (symlinks included) at or under ~/code/ct
+in_ct() { case "$(rp "$1")/" in "$CT_ROOT"/*) return 0 ;; esac; return 1; }
+
+in_ct "$PWD" && die "refusing to run inside $CT_ROOT"
+
+for a in "$@"; do
+  case "$a" in
+    --login) LOGIN=true ;;
+    --online) NONO_ARGS+=(--allow-domain '*') ;;
+    --allow-dir=*) d="${a#*=}"; in_ct "$d" && die "refusing --allow-dir under $CT_ROOT: $d"
+                   NONO_ARGS+=(--allow "$d"); CLAUDE_ARGS+=(--add-dir "$d") ;;
+    *) CLAUDE_ARGS+=("$a") ;;
+  esac
+done
+
+if [ "$LOGIN" = true ]; then
+  nono -s run -p claude-login --allow-launch-services --trust-proxy-ca -- claude auth login
+  # Phantom tokens for the Keychain-free session profile (see claude-nono).
+  security find-generic-password -s "Claude Code-credentials" -w > ~/.claude/.credentials.json
+fi
+
+account="$(claude auth status --json 2>/dev/null | python3 -c 'import json,sys;print(json.load(sys.stdin).get("email") or "")' 2>/dev/null || true)"
+[ "$account" = "$EMAIL" ] || die "logged in as '${account:-nobody}', need $EMAIL (use --login)"
+
+# Worktree grants; main can't be under ct since cwd isn't, but check anyway.
+if common="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"; then
+  main="$(dirname "$common")"
+  in_ct "$main" && die "repo's main checkout is under $CT_ROOT: $main"
+  [ -d "$main-worktrees" ] && NONO_ARGS+=(--allow "$main-worktrees")
+  [ "$main" != "$(git rev-parse --show-toplevel)" ] && NONO_ARGS+=(--allow "$main")
+fi
+
+printf '{"cwd":%s}' "$(python3 -c 'import json,os;print(json.dumps(os.getcwd()))')" \
+  | bash "$NONO_DIR/disable-all-mcp.sh" || true
+
+# Personal GitHub token only, and only for personal repos.
+owner="$(git remote get-url origin 2>/dev/null | sed -E 's#.*github.com[:/]([^/]+)/.*#\1#' || true)"
+[ "$owner" = taylor-knapp ] && NONO_ARGS+=(--credential github_personal)
+
+exec nono run -p claude-personal "${NONO_ARGS[@]}" -- claude --permission-mode auto ${CLAUDE_ARGS[@]+"${CLAUDE_ARGS[@]}"}
