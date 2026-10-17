@@ -2,6 +2,7 @@
 
 ## 2026-10-17
 
+- lute: Verify TLS through the macOS Keychain with `truststore`, because Python 3.13+ rejects the Zscaler root CA (`Basic Constraints of CA cert not marked critical`).
 - nono: If `claude auth status --json` reports the account `taylor.r.knapp@gmail.com`, `claude-nono` exits with an error before any setup. A missing login passes the check.
 - nono: Add `clp` (`nono/claude-nono-personal`), which runs Claude Code with the personal account under the new `claude-personal` profile. If the cwd or an `--allow-dir` path resolves under `~/code/ct`, `clp` exits with an error. If the account is not `taylor.r.knapp@gmail.com`, `clp` also exits with an error. The profile extends `agent-base`, not `agent-extended`, and denies `~/code/ct` and the `~/code/ct` session transcripts in `~/.claude/projects`.
 

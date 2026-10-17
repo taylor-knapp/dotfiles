@@ -6,4 +6,4 @@
 set -e
 DIR="$(dirname "$0")"
 [ -d "$DIR/.venv" ] || python3 -m venv "$DIR/.venv"
-"$DIR/.venv/bin/pip" install --quiet --upgrade pip lute3
+"$DIR/.venv/bin/pip" install --quiet --upgrade pip lute3 truststore

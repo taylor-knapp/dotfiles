@@ -41,4 +41,6 @@ BACKUP_PATH: $DATA/backups
 YML
 
 (sleep 3 && open "$URL") &
-"$DIR/.venv/bin/python" -m lute.main --port "$PORT" --config "$DIR/.venv/config.yml"
+# truststore: verify TLS via macOS Keychain. Python 3.13+ rejects the Zscaler root
+# ("Basic Constraints of CA cert not marked critical") even with SSL_CERT_FILE.
+"$DIR/.venv/bin/python" -c 'import runpy, truststore; truststore.inject_into_ssl(); runpy.run_module("lute.main", run_name="__main__")' --port "$PORT" --config "$DIR/.venv/config.yml"
