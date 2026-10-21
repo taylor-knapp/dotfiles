@@ -32,6 +32,7 @@ Final todo: "Validate changes". Order: prettier → typecheck → eslint → rel
 - Monorepo: `pnpm format` → `pnpm typecheck` → `pnpm lint` → `pnpm test`
 
 ## Git
+- Never use `git -C <dir>`. Run in the current directory.
 - Branches start with ticket ID: `UAA-5125-*`.
 - Base ref `origin/main`, not `main` (`git diff origin/main...HEAD`).
 - Refactors: separate `git commit --fixup=<target>` per target commit (find via `git log origin/main..HEAD --oneline -- FILE`). Squash: `git stash`, then `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash origin/main` (`--autosquash` needs `-i`).
