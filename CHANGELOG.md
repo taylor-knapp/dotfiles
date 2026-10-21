@@ -3,6 +3,8 @@
 ## 2026-10-21
 
 - nono: `agent-base` sets `network.open_port_range` to `[[10000, 10999]]`. Claude Code connects to the claudecode.nvim WebSocket server on localhost. The proxy-only network policy blocked that connection, so Neovim showed `Connection timeout` and cleared the queued `@` mentions. `neovim/config` sets the plugin `port_range` to the same window.
+- nono: `agent-base` sets `network.tls_intercept.ca_validity` to `5d`, so the proxy CA lasts five days instead of one. An expired CA makes every intercepted request fail with `tls: access denied`.
+- nono: `agent-base` sets `network.tls_intercept.ca_lifecycle` to `trusted`. nono 0.79 rejects the default `session` value. Every `cln` and `clp` launch failed with `Configuration parse error`.
 
 ## 2026-10-17
 

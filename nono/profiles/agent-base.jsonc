@@ -40,6 +40,12 @@
     ]
   },
   "network": {
+    // Proxy CA lifetime. Short enough to limit exposure if the trusted key leaks; long enough to skip daily trust prompts.
+    // trusted: required by --trust-proxy-ca (nono 0.79 rejects the default "session").
+    "tls_intercept": {
+      "ca_lifecycle": "trusted",
+      "ca_validity": "5d"
+    },
     // claudecode.nvim WebSocket server, bound to localhost. Claude Code connects straight to it (not via the proxy), so the sandbox needs these ports open.
     // Keep in sync with port_range in neovim/config/lua/plugins/claudecode.lua. macOS caps open_port_range at 16,384 ports total.
     "open_port_range": [[10000, 10999]],
