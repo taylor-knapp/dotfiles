@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-21
+
+- nono: `agent-base` sets `network.open_port_range` to `[[10000, 10999]]`. Claude Code connects to the claudecode.nvim WebSocket server on localhost. The proxy-only network policy blocked that connection, so Neovim showed `Connection timeout` and cleared the queued `@` mentions. `neovim/config` sets the plugin `port_range` to the same window.
+
 ## 2026-10-17
 
 - lute: Verify TLS through the macOS Keychain with `truststore`, because Python 3.13+ rejects the Zscaler root CA (`Basic Constraints of CA cert not marked critical`).

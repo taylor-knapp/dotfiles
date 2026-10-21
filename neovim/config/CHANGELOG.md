@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-21
+
+- claudecode.nvim: `port_range` is `10000` to `10999` (`lua/plugins/claudecode.lua`). The nono sandbox allows only this window for the Claude Code localhost connection (`nono/profiles/agent-base.jsonc`, `open_port_range`). macOS caps `open_port_range` at 16,384 ports. The default range holds 55,536 ports, which is over that cap.
+
 ## 2026-09-15
 
 - Diff panes now scroll and move their cursors in lockstep (`init.lua`, `lua/plugins/diffview.lua`).
