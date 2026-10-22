@@ -25,16 +25,17 @@
       // read access to $HOME/.gitconfig.local for local overrides. 
       "$HOME/.gitconfig.local"
     ],
-    // globs (**/) seem to apply, even outside the working directory.
-    "deny": [ 
+    // Relative globs are rooted at the workdir. nono walks the whole workdir (node_modules
+    // included) once per `**` pattern at startup, so keep `**` patterns few; on macOS a Seatbelt
+    // regex also enforces each one at runtime. `.env*` covers `.env` and `.env.*` in one walk.
+    "deny": [
       { "path": "$HOME/.ssh" },
       { "path": "$HOME/.aws" },
       { "path": "$HOME/.azure" },
-      { "path": "**/.git/hooks" },
-      { "path": "**/.git/config" },
+      { "path": "$WORKDIR/.git/hooks" },
+      { "path": "$WORKDIR/.git/config" },
       { "path": "$HOME/.gnupg-claude" },
-      { "path": "**/.env" },
-      { "path": "**/.env.*" },
+      { "path": "**/.env*" },
       { "path": "**/*.client.env" },
       { "path": "**/secrets/**" }
     ]
