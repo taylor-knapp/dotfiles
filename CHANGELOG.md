@@ -2,6 +2,7 @@
 
 ## 2026-10-22
 
+- nono: `claude-nono` and `claude-nono-personal` run `gpgconf --launch gpg-agent` for `~/.gnupg-claude` before starting the sandbox. Before this, nothing started the agent outside the sandbox, so commit signing failed with `No agent running`. If the agent is already running, `gpgconf --launch` does nothing.
 - nono: `agent-base` denies `.env` files, `*.client.env`, `secrets/` folders, `.git/hooks`, and `.git/config` with raw Seatbelt regex rules (`unsafe_macos_seatbelt_rules`) instead of `**` deny globs. At startup, nono walked the whole cwd (`node_modules` included) once for each `**` glob, so `cln` took 10–15s to start in `~/code/ct`. The rules now apply at any path, not only under the cwd, so they also cover a worktree's main checkout. `.env.template` stays readable and writable. A test rule denies files named `nono-deny-test.txt`.
 
 ## 2026-10-21

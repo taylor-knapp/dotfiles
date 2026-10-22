@@ -35,6 +35,10 @@ if [ "$account" = "taylor.r.knapp@gmail.com" ]; then
   exit 1
 fi
 
+# Commit signing reaches gpg-agent through the sandbox socket in ~/.gnupg-claude (agent-base git.session env).
+# The agent runs outside the sandbox, so start it here; gpgconf --launch is a no-op when it is already up.
+GNUPGHOME="$HOME/.gnupg-claude" gpgconf --launch gpg-agent
+
 # localhost port from a URL (gateway / playwright ws endpoint)
 url_port() { python3 -c 'import sys,urllib.parse as u;print(u.urlparse(sys.argv[1]).port or "")' "$1"; }
 

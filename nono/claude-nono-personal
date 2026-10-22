@@ -39,6 +39,10 @@ fi
 account="$(claude auth status --json 2>/dev/null | python3 -c 'import json,sys;print(json.load(sys.stdin).get("email") or "")' 2>/dev/null || true)"
 [ "$account" = "$EMAIL" ] || die "logged in as '${account:-nobody}', need $EMAIL (use --login)"
 
+# Commit signing reaches gpg-agent through the sandbox socket in ~/.gnupg-claude (agent-base git.session env).
+# The agent runs outside the sandbox, so start it here; gpgconf --launch is a no-op when it is already up.
+GNUPGHOME="$HOME/.gnupg-claude" gpgconf --launch gpg-agent
+
 # Worktree grants; main can't be under ct since cwd isn't, but check anyway.
 if common="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"; then
   main="$(dirname "$common")"
