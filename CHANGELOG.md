@@ -2,7 +2,7 @@
 
 ## 2026-10-22
 
-- nono: `agent-base` uses three `**` deny globs instead of six, so `cln` starts faster in big repos. At startup, nono walks the whole cwd (`node_modules` included) once for each `**` pattern. `**/.env*` replaces `**/.env` and `**/.env.*`, and also denies `.envrc` and other `.env`-prefixed names. `$WORKDIR/.git/hooks` and `$WORKDIR/.git/config` replace the `**/` forms and need no walk.
+- nono: `agent-base` denies `.env` files, `*.client.env`, `secrets/` folders, `.git/hooks`, and `.git/config` with raw Seatbelt regex rules (`unsafe_macos_seatbelt_rules`) instead of `**` deny globs. At startup, nono walked the whole cwd (`node_modules` included) once for each `**` glob, so `cln` took 10–15s to start in `~/code/ct`. The rules now apply at any path, not only under the cwd, so they also cover a worktree's main checkout. `.env.template` stays readable and writable. A test rule denies files named `nono-deny-test.txt`.
 
 ## 2026-10-21
 

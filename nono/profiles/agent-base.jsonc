@@ -25,21 +25,36 @@
       // read access to $HOME/.gitconfig.local for local overrides. 
       "$HOME/.gitconfig.local"
     ],
-    // Relative globs are rooted at the workdir. nono walks the whole workdir (node_modules
-    // included) once per `**` pattern at startup, so keep `**` patterns few; on macOS a Seatbelt
-    // regex also enforces each one at runtime. `.env*` covers `.env` and `.env.*` in one walk.
+    // Name-based denies (.env, secrets, .git/hooks) are Seatbelt regexes in
+    // unsafe_macos_seatbelt_rules, not `**` globs: nono walks the whole workdir (node_modules
+    // included) once per `**` deny at startup, which takes 10s+ in big monorepos.
     "deny": [
       { "path": "$HOME/.ssh" },
       { "path": "$HOME/.aws" },
       { "path": "$HOME/.azure" },
-      { "path": "$WORKDIR/.git/hooks" },
-      { "path": "$WORKDIR/.git/config" },
-      { "path": "$HOME/.gnupg-claude" },
-      { "path": "**/.env*" },
-      { "path": "**/*.client.env" },
-      { "path": "**/secrets/**" }
+      { "path": "$HOME/.gnupg-claude" }
     ]
   },
+  // Same rules nono emits for a `**` deny glob (deny content reads and all writes; stat still
+  // works), minus the startup walk. Unrooted, so they apply at any path, not only under the
+  // workdir: this also covers a worktree's main checkout. `[.]` is a literal dot. Emitted after
+  // all allow grants, so they win. macOS only; Linux ignores this field.
+  "unsafe_macos_seatbelt_rules": [
+    // A file named `.env`, or `.env.` plus anything (`.env.local`, `.env.production`).
+    // Not `.envrc`, and not `.env.template` (no secrets, agents may read and edit it).
+    "(deny file-read-data file-write* (require-all (regex #\"^.*/[.]env([.][^/]*)?$\") (require-not (regex #\"^.*/[.]env[.]template$\"))))",
+    // A file whose name ends in `.client.env` (`web.client.env`).
+    "(deny file-read-data file-write* (regex #\"^.*/[^/]*[.]client[.]env$\"))",
+    // Anything inside a folder named `secrets`, at any depth.
+    "(deny file-read-data file-write* (regex #\"^.*/secrets/.*$\"))",
+    // A repo's `.git/hooks` folder and every hook script in it.
+    "(deny file-read-data file-write* (regex #\"^.*/[.]git/hooks(/.*)?$\"))",
+    // A repo's `.git/config` file.
+    "(deny file-read-data file-write* (regex #\"^.*/[.]git/config$\"))",
+    // Test only: a file named `nono-deny-test.txt`. Create one outside the sandbox, then in a
+    // session `cat` it (expect "Operation not permitted") and `ls -l` it (expect success).
+    "(deny file-read-data file-write* (regex #\"^.*/nono-deny-test[.]txt$\"))"
+  ],
   "network": {
     // Proxy CA lifetime. Short enough to limit exposure if the trusted key leaks; long enough to skip daily trust prompts.
     // trusted: required by --trust-proxy-ca (nono 0.79 rejects the default "session").
