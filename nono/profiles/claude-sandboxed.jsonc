@@ -5,6 +5,16 @@
     "name": "claude-sandboxed",
     "description": "Claude Code with agent-base fs + network policy"
   },
+  "open_urls": {
+    "allow_origins": [
+      "https://claude.ai",
+      "https://claude.com",
+      "https://api.anthropic.com",
+      "https://platform.claude.com",
+      "https://auth2.europe-west1.gcp.commercetools.com"
+    ],
+    "allow_localhost": true
+  },
   "environment": {
     "set_vars": { "CLAUDE_SANDBOX_PROFILE": "claude-sandboxed" }
   },

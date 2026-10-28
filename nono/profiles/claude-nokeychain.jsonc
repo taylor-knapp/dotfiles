@@ -98,15 +98,6 @@
       "timeout_secs": 10
     }
   },
-  "open_urls": {
-    "allow_origins": [
-      "https://claude.ai",
-      "https://claude.com",
-      "https://api.anthropic.com",
-      "https://platform.claude.com"
-    ],
-    "allow_localhost": true
-  },
   "diagnostics": {
     "suppress_system_services": [
       "forbidden-exec-sugid"
