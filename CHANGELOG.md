@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-28
+
+- claude: Add the `claude/shim/security` wrapper, first on `PATH` through `claude/path.zsh`. When the parent process is `claude`, generic-password calls go to `~/Library/Keychains/claude.keychain-db` (or `$CLAUDE_KEYCHAIN`), not the login keychain. `claude/install.sh` creates that keychain. All other callers use `/usr/bin/security` unchanged.
+
 ## 2026-10-27
 
 - claude: Add `cl` (`claude/alias.zsh`). It runs plain Claude Code with the omai `env` block from `omai/settings.json`, with no nono sandbox. `cl --no-omai` skips that env. The env reaches only the `claude` process, not the shell.

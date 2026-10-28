@@ -1,0 +1,24 @@
+#!/bin/bash
+# security shim: generic-password calls from Claude Code go to a dedicated keychain
+# ($CLAUDE_KEYCHAIN), never the login keychain. Every other caller passes straight through.
+# claude/install.sh creates the keychain.
+real=/usr/bin/security
+kc="${CLAUDE_KEYCHAIN:-$HOME/Library/Keychains/claude.keychain-db}"
+
+parent="$(ps -o command= -p "$PPID")"
+parent="${parent%% *}"
+[ "${parent##*/}" = claude ] || exec "$real" "$@"
+
+if [ ! -e "$kc" ]; then
+  echo "security shim: $kc missing. Create it: security create-keychain -P $kc" >&2
+  exit 1
+fi
+
+case "$1" in
+  find-generic-password|add-generic-password|delete-generic-password)
+    exec "$real" "$@" "$kc" ;;
+  -i)
+    sed -E "s#^[[:space:]]*((find|add|delete)-generic-password .*)\$#\1 \"$kc\"#" | exec "$real" "$@" ;;
+  *)
+    exec "$real" "$@" ;;
+esac
