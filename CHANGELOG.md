@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-27
+
+- claude: Add `cl` (`claude/alias.zsh`). It runs plain Claude Code with the omai `env` block from `omai/settings.json`, with no nono sandbox. `cl --no-omai` skips that env. The env reaches only the `claude` process, not the shell.
+
 ## 2026-10-22
 
 - nono: `claude-nono` and `claude-nono-personal` run `gpgconf --launch gpg-agent` for `~/.gnupg-claude` before starting the sandbox. Before this, nothing started the agent outside the sandbox, so commit signing failed with `No agent running`. If the agent is already running, `gpgconf --launch` does nothing.
