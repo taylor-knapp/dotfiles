@@ -12,7 +12,7 @@ curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.
 claude plugin marketplace add AminBlg/SimpleEnglish && claude plugin install simple-english@simple-english
 
 # Dedicated keychain for claude/shim/security (prompts for a password), no auto-lock timeout
-kc="$HOME/Library/Keychains/claude.keychain-db"
+kc="$(cd "$(dirname "$0")" && pwd)/.claude.keychain.db"  # gitignored
 [ -s "$kc" ] || { rm -f "$kc"; security create-keychain -P "$kc"; }  # empty file = aborted create
 security set-keychain-settings "$kc"
 

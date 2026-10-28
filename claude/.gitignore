@@ -1,0 +1,3 @@
+# Ignore the claude keychain db.
+.claude.keychain.db
+

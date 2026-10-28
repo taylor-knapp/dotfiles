@@ -330,10 +330,6 @@
             }
           }
         }
-      },
-      "security": {
-        "executable": "/usr/bin/security",
-        "from": { "session": "deny" }
       }
     }
   }

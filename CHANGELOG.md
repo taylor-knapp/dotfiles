@@ -2,7 +2,8 @@
 
 ## 2026-10-28
 
-- claude: Add the `claude/shim/security` wrapper, first on `PATH` through `claude/path.zsh`. When the parent process is `claude`, generic-password calls go to `~/Library/Keychains/claude.keychain-db` (or `$CLAUDE_KEYCHAIN`), not the login keychain. `claude/install.sh` creates that keychain. All other callers use `/usr/bin/security` unchanged.
+- nono: `claude-nokeychain.sh` regenerates `claude-nokeychain.jsonc` byte-for-byte, comments included. Comments are spliced in with `awk` because `jq` cannot emit them. The script also prints the last commit that changed the file (`git log -1 -p`).
+- claude: Add the `claude/shim/security` wrapper, first on `PATH` through `claude/path.zsh`. When the parent process is `claude`, generic-password calls go to `claude/.claude.keychain.db` (or `$CLAUDE_KEYCHAIN`), not the login keychain. `claude/install.sh` creates that keychain. All other callers use `/usr/bin/security` unchanged.
 
 ## 2026-10-27
 

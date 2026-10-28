@@ -2,23 +2,42 @@
 # security shim: generic-password calls from Claude Code go to a dedicated keychain
 # ($CLAUDE_KEYCHAIN), never the login keychain. Every other caller passes straight through.
 # claude/install.sh creates the keychain.
+
+# Absolute path to Apple's real security binary. Every exec below uses it.
 real=/usr/bin/security
-kc="${CLAUDE_KEYCHAIN:-$HOME/Library/Keychains/claude.keychain-db}"
 
-parent="$(ps -o command= -p "$PPID")"
-parent="${parent%% *}"
-[ "${parent##*/}" = claude ] || exec "$real" "$@"
+# Keychain file for Claude calls: $CLAUDE_KEYCHAIN if set, else .claude.keychain.db in claude/.
+# $0 is this shim, dirname gives shim/, "/.." moves up to claude/, pwd prints the absolute path.
+kc="${CLAUDE_KEYCHAIN:-$(cd "$(dirname "$0")/.." && pwd)/.claude.keychain.db}"
 
+echo "This is claude? $CLAUDECODE"
+
+# Claude Code sets CLAUDECODE in its environment, and child processes inherit it.
+# Without it, exec the real security binary, which replaces this process, so nothing below runs.
+[ -n "$CLAUDECODE" ] || exec "$real" "$@"
+
+# Stop with an error if the keychain file does not exist yet. -e tests existence only,
+# not whether the file is a valid keychain.
 if [ ! -e "$kc" ]; then
+  # Print the error to stderr and name the command that creates the keychain.
   echo "security shim: $kc missing. Create it: security create-keychain -P $kc" >&2
+  # Exit with status 1 so the caller sees a failure.
   exit 1
 fi
 
+echo "$@"
+
+# Dispatch on the first argument, the security subcommand.
 case "$1" in
+  # Subcommands that take a keychain argument. Replace this process with the real binary,
+  # passing the original args and the keychain path as the last argument.
   find-generic-password|add-generic-password|delete-generic-password)
     exec "$real" "$@" "$kc" ;;
+  # -i runs security in interactive mode, reading subcommands from stdin.
+  # sed appends the keychain path, quoted, to each generic-password line before it reaches security.
   -i)
     sed -E "s#^[[:space:]]*((find|add|delete)-generic-password .*)\$#\1 \"$kc\"#" | exec "$real" "$@" ;;
+  # Any other subcommand passes through unchanged to the real binary.
   *)
     exec "$real" "$@" ;;
 esac
