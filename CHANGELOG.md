@@ -2,6 +2,8 @@
 
 ## 2026-10-28
 
+- nono: Moved the `claude_code` `credential_providers` and `credential_routes` from `claude-nokeychain` to `claude-sandboxed`. `claude-nokeychain.sh` no longer adds them. `claude-personal` and `claude-directory` extend `claude-nokeychain`, so they no longer inject OAuth phantoms.
+- nono: `claude-nokeychain` phantoms use a `nono_` prefix. `access_token` and `refresh_token` get `format: "nono_{}"` (was `sk-ant-oat01-{}` for access). `phantom_fields` also covers the `mcpOAuth` entry's `accessToken` and `refreshToken` in `~/.claude/.credentials.json`. The `id_token` stays a JWT phantom, because `nono_` is not a JWT.
 - nono: `claude-nokeychain.sh` regenerates `claude-nokeychain.jsonc` byte-for-byte, comments included. Comments are spliced in with `awk` because `jq` cannot emit them. The script also prints the last commit that changed the file (`git log -1 -p`).
 - claude: Add the `claude/shim/security` wrapper, first on `PATH` through `claude/path.zsh`. When the parent process is `claude`, generic-password calls go to `claude/.claude.keychain.db` (or `$CLAUDE_KEYCHAIN`), not the login keychain. `claude/install.sh` creates that keychain. All other callers use `/usr/bin/security` unchanged.
 
