@@ -29,10 +29,10 @@
     // unsafe_macos_seatbelt_rules, not `**` globs: nono walks the whole workdir (node_modules
     // included) once per `**` deny at startup, which takes 10s+ in big monorepos.
     "deny": [
-      { "path": "$HOME/.ssh" },
-      { "path": "$HOME/.aws" },
-      { "path": "$HOME/.azure" },
-      { "path": "$HOME/.gnupg-claude" }
+      "$HOME/.ssh",
+      "$HOME/.aws",
+      "$HOME/.azure",
+      "$HOME/.gnupg-claude"
     ]
   },
   // Same rules nono emits for a `**` deny glob (deny content reads and all writes; stat still

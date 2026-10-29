@@ -21,8 +21,6 @@
       "$HOME/.local/share/nvim",
       "$HOME/.local/state/nvim",
       "$HOME/.cache/nvim",
-      "$HOME/code/commercetools-docs",
-      "$HOME/code/uaa-shared",
       "$HOME/code/tickets",
       "$HOME/code/notes",
       "$HOME/.dotfiles/claude/memory"

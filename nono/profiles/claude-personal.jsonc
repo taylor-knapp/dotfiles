@@ -1,7 +1,6 @@
 {
   "$schema": "../profile.schema.json",
-  // agent-base, not agent-extended: extended grants work dirs under ~/code and ~/.config.
-  "extends": ["claude-nokeychain", "agent-base"],
+  "extends": ["claude-sandboxed"],
   "meta": {
     "name": "claude-personal",
     "description": "Claude Code for the personal account; no access to ~/code/ct (used by claude-nono-personal)"
