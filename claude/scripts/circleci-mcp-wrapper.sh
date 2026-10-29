@@ -1,11 +1,9 @@
 #!/bin/bash
-# Wrapper script to load CircleCI token from macOS Keychain and run the MCP server
+# Wrapper script to run the CircleCI MCP server. CIRCLECI_TOKEN is injected by nono from the keystore (profile nono/profiles/mcp.jsonc)
 
-export CIRCLECI_TOKEN="$(security find-generic-password -s circleci-token -a "$USER" -w 2>/dev/null)"
-
-if [ -z "$CIRCLECI_TOKEN" ]; then
-  echo "Error: circleci-token not found in Keychain. Add it with:" >&2
-  echo "  security add-generic-password -s circleci-token -a \"\$USER\" -w 'your-token-here'" >&2
+if [ -z "${CIRCLECI_TOKEN:-}" ]; then
+  echo "Error: CIRCLECI_TOKEN not set. Add the token to the nono keystore with:" >&2
+  echo "  security add-generic-password -U -s nono -a circleci-token -w" >&2
   exit 1
 fi
 

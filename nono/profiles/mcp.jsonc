@@ -1,0 +1,16 @@
+{
+  "$schema": "../profile.schema.json",
+  "meta": {
+    "name": "mcp",
+    "description": "MCP client secrets from the nono keystore, injected as env vars"
+  },
+  // Keystore account (service "nono") -> env var. Wrappers in claude/scripts read these.
+  // Store with: security add-generic-password -U -s nono -a <account> -w
+  "env_credentials": {
+    "ag-tk-1": "AG_TK_1_CLIENT_SECRET",
+    "ag-tk-all": "AG_TK_ALL_CLIENT_SECRET",
+    "ag-nico-test-project-tk-all": "AG_NICO_TEST_PROJECT_TK_ALL_CLIENT_SECRET",
+    "ag-audit-log-aws-test-tk-all": "AG_AUDIT_LOG_AWS_TEST_TK_ALL_CLIENT_SECRET",
+    "circleci-token": "CIRCLECI_TOKEN"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "$schema": "../profile.schema.json",
-  "extends": ["claude-nokeychain", "agent-extended"],
+  "extends": ["claude-nokeychain", "agent-extended", "mcp"],
   "meta": {
     "name": "claude-sandboxed",
     "description": "Claude Code with agent-base fs + network policy"

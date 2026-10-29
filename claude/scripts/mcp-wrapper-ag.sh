@@ -2,7 +2,8 @@
 # Wrapper: fetch fresh OAuth token via client_credentials, run SSE bridge.
 # Usage: mcp-wrapper-ag.sh <path-to-env-file>
 # Env file must define: SERVER_NAME, CLIENT_ID, MCP_URL, AUTH_URL, SCOPE
-# Client secret read from Keychain entry: ag-${SERVER_NAME}
+# Client secret read from env var AG_<SERVER_NAME>_CLIENT_SECRET (uppercased, - -> _),
+# injected by nono from keystore entry ag-${SERVER_NAME} (profile nono/profiles/mcp.jsonc)
 
 set -euo pipefail
 
@@ -30,12 +31,12 @@ for var in SERVER_NAME CLIENT_ID MCP_URL AUTH_URL SCOPE; do
   fi
 done
 
-KEYCHAIN_SERVICE="ag-${SERVER_NAME}"
-CLIENT_SECRET="$(security find-generic-password -s "$KEYCHAIN_SERVICE" -a "$USER" -w 2>/dev/null || true)"
+SECRET_VAR="AG_$(printf '%s' "$SERVER_NAME" | tr 'a-z-' 'A-Z_')_CLIENT_SECRET"
+CLIENT_SECRET="${!SECRET_VAR:-}"
 
 if [ -z "$CLIENT_SECRET" ]; then
-  echo "Error: $KEYCHAIN_SERVICE client secret not found in Keychain. Add it with:" >&2
-  echo "  security add-generic-password -U -s $KEYCHAIN_SERVICE -a \"\$USER\" -w 'your-client-secret'" >&2
+  echo "Error: $SECRET_VAR not set. Add the secret to the nono keystore with:" >&2
+  echo "  security add-generic-password -U -s nono -a ag-$SERVER_NAME -w" >&2
   exit 1
 fi
 

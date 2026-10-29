@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-29
+
+- nono: Add the `mcp` profile. Its `env_credentials` inject the MCP client secrets from the nono keystore (service `nono`) as env vars. `claude-sandboxed` extends it. A missing keystore entry aborts the sandbox launch.
+- claude: `mcp-wrapper-ag.sh` reads `AG_<SERVER_NAME>_CLIENT_SECRET` (uppercased, `-` becomes `_`) instead of the Keychain. `circleci-mcp-wrapper.sh` reads `CIRCLECI_TOKEN`. The sandbox blocks Keychain access, so both lookups failed there.
+
 ## 2026-10-28
 
 - nono: Moved the `claude_code` `credential_providers` and `credential_routes` from `claude-nokeychain` to `claude-sandboxed`. `claude-nokeychain.sh` no longer adds them. `claude-personal` and `claude-directory` extend `claude-nokeychain`, so they no longer inject OAuth phantoms.
