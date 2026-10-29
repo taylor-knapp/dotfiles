@@ -11,7 +11,8 @@
       "https://claude.com",
       "https://api.anthropic.com",
       "https://platform.claude.com",
-      "https://auth2.europe-west1.gcp.commercetools.com"
+      "https://auth2.europe-west1.gcp.commercetools.com",
+      "https://auth2.eu-central-1.aws.commercetools.com"
     ],
     "allow_localhost": true
   },
