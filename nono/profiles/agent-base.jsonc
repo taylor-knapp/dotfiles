@@ -162,6 +162,8 @@
       "*.tmp.[0-9]*.[0-9]*"
     ]
   },
+  // Any live entry below (gpg) makes env_credentials in profiles that extend this one resolve to phantoms.
+  // Keep AG secrets out of env_credentials; claude-nono exports them instead. See nono/AGENTS.md.
   "command_policies": {
     "commands": {
       // Session can't touch .git/config (filesystem.deny); mediated git can, but only

@@ -2,11 +2,13 @@
 
 ## 2026-10-29
 
+- nono, claude: `cln` exports the AG MCP client secrets from the keystore. The `mcp` profile no longer has `env_credentials` for them. Under `agent-base`, a live `command_policies` entry (`gpg`) turned those values into phantoms. The sandbox then sent the phantom as the `Basic` credential, and the AG auth server returned 401 `invalid_client`. An empty `commands` map does not cause this. To add an AG account, list it in `claude-nono`. The cause is in `nono/AGENTS.md`.
 - nono: Add the `mcp` profile. Its `env_credentials` inject the MCP client secrets from the nono keystore (service `nono`) as env vars. `claude-sandboxed` extends it. A missing keystore entry aborts the sandbox launch.
 - claude: `mcp-wrapper-ag.sh` reads `AG_<SERVER_NAME>_CLIENT_SECRET` (uppercased, `-` becomes `_`) instead of the Keychain. `circleci-mcp-wrapper.sh` reads `CIRCLECI_TOKEN`. The sandbox blocks Keychain access, so both lookups failed there.
 - nono: Keystore accounts for MCP secrets are renamed to `ag_<server>` (base64 of `client_id:secret`) and `circleci_token`. AG secrets map to env vars (`env_credentials`). The CircleCI token is a phantom again: `mcp` has a `circleci` route that sends it in `Circle-Token`, and the proxy swaps in the real token. The new names replace the `ag-<server>` and `circleci-token` accounts. Re-store the secrets under the new names.
 - claude: `mcp-wrapper-ag.sh` sends `AG_<SERVER_NAME>_CLIENT_SECRET` as the `Basic` credential, with no encoding step. `circleci-mcp-wrapper.sh` sets `NODE_USE_ENV_PROXY=1` so Node uses the proxy.
 - claude: `mcp-wrapper-ag.sh` writes a debug log to `/tmp/claude/mcp-logs/wrapper-<env>.debug.log` and stderr. It logs each step, the token HTTP status, and redacted error bodies. It also logs the failing line on `ERR`, so silent exits leave a trace. Secret values are never logged.
+- nono, claude: AG env vars are renamed from `AG_<SERVER_NAME>_CLIENT_SECRET` to `AG_<SERVER_NAME>_SECRET`. `mcp` maps them, and `mcp-wrapper-ag.sh` reads them. The new names avoid any stale `*_CLIENT_SECRET` value inherited from a shell.
 
 ## 2026-10-28
 

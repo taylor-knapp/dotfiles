@@ -2,17 +2,7 @@
   "$schema": "../profile.schema.json",
   "meta": {
     "name": "mcp",
-    "description": "MCP client secrets: AG as env vars, CircleCI token as a phantom swapped by the proxy"
-  },
-  // AG: keystore account (service "nono") -> env var. The wrapper sends the value as "Basic <value>".
-  // Value is base64 of "<client_id>:<client_secret>".
-  // Store with: security add-generic-password -U -s nono -a ag_<server> -w <base64>
-  // Build <base64> with: printf '%s:%s' "$CLIENT_ID" "$CLIENT_SECRET" | base64 | tr -d '\n'
-  "env_credentials": {
-    "ag_tk_1": "AG_TK_1_CLIENT_SECRET",
-    "ag_tk_all": "AG_TK_ALL_CLIENT_SECRET",
-    "ag_nico_test_project_tk_all": "AG_NICO_TEST_PROJECT_TK_ALL_CLIENT_SECRET",
-    "ag_audit_log_aws_test_tk_all": "AG_AUDIT_LOG_AWS_TEST_TK_ALL_CLIENT_SECRET"
+    "description": "MCP client secrets: CircleCI token as a phantom swapped by the proxy"
   },
   "network": {
     // CircleCI: the sandbox sees only the phantom in CIRCLECI_TOKEN. The proxy swaps it into the Circle-Token header.

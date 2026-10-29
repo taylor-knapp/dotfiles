@@ -57,6 +57,18 @@ PY
   [ -n "$port" ] && NONO_ARGS+=(--open-port "$port")
 fi
 
+# AG MCP client secrets: base64(client_id:secret) per keystore account (service nono), exported as AG_<ACCOUNT>_SECRET.
+# Not in the mcp profile: env_credentials turn into phantoms once agent-base has any command_policies entry (see nono/AGENTS.md).
+# A missing item only skips that AG server; mcp-wrapper-ag.sh then fails with its own error.
+for acct in ag_tk_1 ag_tk_all ag_nico_test_project_tk_all ag_audit_log_aws_test_tk_all; do
+  secret="$(security find-generic-password -s nono -a "$acct" -w 2>/dev/null || true)"
+  if [ -z "$secret" ]; then
+    echo "[claude-nono] keystore item nono/$acct not found; its AG MCP server will fail" >&2
+    continue
+  fi
+  export "$(printf '%s' "$acct" | tr 'a-z' 'A-Z')_SECRET=$secret"
+done
+
 # Separate standalone login sandbox (claude install, ~/.claude, Keychain, claude hosts,
 # callback listener, browser open) runs `claude auth login`; no cwd, no agent-base.
 # Login lands in host Keychain; later sessions' oauth_capture store reads it host-side.
