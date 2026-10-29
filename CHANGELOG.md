@@ -4,8 +4,9 @@
 
 - nono: Add the `mcp` profile. Its `env_credentials` inject the MCP client secrets from the nono keystore (service `nono`) as env vars. `claude-sandboxed` extends it. A missing keystore entry aborts the sandbox launch.
 - claude: `mcp-wrapper-ag.sh` reads `AG_<SERVER_NAME>_CLIENT_SECRET` (uppercased, `-` becomes `_`) instead of the Keychain. `circleci-mcp-wrapper.sh` reads `CIRCLECI_TOKEN`. The sandbox blocks Keychain access, so both lookups failed there.
-- nono: Keystore accounts for MCP secrets are renamed to `ag_<server>` (base64 of `client_id:secret`) and `circleci_token`. AG secrets map to env vars (`env_credentials`). The CircleCI token is a phantom again: `mcp` has a `circleci` route that sends it in `Circle-Token`, and the proxy swaps in the real token. Replaces the `ag-<server>` and `circleci-token` accounts. Re-store the secrets under the new names.
+- nono: Keystore accounts for MCP secrets are renamed to `ag_<server>` (base64 of `client_id:secret`) and `circleci_token`. AG secrets map to env vars (`env_credentials`). The CircleCI token is a phantom again: `mcp` has a `circleci` route that sends it in `Circle-Token`, and the proxy swaps in the real token. The new names replace the `ag-<server>` and `circleci-token` accounts. Re-store the secrets under the new names.
 - claude: `mcp-wrapper-ag.sh` sends `AG_<SERVER_NAME>_CLIENT_SECRET` as the `Basic` credential, with no encoding step. `circleci-mcp-wrapper.sh` sets `NODE_USE_ENV_PROXY=1` so Node uses the proxy.
+- claude: `mcp-wrapper-ag.sh` writes a debug log to `/tmp/claude/mcp-logs/wrapper-<env>.debug.log` and stderr. It logs each step, the token HTTP status, and redacted error bodies. It also logs the failing line on `ERR`, so silent exits leave a trace. Secret values are never logged.
 
 ## 2026-10-28
 
@@ -31,185 +32,186 @@
 
 ## 2026-10-17
 
-- lute: Verify TLS through the macOS Keychain with `truststore`, because Python 3.13+ rejects the Zscaler root CA (`Basic Constraints of CA cert not marked critical`).
+- lute: Use `truststore` so TLS checks go through the macOS Keychain, because Python 3.13+ rejects the Zscaler root CA (`Basic Constraints of CA cert not marked critical`).
 - nono: If `claude auth status --json` reports the account `taylor.r.knapp@gmail.com`, `claude-nono` exits with an error before any setup. A missing login passes the check.
 - nono: Add `clp` (`nono/claude-nono-personal`), which runs Claude Code with the personal account under the new `claude-personal` profile. If the cwd or an `--allow-dir` path resolves under `~/code/ct`, `clp` exits with an error. If the account is not `taylor.r.knapp@gmail.com`, `clp` also exits with an error. The profile extends `agent-base`, not `agent-extended`, and denies `~/code/ct` and the `~/code/ct` session transcripts in `~/.claude/projects`.
 
 ## 2026-10-15
 
-- nono: add `nono/AGENTS.md`, which lists the nono CLI commands that agents use to learn, inspect, and validate profiles.
+- nono: add `nono/AGENTS.md`, which lists the nono CLI commands that agents use to learn, inspect, and test profiles.
 - nono: `cln` loads `.nono.json` from the repo root, or from the cwd outside a repo. The local profile extends `claude-sandboxed`, or `claude-directory` with `--directory-only`.
 
 ## 2026-10-14
 
 - nono: `agent-base` defines two GitHub proxy credentials, `github_personal` and `github_commercetools`. Each one injects a fine-grained PAT from Keychain (service `nono`) into `api.github.com` requests, and the sandbox sees only a phantom `GH_TOKEN`. `claude-nono` enables one of them from the owner of the `origin` remote. Other owners get no token.
 
-- claude: `install.sh` now installs Claude Code, ccusage, and caveman on all platforms (no longer macOS-only) and drops agent-safehouse. Adds `simple-english` plugin marketplace + install.
-- claude: default model switched to Haiku 5.5 (`settings.json` `model`, `ANTHROPIC_MODEL`); Haiku effort lowered from `xhigh` to `low`.
+- claude: `install.sh` now installs Claude Code, ccusage, and caveman on all platforms (no longer macOS-only) and drops agent-safehouse. It also adds the `simple-english` plugin marketplace and installs the plugin.
+- claude: The default model switched to Haiku 5.5 (`settings.json` `model`, `ANTHROPIC_MODEL`). Haiku effort lowered from `xhigh` to `low`.
 - claude: statusline line 2 ends with the base input price per million tokens. Opus shows `$4 Mtok`, and Sonnet shows `$2 Mtok`. Haiku shows `$0.10 Mtok` in green up to 100K used tokens and `$0.50 Mtok` in red above that.
 - nono: `agent-base` now mirrors the `claude/settings.json` deny rules. The session cannot run `/usr/bin/security`. `git push` is denied. The session cannot read or write `.env`, `.env.*`, or `secrets/**` in the workdir.
 - nono: `agent-base` allows `osascript` only with the exact notification scripts that the `claude/settings.json` Stop and Notification hooks run. Every other `osascript` call is denied. The session cannot run `/usr/bin/open`.
-- nono: `claude-login` is now a standalone profile with no `extends`. It allows only what `claude auth login` needs: the claude install, `~/.claude`, `~/.claude.json`, `~/Library/Keychains` (the whole folder, because Keychain saves write temp files there), the claude hosts, the OAuth callback ports, and browser opens. `claude-nono --login` no longer passes `--allow-cwd`. The parent `agent-base` profile denied `security` with an explicit deny, which a child profile cannot override.
+- nono: `claude-login` is now a standalone profile with no `extends`. It allows only what `claude auth login` needs: the claude install, `~/.claude`, `~/.claude.json`, the claude hosts, the OAuth callback ports, and browser opens. It also allows `~/Library/Keychains`, the whole folder, because Keychain saves write temp files there. `claude-nono --login` no longer passes `--allow-cwd`. The parent `agent-base` profile denied `security` with an explicit deny, which a child profile cannot override.
 
 ## 2026-10-13
 
-- claude: `update-context`/`c` skills retargeted to the dotfiles layout (AGENTS.md + skills + hooks/settings + nono profiles); dropped `.agents/`/`rules/` targets, stale commit-signing example, AskUserQuestion.
-- claude: condensed `AGENTS.md` (~1.4k → ~330 words); dropped rules made stale by nono (commit signing, `git -C`, https push, Claude sandbox notes) and missing skills; removed `.agents/` includes; macOS defaults guidance moved to `macos-defaults` skill.
-- claude: absorbed `~/code/claudie` (deprecated). `claude/` now holds `settings.json`, `AGENTS.md` (linked as `~/.claude/CLAUDE.md`), `mcp.json`, hooks, statusline + MCP wrapper scripts, `omai/`, auto-memory dir, and skills (`pr`, `francais`, `anki`, `update-context`, `c`, `note`). `claude/deploy.sh` (run by `install.sh`) links them into `~/.claude` and prunes old claudie skill links. Dropped settings `sandbox` block + its `enforce-sandbox-on-tools`/`block-settings-edit` hooks (nono enforces fs). nono profiles, `claude-nono` omai path repointed; removed `cl`/`cj` safehouse aliases.
+- claude: Retargeted the `update-context`/`c` skills to the dotfiles layout (AGENTS.md, skills, hooks/settings, and nono profiles). Dropped the `.agents/` and `rules/` targets, the stale commit-signing example, and AskUserQuestion.
+- claude: Condensed `AGENTS.md` from about 1.4k to about 330 words. Dropped the rules that nono made stale: commit signing, `git -C`, https push, and Claude sandbox notes. Also dropped rules that point to missing skills and removed the `.agents/` includes. Moved the macOS defaults guidance to the `macos-defaults` skill.
+- claude: Absorbed `~/code/claudie`, which is deprecated.
+- claude: `claude/` now holds `settings.json`, `AGENTS.md` (linked as `~/.claude/CLAUDE.md`), `mcp.json`, hooks, and the statusline and MCP wrapper scripts. It also holds `omai/`, the auto-memory directory, and the skills `pr`, `francais`, `anki`, `update-context`, `c`, and `note`.
+- claude: `claude/deploy.sh` (run by `install.sh`) links them into `~/.claude` and prunes old claudie skill links. The `sandbox` block in `settings.json` and its `enforce-sandbox-on-tools` and `block-settings-edit` hooks are gone, because nono enforces the filesystem. Repointed the nono profiles and the `claude-nono` omai path. Removed the `cl` and `cj` safehouse aliases.
 - nono: `claude-nono --allow-dir=PATH` (repeatable) grants read-write to PATH (`nono --allow`) and passes `claude --add-dir PATH`.
-- nono: `nonop <name>` (`nono/nonop`) promotes `~/.config/nono/profile-drafts/<name>.jsonc` into `nono/profiles/` (`nono profile promote` only reads `.json`). Checks `.base` hash, validates, shows diff, confirms.
-- nono: `agent-base` mediates `git` — session still denied `.git/config`/hooks; mediated git gets repo write + allowlisted subcommands (no `config`, no global opts, no `--output`/`--exec`/`--upload-pack`/`--template`), can call `gpg` for signing (gpg gets read on `@git:toplevel` so `getcwd` works; `user.signingkey` overridden to the `~/.gnupg-claude` key; command-level `GNUPGHOME` is absolute since command `set_vars` do not expand `$HOME`); git env overrides (gh credential helper, https insteadOf, gpg signing) now live in the git command sandbox, not session env, which does not reach command sandboxes.
-- nono: `claude-nono --login` runs `claude auth login` (then starts the normal session) under new profile `claude-login` (extends `claude-sandboxed` + `listen_port_range` 49152–65535 for the OAuth callback, `interactive`, `--allow-launch-services`). Normal sessions get no listen ports/browser opens. `oauth_capture` keeps real tokens host-side; phantoms in `~/.claude` keep later sessions logged in and refreshing.
+- nono: `nonop <name>` (`nono/nonop`) promotes `~/.config/nono/profile-drafts/<name>.jsonc` into `nono/profiles/` (`nono profile promote` reads only `.json`). It makes sure that the `.base` hash matches and that the profile is valid. It shows the diff, then asks you to approve it.
+- nono: `agent-base` mediates `git`. The session is still denied `.git/config` and hooks. Mediated git gets write access to the repo and a list of allowed subcommands. It cannot run `config`, use global options, or use `--output`, `--exec`, `--upload-pack`, or `--template`. Mediated git can call `gpg` for signing. The gpg profile gets read access to `@git:toplevel`, so `getcwd` works. `user.signingkey` is overridden to the `~/.gnupg-claude` key. The command-level `GNUPGHOME` is absolute, because command `set_vars` do not expand `$HOME`. Git env overrides (gh credential helper, https insteadOf, gpg signing) now live in the git command sandbox. They no longer live in the session env, which does not reach command sandboxes.
+- nono: `claude-nono --login` runs `claude auth login` under the new `claude-login` profile. It then starts the normal session. The profile extends `claude-sandboxed` and adds `listen_port_range` 49152–65535 for the OAuth callback, `interactive`, and `--allow-launch-services`. Normal sessions get no listen ports or browser opens. `oauth_capture` keeps real tokens on the host side. Phantoms in `~/.claude` keep later sessions logged in and able to refresh tokens.
 
 ## 2026-10-12
 
-- nono: added `nono/claude-nokeychain.sh` — generates `nono/profiles/claude-nokeychain.json` (jq copy of the `nolabs-ai/claude` pack profile minus its `~/Library/Keychains` allow + `bypass_protection`). Child profiles can't remove inherited bypasses, hence the copy. `claude-sandboxed` and `claude-directory` now extend it. Run by `nono/install.sh`; re-run after `nono update`. `install.sh` skips `brew install nono` if already present.
-- nono: removed `$HOME/code/*-worktrees` glob from `agent-extended` (globs hang nono 0.79). `cln` now grants per repo: `--allow <repo>-worktrees` if it exists, `--allow <main repo>` when run in a worktree, `--read ~/code/ct` automatically when the repo is under it (`--ct` flag removed).
-- nono: `claude-nokeychain.sh` now adds an `oauth_capture` credential provider (`claude_code`) + `anthropic_oauth` route, so Claude Code's OAuth token reaches `api.anthropic.com` via nono's proxy (sandbox only sees a phantom token).
+- nono: Added `nono/claude-nokeychain.sh`. It generates `nono/profiles/claude-nokeychain.json`, a jq copy of the `nolabs-ai/claude` pack profile without its `~/Library/Keychains` allow and `bypass_protection`. Child profiles cannot remove inherited bypasses, so the copy is needed. `claude-sandboxed` and `claude-directory` now extend it. `nono/install.sh` runs the script. Re-run it after `nono update`. If nono is already present, `install.sh` skips `brew install nono`.
+- nono: removed `$HOME/code/*-worktrees` glob from `agent-extended` (globs hang nono 0.79). `cln` now grants access per repo. If `<repo>-worktrees` exists, it adds `--allow <repo>-worktrees`. If it runs in a worktree, it adds `--allow <main repo>`. If the repo is under `~/code/ct`, it adds `--read ~/code/ct` automatically. The `--ct` flag is removed.
+- nono: `claude-nokeychain.sh` now adds an `oauth_capture` credential provider (`claude_code`) and an `anthropic_oauth` route. Claude Code's OAuth token reaches `api.anthropic.com` through nono's proxy. The sandbox sees only a phantom token.
 
 ## 2026-10-08
 
-- Added `nono/profiles/` (`agent-base`, `claude-sandboxed`) — nono port of claudie's `claude-sandboxed` safehouse profiles + `claude-netproxy` domain allowlist. `nono/install.sh` pulls `nolabs-ai/claude` + `nolabs-ai/opencode` packs and symlinks profiles into `~/.config/nono/profiles`.
-- nono: `gpg` is now a mediated command (only git sign/verify argv allowed; session can no longer read `~/.gnupg-claude`) — replaces `gpg-claude-wrap.sh`. Added rollback exclusions, `nono/config.toml` (rollback retention), and `nono/claude-nono` wrapper (`cln`): `--rollback`, `--online`, omai env (`--no-omai`), `--directory-only` (profile `claude-directory`), `--playwright`, `--ct`, MCP disabled by default (`nono/disable-all-mcp.sh`, copied from claudie). Profiles split: `agent-base` (essentials) / `agent-extended` (broader access). `claude-sandboxed` extends `nolabs-ai/claude`.
+- Added `nono/profiles/` (`agent-base`, `claude-sandboxed`). This is a nono port of claudie's `claude-sandboxed` safehouse profiles and the `claude-netproxy` domain allowlist. `nono/install.sh` pulls the `nolabs-ai/claude` and `nolabs-ai/opencode` packs. It also symlinks the profiles into `~/.config/nono/profiles`.
+- nono: `gpg` is now a mediated command. Only the argv for git signing and signature reading is allowed, and the session can no longer read `~/.gnupg-claude`. It replaces `gpg-claude-wrap.sh`. It also adds rollback exclusions and `nono/config.toml`, which sets rollback retention. The `nono/claude-nono` wrapper (`cln`) supports these flags: `--rollback`, `--online`, the omai env (`--no-omai`), `--directory-only` (profile `claude-directory`), `--playwright`, and `--ct`. MCP is disabled by default through `nono/disable-all-mcp.sh`, copied from claudie. The profiles now split into `agent-base` (essentials) and `agent-extended` (broader access). `claude-sandboxed` extends `nolabs-ai/claude`.
 - nono: `claude-nono` passes `--trust-proxy-ca` so Go CLIs (`gh`) trust nono proxy CA.
 
 ## 2026-10-02
 
-- Added `amphetamine/install.sh` — installs Amphetamine from the Mac App Store with `mas` (app ID `937984704`).
+- Added `amphetamine/install.sh`. It installs Amphetamine from the Mac App Store with `mas` (app ID `937984704`).
 
 ## 2026-10-01
 
-- Added `lute/lute-import-podcast FEED_URL [TAG]` — imports a podcast's `<podcast:transcript>` HTML transcripts into a running Lute as books (oldest first) via Lute's `/book/new` form. Skips episodes already in Lute, so re-running only adds new ones.
-- `lute-import-podcast` — attaches each episode's `<enclosure>` audio; existing unarchived books without audio get it added via Lute's edit form.
-- `lute-import-podcast` — optional `TRANSCRIPTS_JSON` arg (`{episode <link>: transcript}`) for feeds without `<podcast:transcript>`, e.g. innerFrench, whose transcripts sit behind Cloudflare and must be fetched from a logged-in browser.
-- `lute-import-podcast` — downloads and posts to Lute with `curl` (GETs retried 3×; 10 min cap; aborts transfers under 1 KB/s for 60s). urllib hung for hours on a stalled Podbean download and on posting a 150 MB episode; dropped the hand-rolled multipart encoder.
-- `lute-import-podcast` — reuses audio already in `useraudio/` when its size matches the feed's `<enclosure length>` (e.g. files orphaned when iCloud rolled the DB back) instead of re-downloading.
-- `lute-prune-audio [-n] [DIR...]` — also prunes extra audio dirs (audio moved out of Lute's iCloud `useraudio/` and linked by absolute path, e.g. `~/Documents/inner-french`).
-- Added `lute/lute-prune-audio [-n]` — unlinks audio from archived books, then deletes `useraudio/` files no book references (Lute never deletes audio, even for deleted books). `-n` is a dry run.
+- Added `lute/lute-import-podcast FEED_URL [TAG]`. It imports a podcast's `<podcast:transcript>` HTML transcripts into a running Lute as books, oldest first, through Lute's `/book/new` form. It skips episodes already in Lute, so running it again only adds new ones.
+- `lute-import-podcast` attaches each episode's `<enclosure>` audio. Existing unarchived books without audio get the audio added through Lute's edit form.
+- `lute-import-podcast` takes an optional `TRANSCRIPTS_JSON` argument (`{episode <link>: transcript}`). Use it for feeds without `<podcast:transcript>`, for example innerFrench. Their transcripts sit behind Cloudflare, so you must fetch them from a logged-in browser.
+- `lute-import-podcast` downloads files and posts them to Lute with `curl`. GETs retry 3 times, with a 10 minute cap. It aborts a transfer that runs under 1 KB/s for 60 seconds. urllib hung for hours on a stalled Podbean download and on posting a 150 MB episode. The script dropped the hand-rolled multipart encoder.
+- If its size matches the feed's `<enclosure length>`, `lute-import-podcast` reuses audio already in `useraudio/`. This also covers files that an iCloud rollback of the DB orphaned. The script skips the download for these files.
+- `lute-prune-audio [-n] [DIR...]` also prunes extra audio directories. Audio moved out of Lute's iCloud `useraudio/` and linked by absolute path, for example from `~/Documents/inner-french`, lives in extra directories.
+- Added `lute/lute-prune-audio [-n]`. It unlinks audio from archived books. Then it deletes `useraudio/` files that no book references. Lute never deletes audio, even for deleted books. `-n` is a dry run.
 
 ## 2026-09-30
 
-- Added `lute/dicts.sh` — downloads the reader-dict fr-en and fr-fr (no-etymology) `.df` dictionaries into `~/Documents/Dictionaries` when missing. `lute` runs it on every start.
-- `lute` — fr-en dictionary server moved `8765` → `8767`; `oktapus` already listens on 8765, and the "already running?" curl check mistook it for the dict server, so fr-en never started. Dropped that check: a busy port now fails loudly instead.
+- Added `lute/dicts.sh`. If the reader-dict fr-en and fr-fr (no-etymology) `.df` dictionaries are missing from `~/Documents/Dictionaries`, it downloads them there. `lute` runs it on every start.
+- `lute` moved the fr-en dictionary server from `8765` to `8767`. `oktapus` already listens on 8765. The "already running?" curl check mistook that port for the dict server, so fr-en never started. The check is gone. A busy port now fails loudly instead.
 
 ## 2026-09-28
 
-- Added `lute/dictserver.py` — serves a reader-dict `.df` file over HTTP for Lute. `lute` starts one per dictionary in the background: `dict-fr-en.df` on `localhost:8765`, `dict-fr-fr.df` on `localhost:8766` (from `~/Documents/Dictionaries`). Warns with setup steps if a file is missing. Servers started by `lute` are stopped when Lute exits.
+- Added `lute/dictserver.py`. It serves a reader-dict `.df` file over HTTP for Lute. `lute` starts one server per dictionary in the background. `dict-fr-en.df` runs on `localhost:8765`, and `dict-fr-fr.df` runs on `localhost:8766`. Both files come from `~/Documents/Dictionaries`. If a file is missing, `lute` warns with setup steps. When Lute exits, `lute` stops the servers it started.
 
 ## 2026-09-27
 
-- `python/path.zsh` — only adds pyenv shims to `$PATH` when `~/.pyenv/shims` exists; no more `command not found: pyenv` at startup (and no `$(pyenv root)` subshell).
+- If `~/.pyenv/shims` exists, `python/path.zsh` adds pyenv shims to `$PATH`. The `command not found: pyenv` error no longer appears at startup. It also no longer runs a `$(pyenv root)` subshell.
 
-- `claude/install.sh` — brew-installs `ccusage` (Claude Code usage reports).
-- Added `go/install.sh` — brew-installs the Go toolchain. The `go/` topic only set `$PATH` before, so `go` itself was never installed.
-- `neovim/install.sh` — installs JetBrains Mono Nerd Font (icons render as `?` without a Nerd Font).
-- `neovim/install.sh` — runs `node/install.sh` when `npm` is missing; Mason needs npm for jsonls/eslint.
-- Removed `ghostty/` topic and its README/AGENTS.md references.
-- Added `AGENTS.md` — repo goal, topic layout/conventions, and rules for coding agents.
-- Merged `CLAUDE.md` into `AGENTS.md` (change checklist + performance testing); `CLAUDE.md` now just imports `@AGENTS.md` and `@README.md`.
-- `git/gitconfig.symlink` — moved `[include] ~/.gitconfig.local` to the end so machine-local settings (e.g. `commit.gpgsign = false`) override shared ones.
-- Added `neovim/` topic — `install.sh` brew-installs neovim, ripgrep, tree-sitter-cli and symlinks `neovim/config` → `~/.config/nvim` (backs up an existing non-symlink dir). Config moved in from `~/.config/nvim` (formerly the `nvim-config` repo).
+- `claude/install.sh` brew-installs `ccusage` for Claude Code usage reports.
+- Added `go/install.sh`, which brew-installs the Go toolchain. The `go/` topic only set `$PATH` before, so `go` itself was never installed.
+- `neovim/install.sh` installs JetBrains Mono Nerd Font. Without a Nerd Font, icons render as `?`.
+- If `npm` is missing, `neovim/install.sh` runs `node/install.sh`. Mason needs npm for jsonls and eslint.
+- Removed the `ghostty/` topic and its README/AGENTS.md references.
+- Added `AGENTS.md`. It covers the repo goal, the topic layout and conventions, and rules for coding agents.
+- Merged `CLAUDE.md` into `AGENTS.md`, which now holds the change checklist and performance testing. `CLAUDE.md` now only imports `@AGENTS.md` and `@README.md`.
+- `git/gitconfig.symlink` moved `[include] ~/.gitconfig.local` to the end. Machine-local values, for example `commit.gpgsign = false`, now override the shared values.
+- Added the `neovim/` topic. `install.sh` brew-installs neovim, ripgrep, and tree-sitter-cli. It symlinks `neovim/config` to `~/.config/nvim` and backs up an existing directory that is not a symlink. The Neovim files moved in from `~/.config/nvim`, which was formerly the `nvim-config` repo.
 
 ## 2026-07-02
 
-- `node/aliases.zsh` — silenced the startup `_fnm_autoswitch` call (`>/dev/null 2>&1`). It runs before the first prompt in repos with `.nvmrc`, and fnm's "Using Node vX" output tripped Powerlevel10k's instant-prompt warning. The `chpwd` hook still prints on interactive `cd`.
+- `node/aliases.zsh` silenced the startup `_fnm_autoswitch` call (`>/dev/null 2>&1`). It runs before the first prompt in repos with `.nvmrc`. fnm's "Using Node vX" output tripped Powerlevel10k's instant-prompt warning. The `chpwd` hook still prints on interactive `cd`.
 
 ## 2026-06-23
 
-- `iterm/com.googlecode.iterm2.plist` — changed default Background Color from pure black to `#282c34` (R 0.157, G 0.173, B 0.204) to match Ghostty's lighter gray default.
-- Added `ghostty/` topic — Ghostty terminal config ported from `iterm/`. `config` (symlinked to `~/.config/ghostty/config`), `tab.zsh` (title hooks, gated on `$TERM_PROGRAM == ghostty`), `install.sh`, `README.md`. Per-tab color and shell-integration download did not port (Ghostty has no per-tab color escape; auto-injects integration).
-- `ghostty/config` — set `shell-integration-features = no-title` so `tab.zsh` titles aren't clobbered by Ghostty's built-in title feature; bumped `background-opacity` 0.97 → 0.98.
-- `ghostty/CLAUDE.md` — how to search Ghostty docs (`ghostty +show-config --default --docs | grep`, CLI actions, offline bundle docs). ghostty.org 403s automated fetchers.
-- `ghostty/dump-docs.sh` + `ghostty/.gitignore` — script generates a gitignored `ghostty/ghostty-docs.txt` offline dump (config ref + actions + keybinds + themes + bundled markdown); finds `ghostty` on PATH or the app bundle. Wired into `install.sh` (best-effort). `CLAUDE.md` instructs reading it first and flagging the user when the dump is >30 days old.
-- `ghostty/install.sh` — installs an idempotent daily cron (09:00) running `dump-docs.sh`, so the docs dump auto-refreshes on Ghostty upgrades. README/CLAUDE.md updated.
-- `ghostty/tab.zsh` — dropped the OSC 11 per-project background tint. Ghostty tab color (1.3.0) is macOS UI-only (no escape/keybind/config), and OSC 11 is a single solid color with no gradient/top-fade option, so there's no good per-directory tab-color analog. Title hooks unchanged.
+- `iterm/com.googlecode.iterm2.plist` changed the default Background Color from pure black to `#282c34` (R 0.157, G 0.173, B 0.204). The new color matches the lighter gray default of Ghostty.
+- Added the `ghostty/` topic. It ports the Ghostty terminal setup from `iterm/`. It includes `config` (symlinked to `~/.config/ghostty/config`), `tab.zsh` (title hooks, gated on `$TERM_PROGRAM == ghostty`), `install.sh`, and `README.md`. The per-tab color and the shell-integration download did not port. Ghostty has no per-tab color escape, and it injects shell integration automatically.
+- `ghostty/config` sets `shell-integration-features = no-title`, so Ghostty's built-in title feature does not overwrite the `tab.zsh` titles. It also raises `background-opacity` from 0.97 to 0.98.
+- `ghostty/CLAUDE.md` explains how to search the Ghostty docs (`ghostty +show-config --default --docs | grep`, CLI actions, and offline bundle docs). ghostty.org returns 403 to automated fetchers.
+- Added `ghostty/dump-docs.sh`. It generates a gitignored `ghostty/ghostty-docs.txt` offline dump. The dump holds the Ghostty reference, actions, keybinds, themes, and bundled markdown. The script finds `ghostty` on PATH or in the app bundle. `ghostty/.gitignore` ignores the dump file. `install.sh` runs the script on a best-effort basis. `CLAUDE.md` tells the agent to read the dump first. If the dump is more than 30 days old, the agent flags the user.
+- `ghostty/install.sh` installs an idempotent (safe to run twice) daily cron job at 09:00 that runs `dump-docs.sh`. The dump refreshes each day, so it stays current after Ghostty upgrades. The README and `CLAUDE.md` were updated.
+- `ghostty/tab.zsh` dropped the OSC 11 per-project background tint. Ghostty tab color (1.3.0) works only in the macOS UI. It has no escape sequence, no keybind, and no way to set it. OSC 11 sets one solid color with no gradient or top-fade option. So there is no good per-directory tab-color equivalent. The title hooks are unchanged.
 
 ## 2026-06-18
 
-- `iterm/com.googlecode.iterm2.plist` — changed Option+Left/Right to send escape sequences `[1;3D`/`[1;3C` for Neovim instead of word-jump
-- `zsh/zshrc.symlink` - added key binding to translate the escape sequences to word-jumps
+- `iterm/com.googlecode.iterm2.plist` changed Option+Left and Option+Right to send the escape sequences `[1;3D` and `[1;3C` for Neovim, instead of a word jump.
+- `zsh/zshrc.symlink` adds a key binding that translates the escape sequences to word jumps.
 
 ## 2026-06-11
 
-- `iterm/com.googlecode.iterm2.plist` — enabled `Blinking Cursor`
+- `iterm/com.googlecode.iterm2.plist` enabled `Blinking Cursor`.
 
 ## 2026-06-10
 
-- Added `ct` function (`functions/ct`) + completion (`functions/_ct`) — jumps to `$PROJECTS/ct/<tab>`, mirrors `c`
+- Added the `ct` function (`functions/ct`) and its completion (`functions/_ct`). It jumps to `$PROJECTS/ct/<tab>`, like `c` does.
 
 ## 2026-05-12
 
-- `claude/install.sh` — added caveman install (https://github.com/JuliusBrussee/caveman)
-- Removed `jetbrains/datagrip` and `jetbrains/idea` launcher scripts; regenerated `jetbrains/storm` from Toolbox
+- Added the caveman install to `claude/install.sh` (https://github.com/JuliusBrussee/caveman).
+- Removed the `jetbrains/datagrip` and `jetbrains/idea` launcher scripts. Regenerated `jetbrains/storm` from Toolbox.
 
 ## 2026-04-03
 
-- Added `cj` alias for `claude-jailed` in `claude/alias.zsh`
+- Added `cj` alias for `claude-jailed` in `claude/alias.zsh`.
 
 ## 2026-03-24
 
-- `gw main` now navigates to the main worktree root (alias for `gw root`) instead of trying to create a worktree called "main"
+- `gw main` now goes to the main worktree root (alias for `gw root`) instead of trying to create a worktree called "main".
 
 ## 2026-03-17
 
-- Added `bin/iterm-open-nvim` — Cmd+click file paths in iTerm2 open in nvim via a new tmux session
-- Configured iTerm2 Semantic History in plist to run `iterm-open-nvim` on file clicks
-- Restored agent-safehouse install/upgrade logic in `claude/install.sh`
+- Added `bin/iterm-open-nvim`. Cmd+click on file paths in iTerm2 opens them in nvim, through a new tmux session.
+- Configured iTerm2 Semantic History in the plist to run `iterm-open-nvim` on file clicks.
+- Restored agent-safehouse install/upgrade logic in `claude/install.sh`.
 
 ## 2026-03-13
 
-- Added `glogs` alias — same as `glog` but includes GPG signature status (`G`/`N`/etc.) after the commit hash. Kept separate from `glog` because `%G?` triggers per-commit GPG verification which is slow.
-- Added `git/README.md` documenting all primary aliases, `glogs` signature indicators, and OMZ-ported alias groups
+- Added the `glogs` alias. It is the same as `glog`, but it shows the GPG signature status (for example `G` and `N`) after the commit hash. It stays separate from `glog`, because `%G?` runs GPG verification for each commit, which is slow.
+- Added `git/README.md`. It documents the primary aliases, the `glogs` signature indicators, and the alias groups ported from OMZ.
 
 ## 2026-03-12
 
-- Removed agent-safehouse — `cl` is now a plain alias to `claude`, install script only installs Claude Code
-- `claude/alias.zsh` — added `SAFEHOUSE_ADD_DIRS` to grant Claude read/write access to `claudie`, `.dotfiles`, `.config/nvim`, `uaa-shared`, `notes`, `tickets`
-
-- `claude/install.sh` — safehouse install now checks: install if missing, upgrade if Homebrew-managed, error if installed via another method
-- Added `claude/install.sh` — installs `claude-code` and `agent-safehouse` via Homebrew
-- `cl` now wraps claude through `safehouse` (`cl() { safehouse claude "$@"; }`) instead of a plain alias
-- `gco` prompt now offers `[r]emote fetch / [c]reate` in a single prompt instead of two sequential y/n questions; if remote fetch finds nothing, follows up with a create offer
+- Removed agent-safehouse. `cl` is now a plain alias for `claude`. The install script installs only Claude Code.
+- `claude/alias.zsh` added `SAFEHOUSE_ADD_DIRS`. It grants Claude read and write access to `claudie`, `.dotfiles`, `.config/nvim`, `uaa-shared`, `notes`, and `tickets`.
+- The safehouse install in `claude/install.sh` now checks the install. If safehouse is missing, the script installs it. If Homebrew manages it, the script upgrades it. If another method installed it, the script exits with an error.
+- Added `claude/install.sh`. It installs `claude-code` and `agent-safehouse` with Homebrew.
+- `cl` now wraps claude through `safehouse` (`cl() { safehouse claude "$@"; }`), not a plain alias.
+- The `gco` prompt now offers `[r]emote fetch / [c]reate` in one prompt, not two y/n questions in sequence. If the remote fetch finds nothing, it then offers to create the branch.
 
 ## 2026-03-11
 
-- Migrated iTerm2 prefs from Dropbox sync to repo — stored cleaned plist at `iterm/com.googlecode.iterm2.plist`, install script points iTerm's "custom folder" here so UI changes write directly to the repo copy
-- Fixed smart truncation not persisting — root cause was Dropbox plist overwriting local prefs on every launch
-- Replaced `set-title-components.py` (iTerm2 Python API) with a PlistBuddy command in `iterm/install.sh` — works outside of iTerm2
-- Configured `git difftool` to use `nvimdiff` with no prompt in `git/gitconfig.symlink`
+- Migrated iTerm2 preferences from Dropbox sync to the repo. The cleaned plist is stored at `iterm/com.googlecode.iterm2.plist`. The install script points iTerm's "custom folder" setting here, so UI changes write directly to the repo copy.
+- Fixed smart truncation not persisting. The root cause was the Dropbox plist, which overwrote local preferences on every launch.
+- Replaced `set-title-components.py`, which used the iTerm2 Python API, with a PlistBuddy command in `iterm/install.sh`. The command works outside of iTerm2.
+- Configured `git difftool` to use `nvimdiff` with no prompt in `git/gitconfig.symlink`.
 
 ## 2026-03-10
 
-- Added `iterm/tab.zsh` — auto-sets tab title to `repo...:branch (tool)` (or `repo.../worktree:branch (tool)` for named worktrees) with deterministic tab color per git root
-- Configured iTerm to show session name only in tab title (removes `(-zsh)` job suffix)
+- Added `iterm/tab.zsh`. It sets the tab title automatically to `repo...:branch (tool)`, or to `repo.../worktree:branch (tool)` for named worktrees. Each git root gets a deterministic tab color.
+- Configured iTerm to show session name only in tab title (removes `(-zsh)` job suffix).
 
 ## 2026-03-09
 
-- Added `tmux/` topic — tmux config with `Ctrl+a` prefix, tmux-easy-motion (flash.nvim-like label jumping), tmux-thumbs (quick-copy URLs/paths/SHAs), Catppuccin status bar, TPM plugin manager, vi copy mode, and shell aliases
+- Added the `tmux/` topic. It sets up tmux with the `Ctrl+a` prefix. It adds tmux-easy-motion (label jumping, similar to flash.nvim) and tmux-thumbs (quick copy of URLs, paths, and SHAs). It also includes a Catppuccin status bar, the TPM plugin manager, vi copy mode, and shell aliases.
 
 ## 2026-03-07
 
-- Added `brave/` topic — install script (Brave + `defaultbrowser` for setting default browser) and extensions checklist
+- Added the `brave/` topic. It has an install script that installs Brave and `defaultbrowser`, which sets the default browser. It also has an extensions checklist.
 
 ## 2026-03-06
 
-- Replaced NVM with fnm (Fast Node Manager) — eliminates ~1s version-switch delay; auto-switches on cd via `fnm env --use-on-cd`
-- `gw <worktree>` now clears the terminal on navigation (like `gw <worktree> cli`)
-- Skip `gw-layout` Python overhead for 0–1 tools — single tool runs directly in shell, layout only invoked for multi-pane splits
-- Rewrote `gw` CLI: positional tool args (`cl`, `nvim`, `cli`) instead of `--flags`, tools and branch in any order
-- Changed worktree location from `{repo}/worktrees/` to `{repo}-worktrees/` (sibling dir)
-- Updated `gw-layout` ratios: `cl+cli` and `nvim+cli` now use H-split (90/10) instead of V-split; added tunable constants at top
-- Added `gw root` to cd to main worktree root (with optional tools, no branch)
-- Updated `_gw` completion to match new positional args, sibling worktree dir, and `root` keyword
-- `gco` now checks for remote tracking branches before prompting to create; fetches from remote if local refs are stale — automatically checks out and tracks remote branches that exist
-- Added Hammerspoon shortcut (`Ctrl+Alt+H`) to stretch window to full screen height while keeping current width and position
-- Added `magnet/` topic to manage custom Magnet window layout overrides from dotfiles (`rightTwoThirds` → ~80% width, `iTerm` custom command)
+- Replaced NVM with fnm (Fast Node Manager). fnm removes the delay of about 1 second on each version switch. It switches versions on `cd` through `fnm env --use-on-cd`.
+- When `gw <worktree>` changes directory, it now clears the terminal, as `gw <worktree> cli` does.
+- `gw` skips the `gw-layout` Python overhead for zero or one tool. A single tool runs directly in the shell. `gw-layout` runs only for multi-pane splits.
+- Rewrote the `gw` CLI. Tools are positional arguments (`cl`, `nvim`, `cli`) instead of `--flags`. Tools and the branch can come in any order.
+- Moved the worktree location from `{repo}/worktrees/` to the sibling directory `{repo}-worktrees/`.
+- Updated `gw-layout` ratios. `cl+cli` and `nvim+cli` now use an H-split (90/10) instead of a V-split. The file also has tunable constants at the top.
+- Added `gw root`, which goes to the main worktree root. It takes optional tools but no branch.
+- Updated the `_gw` completion for the new positional arguments, the sibling worktree directory, and the `root` keyword.
+- `gco` now checks for remote tracking branches before it offers to create one. If local refs are stale, it fetches from the remote. It automatically checks out and tracks remote branches that exist.
+- Added a Hammerspoon shortcut (`Ctrl+Alt+H`). It stretches the window to the full screen height and keeps the current width and position.
+- Added the `magnet/` topic. It manages custom Magnet window layout overrides from the dotfiles. The `rightTwoThirds` layout uses about 80% of the width. The `iTerm` override is a custom command.
 
 ## 2026-03-05
 
 ### Fix `load-nvmrc` breaking on `cd` into `.nvmrc` projects
 
-- Removed conditional `$+functions` check entirely — just call `nvm --version` unconditionally to trigger the lazy stub (first call) or no-op (already loaded), avoiding all zsh parsing ambiguity
+- Removed the conditional `$+functions` check. The code now calls `nvm --version` every time. The first call triggers the lazy stub. Later calls do nothing, because nvm is already loaded. This avoids all zsh parsing ambiguity.
 
 ### Switch default editor to Neovim
 
@@ -218,8 +220,8 @@
 
 ### Restore Ctrl+S forward history search
 
-- Added `setopt NO_FLOW_CONTROL` to disable XON/XOFF flow control (zsh builtin, no TTY needed — avoids p10k instant prompt `stty` issues)
-- Added `bindkey '^S' history-incremental-search-forward` to restore forward incremental search lost when OMZ was dropped
+- Added `setopt NO_FLOW_CONTROL` to disable XON/XOFF flow control. It is a zsh builtin and needs no TTY. This avoids `stty` issues with the p10k instant prompt.
+- Added `bindkey '^S' history-incremental-search-forward` to restore the forward incremental search that the OMZ removal had dropped.
 
 ## 2025-03-05
 
@@ -229,13 +231,13 @@
 
 - OMZ sourced ~20 lib files, ran compfix, auto-update checks, `scutil`, `git rev-parse`, and its own `compinit` on every startup (~800ms)
 - Replaced with direct sources for the 3 features we actually used: Powerlevel10k, NVM (lazy-loaded), and z
-- OMZ is still _installed_ (p10k, z, kube-ps1 live under `~/.oh-my-zsh/`) — just not _sourced_
+- OMZ is still installed (p10k, z, and kube-ps1 live under `~/.oh-my-zsh/`). It is not sourced.
 
 #### Added zsh-defer for non-critical sources
 
-- Syntax highlighting, gcloud completion, iTerm shell integration, and terraform bashcompinit now load _after_ the first prompt is drawn
+- After the first prompt is drawn, syntax highlighting, gcloud completion, iTerm shell integration, and terraform bashcompinit load
 - zsh-defer is cloned into `$ZSH/custom/plugins/` and sourced early via `zsh/oh-my-zsh.zsh`
-- `zsh/oh-my-zsh.zsh` is explicitly sourced before the main topic loop to guarantee zsh-defer is available for all topic files (e.g. `iterm/`)
+- `zsh/oh-my-zsh.zsh` is explicitly sourced before the main topic loop to guarantee zsh-defer is available for all topic files, for example `iterm/`
 
 #### NVM lazy loading
 
@@ -250,13 +252,13 @@
 
 #### Removed dead code
 
-- Deleted `ruby/rvm.zsh` — RVM is not installed
-- Removed `hub` git wrapper from `git/aliases.zsh` — hub is not installed, `gh` replaced it
+- Deleted `ruby/rvm.zsh`, because RVM is not installed
+- Removed the `hub` git wrapper from `git/aliases.zsh`. `hub` is not installed, and `gh` replaced it.
 - Fixed `$(gls &>/dev/null)` subshell fork in `system/aliases.zsh` → `$+commands[gls]` hash lookup
 
 #### kube-ps1 on-demand
 
-- Type `kube-on` to load Kubernetes context into prompt instead of paying ~50ms every startup
+- Type `kube-on` to load the Kubernetes context into the prompt. This avoids the cost of about 50 ms on every startup.
 
 #### Added ZPROF profiling toggle
 

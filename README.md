@@ -8,13 +8,13 @@
 
 ## How It Works
 
-Everything is organized into **topic directories**. Special file conventions:
+Everything is organized into topic directories. The file names control how each file is used:
 
 | Pattern                | Behavior                                              |
 | ---------------------- | ----------------------------------------------------- |
 | `topic/*.zsh`          | Automatically sourced into your shell                 |
-| `topic/path.zsh`       | Loaded first; sets up `$PATH`                         |
-| `topic/completion.zsh` | Loaded last; sets up autocomplete                     |
+| `topic/path.zsh`       | Loaded first. Sets up `$PATH`                         |
+| `topic/completion.zsh` | Loaded last. Sets up autocomplete                     |
 | `topic/install.sh`     | Runs during `script/install`                          |
 | `topic/*.symlink`      | Symlinked into `$HOME` (without `.symlink` extension) |
 | `bin/*`                | Added to `$PATH` globally                             |
@@ -23,67 +23,67 @@ Everything is organized into **topic directories**. Special file conventions:
 
 ### Shell
 
-- **zsh/** - Primary shell. Powerlevel10k, zsh-defer, completions, aliases
-- **bash/** - Bash profile and rc (symlinked)
-- **system/** - System-wide aliases, env vars, keyboard config, macOS Automator workflows
-- **functions/** - Shell functions and completions (`extract`, `c`, etc.)
-- **bin/** - Utility scripts added to `$PATH` (git helpers, `e`, `dns-flush`, `set-defaults`, etc.)
+- `zsh/` - Primary shell. Powerlevel10k, zsh-defer, completions, aliases
+- `bash/` - Bash profile and rc (symlinked)
+- `system/` - System-wide aliases, env vars, keyboard configuration, macOS Automator workflows
+- `functions/` - Shell functions and completions (for example `extract` and `c`)
+- `bin/` - Utility scripts added to `$PATH` (for example git helpers, `e`, `dns-flush`, and `set-defaults`)
 
 ### Languages & Runtimes
 
-- **node/** - Node.js aliases and install
-- **python/** - PATH config
-- **ruby/** - gemrc, irbrc
-- **java/** - SDKMAN config and install
-- **go/** - PATH config
-- **rust/** - Cargo bin PATH config
+- `node/` - Node.js aliases and install
+- `python/` - PATH configuration
+- `ruby/` - gemrc, irbrc
+- `java/` - SDKMAN configuration and install
+- `go/` - PATH configuration
+- `rust/` - Cargo bin PATH configuration
 
 ### Tools
 
-- **git/** - Aliases, gitconfig, global gitignore, commit template
-- **docker/** - Aliases
-- **k8s/** - Kubernetes aliases, install, PATH
-- **postgres/** - Install and PATH
-- **mongo/** - Install
-- **tmux/** - Terminal multiplexer with easy-motion, thumbs, Catppuccin theme
-- **homebrew/** - Install script
+- `git/` - Aliases, gitconfig, global gitignore, commit template
+- `docker/` - Aliases
+- `k8s/` - Kubernetes aliases, install, PATH
+- `postgres/` - Install and PATH
+- `mongo/` - Install
+- `tmux/` - Terminal multiplexer with easy-motion, thumbs, Catppuccin theme
+- `homebrew/` - Install script
 
 ### Editors & IDEs
 
-- **vim/** - vimrc (symlinked)
-- **neovim/** - Neovim install (`brew install neovim` + ripgrep, tree-sitter-cli) and full config in `neovim/config`, symlinked to `~/.config/nvim`
-- **vscode/** - PATH config
-- **jetbrains/** - Launcher scripts for IntelliJ, DataGrip, WebStorm
-- **xcode/** - Aliases
+- `vim/` - vimrc (symlinked)
+- `neovim/` - Neovim install (`brew install neovim`, ripgrep, and tree-sitter-cli) and the full setup in `neovim/config`, symlinked to `~/.config/nvim`
+- `vscode/` - PATH configuration
+- `jetbrains/` - Launcher scripts for IntelliJ, DataGrip, WebStorm
+- `xcode/` - Aliases
 
 ### Applications
 
-- **amphetamine/** - Install Amphetamine (keep-awake) from the Mac App Store via `mas`
-- **brave/** - Install, default browser config, and extension checklist
-- **claude/** - Claude Code install + global config (`settings.json`, `AGENTS.md` → `~/.claude/CLAUDE.md`, `mcp.json`, hooks, scripts, skills, `omai/`, auto-memory). `deploy.sh` links it into `~/.claude` and merges `mcp.json` into `~/.claude.json`. `cl` (`claude/alias.zsh`) runs Claude Code with the omai env and no sandbox; `cl --no-omai` skips the omai env. `claude/shim/security` sends Claude Code keychain items to `claude/.claude.keychain.db` (gitignored) instead of the login keychain (`claude/install.sh` creates it)
-- **commercetools/** - API/CLI aliases
-- **obsidian/** - Aliases
-- **lute/** - Lute v3 language reader (venv install, `lute` launcher) plus offline reader-dict `.df` dictionary servers (fr-en `:8767`, fr-fr `:8766`), `lute-import-podcast` to import podcast RSS transcripts + audio as books, and `lute-prune-audio` to delete audio of archived/deleted books
-- **iterm/** - Shell integration, auto tab title (`repo (worktree:branch tool)`) and deterministic tab color per directory
-- **rancher/** - Rancher Desktop install and PATH
-- **magnet/** - Window layout overrides and install
-- **renovate/** - Local config
-- **nono/** - [nono](https://nono.sh) agent sandbox: install, packs, and profiles (`agent-base`, `agent-extended`, `mcp`, `claude-sandboxed`, `claude-directory`) symlinked to `~/.config/nono/profiles`, rollback `config.toml`. `mcp` injects the AG client secrets from the keystore as env vars (`env_credentials`) and swaps the CircleCI phantom token for the real one on upstream requests (`custom_credentials`). `claude-sandboxed` extends it. Store every keystore account listed in `mcp.jsonc`. `claude-nokeychain.sh` generates `profiles/claude-nokeychain.json`, a Keychain-free copy of the `nolabs-ai/claude` pack profile (re-run after `nono update`). `cln` (`nono/claude-nono`) launches Claude Code sandboxed. `clp` (`nono/claude-nono-personal`) launches it for the personal account only, with profile `claude-personal`, which denies `~/code/ct`. `nonop <name>` promotes a `.jsonc` profile draft from `~/.config/nono/profile-drafts` into `profiles/`
+- `amphetamine/` - Install Amphetamine (keep-awake) from the Mac App Store via `mas`
+- `brave/` - Install, default browser configuration, and extension checklist
+- `claude/` - Claude Code install and global configuration: `settings.json`, `AGENTS.md` (linked to `~/.claude/CLAUDE.md`), `mcp.json`, hooks, scripts, skills, `omai/`, and auto-memory. `deploy.sh` links it into `~/.claude` and merges `mcp.json` into `~/.claude.json`. `cl` (`claude/alias.zsh`) runs Claude Code with the omai env and no sandbox. `cl --no-omai` skips the omai env. `claude/shim/security` sends Claude Code keychain items to `claude/.claude.keychain.db` (gitignored) instead of the login keychain. `claude/install.sh` creates that keychain.
+- `commercetools/` - API/CLI aliases
+- `obsidian/` - Aliases
+- `lute/` - Lute v3 language reader (venv install and `lute` launcher). It also runs offline reader-dict `.df` dictionary servers (fr-en on `:8767`, fr-fr on `:8766`). `lute-import-podcast` imports podcast RSS transcripts and audio as books. `lute-prune-audio` deletes audio from archived or deleted books.
+- `iterm/` - Shell integration, auto tab title (`repo (worktree:branch tool)`), and deterministic tab color per directory
+- `rancher/` - Rancher Desktop install and PATH
+- `magnet/` - Window layout overrides and install
+- `renovate/` - Local configuration
+- `nono/` - [nono](https://nono.sh) agent sandbox: install, packs, and profiles. The profiles are `agent-base`, `agent-extended`, `mcp`, `claude-sandboxed`, and `claude-directory`. They are symlinked to `~/.config/nono/profiles`. The topic also has a rollback `config.toml`. The `mcp` profile injects the AG client secrets from the keystore as env vars (`env_credentials`). It also swaps the CircleCI phantom token for the real one on upstream requests (`custom_credentials`). `claude-sandboxed` extends `mcp`. Store every keystore account listed in `mcp.jsonc`. `claude-nokeychain.sh` generates `profiles/claude-nokeychain.json`, a Keychain-free copy of the `nolabs-ai/claude` pack profile. Re-run it after `nono update`. `cln` (`nono/claude-nono`) launches Claude Code sandboxed. `clp` (`nono/claude-nono-personal`) launches it for the personal account only. It uses the `claude-personal` profile, which denies `~/code/ct`. `nonop <name>` promotes a `.jsonc` profile draft from `~/.config/nono/profile-drafts` into `profiles/`
 
 ### System
 
-- **macos/** - macOS defaults and install
-- **script/** - Bootstrap and install entry points
+- `macos/` - macOS defaults and install
+- `script/` - Bootstrap and install entry points
 
 ## Notes
 
-- **Oh My Zsh is NOT sourced at startup.** OMZ is still installed (for p10k, z, and kube-ps1 which live under `~/.oh-my-zsh/`) but `oh-my-zsh.sh` is never loaded. Instead, `zsh/oh-my-zsh.zsh` sources only what we need directly.
-- **fnm manages Node versions.** [fnm](https://github.com/Schniz/fnm) replaces NVM — it's Rust-based and auto-switches on `cd` via `fnm env --use-on-cd` with near-zero overhead.
-- **zsh-defer** defers non-critical sources (syntax highlighting, gcloud completion, iterm integration, terraform) until after the first prompt is drawn.
-- **kube-ps1 is on-demand.** Type `kube-on` to load Kubernetes context into your prompt.
-- **tmux prefix is `Ctrl+a`** (not default `Ctrl+b`). `Ctrl+a Space` triggers easy-motion (2-char jump), `Ctrl+a F` triggers thumbs (quick-copy). Plugins managed by [TPM](https://github.com/tmux-plugins/tpm) — `prefix + I` to install, `prefix + U` to update.
-- **Profiling:** Run `ZPROF=1 zsh -i -c exit` to see a startup timing breakdown.
-- **Homebrew shellenv is cached** in `zsh/zprofile.symlink` for faster startup. If Homebrew is reinstalled or moved, re-run `/opt/homebrew/bin/brew shellenv` and update that file.
+- Oh My Zsh is not sourced at startup. OMZ is still installed (for p10k, z, and kube-ps1, which live under `~/.oh-my-zsh/`), but `oh-my-zsh.sh` is never loaded. `zsh/oh-my-zsh.zsh` sources only the parts that the shell needs.
+- fnm manages Node versions. [fnm](https://github.com/Schniz/fnm) replaces NVM. It is written in Rust and switches versions automatically on `cd` through `fnm env --use-on-cd`, with near-zero overhead.
+- zsh-defer defers non-critical sources (syntax highlighting, gcloud completion, iterm integration, terraform) until after the first prompt is drawn.
+- kube-ps1 loads on demand. Type `kube-on` to load the Kubernetes context into your prompt.
+- The tmux prefix is `Ctrl+a`, not the default `Ctrl+b`. `Ctrl+a Space` triggers easy-motion (2-character jump). `Ctrl+a F` triggers thumbs (quick copy). [TPM](https://github.com/tmux-plugins/tpm) manages the plugins. Press `prefix + I` to install them and `prefix + U` to update them.
+- To profile startup, run `ZPROF=1 zsh -i -c exit`. It prints a startup timing breakdown.
+- The Homebrew shellenv is cached in `zsh/zprofile.symlink` for faster startup. If you reinstall or move Homebrew, run `/opt/homebrew/bin/brew shellenv` again and update that file.
 
 ## Install
 
