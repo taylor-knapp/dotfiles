@@ -4,6 +4,8 @@
 
 - nono: Add the `mcp` profile. Its `env_credentials` inject the MCP client secrets from the nono keystore (service `nono`) as env vars. `claude-sandboxed` extends it. A missing keystore entry aborts the sandbox launch.
 - claude: `mcp-wrapper-ag.sh` reads `AG_<SERVER_NAME>_CLIENT_SECRET` (uppercased, `-` becomes `_`) instead of the Keychain. `circleci-mcp-wrapper.sh` reads `CIRCLECI_TOKEN`. The sandbox blocks Keychain access, so both lookups failed there.
+- nono: Keystore accounts for MCP secrets are renamed to `ag_<server>` (base64 of `client_id:secret`) and `circleci_token`. AG secrets map to env vars (`env_credentials`). The CircleCI token is a phantom again: `mcp` has a `circleci` route that sends it in `Circle-Token`, and the proxy swaps in the real token. Replaces the `ag-<server>` and `circleci-token` accounts. Re-store the secrets under the new names.
+- claude: `mcp-wrapper-ag.sh` sends `AG_<SERVER_NAME>_CLIENT_SECRET` as the `Basic` credential, with no encoding step. `circleci-mcp-wrapper.sh` sets `NODE_USE_ENV_PROXY=1` so Node uses the proxy.
 
 ## 2026-10-28
 
