@@ -63,7 +63,7 @@ Everything is organized into topic directories. The file names control how each 
 - `claude/` - Claude Code install and global configuration: `settings.json`, `AGENTS.md` (linked to `~/.claude/CLAUDE.md`), `mcp.json`, hooks, scripts, skills, `omai/`, and auto-memory. `deploy.sh` links it into `~/.claude` and merges `mcp.json` into `~/.claude.json`. `cl` (`claude/alias.zsh`) runs Claude Code with the omai env and no sandbox. `cl --no-omai` skips the omai env. `claude/shim/security` sends Claude Code keychain items to `claude/.claude.keychain.db` (gitignored) instead of the login keychain. `claude/install.sh` creates that keychain.
 - `commercetools/` - API/CLI aliases
 - `obsidian/` - Aliases
-- `opencode/` - OpenCode install. `ocn` (`opencode/opencode-nono`) runs OpenCode under nono with the `opencode-sandboxed` profile and the omai config in `opencode/omai`. `ocn --no-omai` skips the omai config.
+- `opencode/` - OpenCode install. `ocn` (`opencode/opencode-nono`) runs OpenCode under nono with the `opencode-sandboxed` profile and the omai configuration in `opencode/omai`. `ocn --no-omai` skips the omai configuration. OpenCode also loads the Claude Code skills from `~/.claude/skills`.
 - `lute/` - Lute v3 language reader (venv install and `lute` launcher). It also runs offline reader-dict `.df` dictionary servers (fr-en on `:8767`, fr-fr on `:8766`). `lute-import-podcast` imports podcast RSS transcripts and audio as books. `lute-prune-audio` deletes audio from archived or deleted books.
 - `iterm/` - Shell integration, auto tab title (`repo (worktree:branch tool)`), and deterministic tab color per directory
 - `rancher/` - Rancher Desktop install and PATH

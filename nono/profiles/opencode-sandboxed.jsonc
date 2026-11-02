@@ -7,7 +7,8 @@
   },
   "filesystem": {
     // omai OpenCode config + skills (opencode-nono sets OPENCODE_CONFIG_DIR here)
-    "read": ["$HOME/.dotfiles/opencode/omai"],
+    // ~/.claude/skills: OpenCode loads Claude Code skills from here (symlinks into ~/.dotfiles/claude/skills)
+    "read": ["$HOME/.dotfiles/opencode/omai", "$HOME/.claude/skills"],
     // oktapus mcp (agatha MCP) reads and refreshes the Okta token in its data dir
     "allow": ["$HOME/Library/Application Support/oktapus"]
   },

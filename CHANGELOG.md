@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+- nono: `opencode-sandboxed` gives read access to `~/.claude/skills`. OpenCode loads Claude Code skills from that directory, so `ocn` now has the skills in `claude/skills/`.
 - opencode: Add the `opencode/` topic. `install.sh` installs OpenCode with Homebrew. `ocn` (`opencode/opencode-nono`) runs the OpenCode server and the TUI inside one nono sandbox with the new `opencode-sandboxed` profile. The server is `opencode serve` on a free port in 10900–10999, and the TUI connects with `--server`. A random per-session password protects the server. It does not use `--standalone`, because that binds a random port, and the sandbox proxy denies the TUI connection with `EPERM`. The wrapper adds the same worktree grants, GitHub credential, and repo-local `.nono.json` as `cln`. Wrappers for a tool now live in that tool's topic, not in `nono/`.
 - opencode: `ocn` loads `opencode/omai` (OpenCode config and skills from omai) through `OPENCODE_CONFIG_DIR`, and opens the oktapus forward proxy port (`OKTAPUS_LISTEN`, default `8765`). It also limits OpenCode to the omai `ct-gateway` and `ct-gateway-gemini` providers (`enabled_providers` through `OPENCODE_CONFIG_CONTENT`), which hides the free Zen models. `ocn --no-omai` skips all of this. The `opencode` provider rendering needs omai 0.8.0 or newer.
 - nono: `opencode-sandboxed` gives read and write access to the oktapus data directory (`~/Library/Application Support/oktapus`) and allows `commercetools.okta.com`. The agatha MCP server (`oktapus mcp`) needs both to read and refresh the Okta token.
