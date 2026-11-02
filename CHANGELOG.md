@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-02
+
+- opencode: Add the `opencode/` topic. `install.sh` installs OpenCode with Homebrew. `ocn` (`opencode/opencode-nono`) runs the OpenCode server and the TUI inside one nono sandbox with the new `opencode-sandboxed` profile. The server is `opencode serve` on a free port in 10900–10999, and the TUI connects with `--server`. A random per-session password protects the server. It does not use `--standalone`, because that binds a random port, and the sandbox proxy denies the TUI connection with `EPERM`. The wrapper adds the same worktree grants, GitHub credential, and repo-local `.nono.json` as `cln`. Wrappers for a tool now live in that tool's topic, not in `nono/`.
+- opencode: `ocn` loads `opencode/omai` (OpenCode config and skills from omai) through `OPENCODE_CONFIG_DIR`, and opens the oktapus forward proxy port (`OKTAPUS_LISTEN`, default `8765`). It also limits OpenCode to the omai `ct-gateway` and `ct-gateway-gemini` providers (`enabled_providers` through `OPENCODE_CONFIG_CONTENT`), which hides the free Zen models. `ocn --no-omai` skips all of this. The `opencode` provider rendering needs omai 0.8.0 or newer.
+- nono: `opencode-sandboxed` gives read and write access to the oktapus data directory (`~/Library/Application Support/oktapus`) and allows `commercetools.okta.com`. The agatha MCP server (`oktapus mcp`) needs both to read and refresh the Okta token.
+- nono: Add the `opencode-sandboxed` profile. It extends the `nolabs-ai/opencode` pack profile, `agent-extended`, and `mcp`, and allows `opencode.ai` and `models.dev`.
+
 ## 2026-10-29
 
 - nono, claude: `cln` exports the AG MCP client secrets from the keystore. The `mcp` profile no longer has `env_credentials` for them. Under `agent-base`, a live `command_policies` entry (`gpg`) turned those values into phantoms. The sandbox then sent the phantom as the `Basic` credential, and the AG auth server returned 401 `invalid_client`. An empty `commands` map does not cause this. To add an AG account, list it in `claude-nono`. The cause is in `nono/AGENTS.md`.

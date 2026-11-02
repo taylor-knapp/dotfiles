@@ -1,0 +1,78 @@
+#!/bin/bash
+# OpenCode under nono (profile opencode-sandboxed). Server and TUI both run inside the sandbox.
+#   --online          allow all outbound domains (still proxied/audited)
+#   --allow-dir=PATH  grant rw to PATH (nono --allow); repeatable
+#   --no-omai         skip the omai config dir (opencode/omai) and the oktapus proxy port
+# Everything else passes through to opencode.
+set -euo pipefail
+
+CT_ROOT="$HOME/code/ct"
+PROFILE=opencode-sandboxed
+NONO_ARGS=(--trust-proxy-ca --allow-cwd)
+OC_ARGS=()
+USE_OMAI=true
+for a in "$@"; do
+  case "$a" in
+    --no-omai) USE_OMAI=false ;;
+    --online) NONO_ARGS+=(--allow-domain '*') ;;
+    --allow-dir=*) NONO_ARGS+=(--allow "${a#*=}") ;;
+    *) OC_ARGS+=("$a") ;;
+  esac
+done
+
+# Commit signing reaches gpg-agent through the sandbox socket in ~/.gnupg-claude (agent-base git.session env).
+GNUPGHOME="$HOME/.gnupg-claude" gpgconf --launch gpg-agent
+
+# omai: OpenCode loads opencode.json + skills/ from OPENCODE_CONFIG_DIR on top of its global config.
+# Models go through the oktapus forward proxy on localhost (OKTAPUS_LISTEN, default 127.0.0.1:8765).
+if [ "$USE_OMAI" = true ]; then
+  export OPENCODE_CONFIG_DIR="$HOME/.dotfiles/opencode/omai"
+  # Only the omai gateway providers; hides the built-in opencode (Zen) free models. Lives here, not in
+  # opencode/omai/opencode.json, because omai render overwrites that file.
+  export OPENCODE_CONFIG_CONTENT='{"enabled_providers":["ct-gateway","ct-gateway-gemini"]}'
+  listen="${OKTAPUS_LISTEN:-127.0.0.1:8765}"
+  NONO_ARGS+=(--open-port "${listen##*:}")
+fi
+
+# Worktree grants; main = repo owning the shared .git.
+if common="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"; then
+  main="$(dirname "$common")"
+  [ -d "$main-worktrees" ] && NONO_ARGS+=(--allow "$main-worktrees")
+  [ "$main" != "$(git rev-parse --show-toplevel)" ] && NONO_ARGS+=(--allow "$main")
+  case "$main/" in "$CT_ROOT"/*) NONO_ARGS+=(--read "$CT_ROOT") ;; esac
+fi
+
+# GitHub token for this repo's owner (custom_credentials in agent-base).
+owner="$(git remote get-url origin 2>/dev/null | sed -E 's#.*github.com[:/]([^/]+)/.*#\1#' || true)"
+case "$owner" in
+  commercetools) NONO_ARGS+=(--credential github_commercetools) ;;
+  taylor-knapp)  NONO_ARGS+=(--credential github_personal) ;;
+esac
+
+# Repo-local .nono.json (repo root, else cwd) layers on top of $PROFILE.
+LOCAL="$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.nono.json"
+if [ -f "$LOCAL" ]; then
+  NONO_ARGS+=(--extends "$PROFILE")
+  PROFILE="$LOCAL"
+  echo "[opencode-nono] Local profile: $LOCAL" >&2
+fi
+
+# Server on a fixed port in agent-base open_port_range: --standalone binds a random port (serve --port 0),
+# which the proxy-mode sandbox denies. 10000-10899 stays free for claudecode.nvim.
+# ponytail: free-port scan races with a parallel ocn start; harmless, the second server fails to bind.
+PORT=""
+for p in $(seq 10900 10999); do
+  nc -z 127.0.0.1 "$p" 2>/dev/null || { PORT=$p; break; }
+done
+[ -n "$PORT" ] || { echo "[opencode-nono] no free port in 10900-10999" >&2; exit 1; }
+
+exec nono run -p "$PROFILE" "${NONO_ARGS[@]}" -- /bin/bash -c '
+  port=$1; shift
+  # Per-session password: server reads OPENCODE_SERVER_PASSWORD, TUI sends OPENCODE_PASSWORD.
+  pw=$(openssl rand -hex 16)
+  OPENCODE_SERVER_PASSWORD=$pw opencode serve --hostname 127.0.0.1 --port "$port" >/dev/null 2>&1 &
+  srv=$!
+  trap "kill $srv 2>/dev/null" EXIT
+  for _ in $(seq 1 100); do nc -z 127.0.0.1 "$port" 2>/dev/null && break; sleep 0.1; done
+  OPENCODE_PASSWORD=$pw opencode --server "http://127.0.0.1:$port" "$@"
+' _ "$PORT" ${OC_ARGS[@]+"${OC_ARGS[@]}"}

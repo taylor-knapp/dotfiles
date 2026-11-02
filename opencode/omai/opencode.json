@@ -1,0 +1,134 @@
+{
+  "mcp": {
+    "omai-agatha-mcp:agatha": {
+      "command": [
+        "oktapus",
+        "mcp"
+      ],
+      "type": "local"
+    },
+    "omai-atlassian:atlassian": {
+      "type": "remote",
+      "url": "https://mcp.atlassian.com/v1/mcp"
+    }
+  },
+  "provider": {
+    "ct-gateway": {
+      "models": {
+        "claude-haiku-5-5": {
+          "attachment": true,
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "Claude Haiku 5.5 (agatha, 1M)",
+          "reasoning": true,
+          "tool_call": true
+        },
+        "claude-opus-5-5": {
+          "attachment": true,
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "Claude Opus 5.5 (agatha, 1M)",
+          "reasoning": true,
+          "tool_call": true
+        },
+        "claude-sonnet-5-5": {
+          "attachment": true,
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "Claude Sonnet 5.5 (agatha, 1M)",
+          "reasoning": true,
+          "tool_call": true
+        }
+      },
+      "name": "commercetools agentgateway (Claude)",
+      "npm": "@ai-sdk/anthropic",
+      "options": {
+        "apiKey": "ignored",
+        "baseURL": "http://127.0.0.1:8765/v1"
+      }
+    },
+    "ct-gateway-gemini": {
+      "models": {
+        "google/gemini-3.8-flash": {
+          "attachment": false,
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "Gemini 3.8 Flash (agatha, 1M)",
+          "reasoning": true,
+          "tool_call": true
+        },
+        "google/gemini-4-argon": {
+          "attachment": false,
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "Gemini 4 Argon (agatha, 1M)",
+          "reasoning": true,
+          "tool_call": true
+        }
+      },
+      "name": "commercetools agentgateway (Gemini)",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "apiKey": "ignored",
+        "baseURL": "http://127.0.0.1:8765/v1",
+        "headerTimeout": 120000,
+        "headers": {
+          "x-agatha-model-pool": "gemini"
+        }
+      }
+    }
+  }
+}

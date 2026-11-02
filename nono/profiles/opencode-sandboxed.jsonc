@@ -1,0 +1,21 @@
+{
+  "$schema": "../profile.schema.json",
+  "extends": ["opencode", "agent-extended", "mcp"],
+  "meta": {
+    "name": "opencode-sandboxed",
+    "description": "OpenCode with agent-extended fs + network policy (used by opencode-nono)"
+  },
+  "filesystem": {
+    // omai OpenCode config + skills (opencode-nono sets OPENCODE_CONFIG_DIR here)
+    "read": ["$HOME/.dotfiles/opencode/omai"],
+    // oktapus mcp (agatha MCP) reads and refreshes the Okta token in its data dir
+    "allow": ["$HOME/Library/Application Support/oktapus"]
+  },
+  "network": {
+    // agent-base allow_domain is an allowlist; add OpenCode's own hosts (models.dev = model catalog).
+    "allow_domain": [
+      // oktapus token refresh
+      "commercetools.okta.com"
+    ]
+  }
+}
