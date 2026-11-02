@@ -1,0 +1,251 @@
+{
+  "$schema": "../profile.schema.json",
+  "extends": [
+    // https://nono.sh/docs/cli/features/profiles-groups#node-dev
+    // All policies (referenced groups in the profiles) are here: https://github.com/nolabs-ai/nono/blob/main/crates/nono-cli/data/policy.json
+    "node-dev"
+  ],
+  "meta": {
+    "name": "base",
+    "description": "Essential fs + network policy for coding agents"
+  },
+  "groups": {
+    // https://github.com/nolabs-ai/nono/blob/6880db1cd13433884acf84df195a2f5ebfcc52a2/crates/nono-cli/data/policy.json#L594
+    "include": [ "git_config" ]
+  },
+  // Same rules nono emits for a `**` deny glob (deny content reads and all writes; stat still
+  // works), minus the startup walk. Unrooted, so they apply at any path, not only under the
+  // workdir: this also covers a worktree's main checkout. `[.]` is a literal dot. Emitted after
+  // all allow grants, so they win. macOS only; Linux ignores this field.
+  "unsafe_macos_seatbelt_rules": [
+    // A file named `.env`, or `.env.` plus anything (`.env.local`, `.env.production`).
+    // Not `.envrc`, and not `.env.template` (no secrets, agents may read and edit it).
+    "(deny file-read-data file-write* (require-all (regex #\"^.*/[.]env([.][^/]*)?$\") (require-not (regex #\"^.*/[.]env[.]template$\"))))",
+    // A file whose name ends in `.client.env` (`web.client.env`).
+    "(deny file-read-data file-write* (regex #\"^.*/[^/]*[.]client[.]env$\"))",
+    // Anything inside a folder named `secrets`, at any depth.
+    "(deny file-read-data file-write* (regex #\"^.*/secrets/.*$\"))",
+    // A repo's `.git/hooks` folder and every hook script in it.
+    "(deny file-read-data file-write* (regex #\"^.*/[.]git/hooks(/.*)?$\"))",
+    // A repo's `.git/config` file.
+    "(deny file-read-data file-write* (regex #\"^.*/[.]git/config$\"))",
+    // Test only: a file named `nono-deny-test.txt`. Create one outside the sandbox, then in a
+    // session `cat` it (expect "Operation not permitted") and `ls -l` it (expect success).
+    "(deny file-read-data file-write* (regex #\"^.*/nono-deny-test[.]txt$\"))"
+  ],
+  "network": {
+    // Proxy CA lifetime. Short enough to limit exposure if the trusted key leaks; long enough to skip daily trust prompts.
+    // trusted: required by --trust-proxy-ca (nono 0.79 rejects the default "session").
+    "tls_intercept": {
+      "ca_lifecycle": "trusted",
+      "ca_validity": "5d"
+    },
+    // The node-dev profile includes the `developer` default network policy, and existing allowed 
+    // networks can be seen at https://github.com/nolabs-ai/nono/blob/main/crates/nono-cli/data/network-policy.json.
+    // These are in addition to those.
+    "allow_domain": [
+      // ct domains
+      "commercetools.com",
+      "*.commercetools.com",
+      "escemo.com",
+      "*.escemo.com",
+      "circleci.com",
+      "*.circleci.com",
+
+      // trusted documentation sites
+      "docs.github.com",
+      "modelcontextprotocol.io",
+      "*.modelcontextprotocol.io",
+      "ucp.dev",
+      "*.ucp.dev",
+      "developer.atlassian.com",
+      "www.rfc-editor.org",
+      "docs.cloud.google.com",
+      "iterm2.com",
+      "nono.sh",
+      "*.nono.sh",
+
+      // mcps and others
+      "mcp.atlassian.com"
+    ]
+  },
+  "environment": {
+    "deny_vars": [
+      "SSH_AUTH_SOCK"
+    ]
+  },
+  // Any live entry below (gpg) makes env_credentials in profiles that extend this one resolve to phantoms.
+  // Keep AG secrets out of env_credentials; claude-nono exports them instead. See nono/AGENTS.md.
+  "command_policies": {
+    "commands": {
+      // Session can't touch .git/config (filesystem.deny); mediated git can, but only
+      // for allowlisted subcommands. Prefix match on argv[0] also blocks global opts
+      // (-c, -C, --git-dir, --exec-path) since they precede the subcommand.
+      "git": {
+        "executable": "/opt/homebrew/bin/git",
+        "can_use": ["gpg"],
+        "from": {
+          "session": {
+            "sandbox": {
+              "fs_read": ["/opt/homebrew", "$HOME/.config/gh", "$HOME/.gnupg-claude"],
+              "fs_read_file": ["@git:config-files"],
+              "fs_write": ["@git:toplevel", "@git:common-dir"],
+              // Session env does not reach command sandboxes; repeat git overrides here
+              "environment": {
+                "set_vars": {
+                  "GIT_CONFIG_COUNT": "7",
+                  "GIT_CONFIG_KEY_0": "credential.https://github.com.helper",
+                  "GIT_CONFIG_VALUE_0": "",
+                  "GIT_CONFIG_KEY_1": "credential.https://github.com.helper",
+                  "GIT_CONFIG_VALUE_1": "!gh auth git-credential",
+                  "GIT_CONFIG_KEY_2": "url.https://github.com/.insteadOf",
+                  "GIT_CONFIG_VALUE_2": "git@github.com:",
+                  "GIT_CONFIG_KEY_3": "url.https://github.com/.insteadOf",
+                  "GIT_CONFIG_VALUE_3": "ssh://git@github.com/",
+                  "GNUPGHOME": "/Users/taylorknapp/.gnupg-claude",
+                  "GIT_CONFIG_KEY_4": "commit.gpgsign",
+                  "GIT_CONFIG_VALUE_4": "true",
+                  "GIT_CONFIG_KEY_5": "gpg.program",
+                  "GIT_CONFIG_VALUE_5": "gpg",
+                  "GIT_CONFIG_KEY_6": "user.signingkey",
+                  "GIT_CONFIG_VALUE_6": "9AD1D3F6CB258967"
+                }
+              },
+              "network": {
+                "allow_domain": ["github.com", "api.github.com", "codeload.github.com", "objects.githubusercontent.com"]
+              }
+            },
+            "invocation_policy": {
+              "default": "deny",
+              "deny": [
+                { "argv": { "contains": ["--output"] }, "reason": "arbitrary file write" },
+                { "argv": { "contains": ["-o"] }, "reason": "arbitrary file write" },
+                { "argv": { "contains": ["--exec"] }, "reason": "rebase exec runs code in git sandbox" },
+                { "argv": { "contains": ["-x"] }, "reason": "rebase exec runs code in git sandbox" },
+                { "argv": { "contains": ["--upload-pack"] }, "reason": "runs code in git sandbox" },
+                { "argv": { "contains": ["--receive-pack"] }, "reason": "runs code in git sandbox" },
+                { "argv": { "contains": ["--template"] }, "reason": "copies hooks into .git" },
+                { "argv": { "prefix": ["remote", "set-url"] }, "reason": "url rewrite" },
+                { "argv": { "prefix": ["push"] }, "reason": "mirrors Claude Bash(git push) deny" }
+              ],
+              "allow": [
+                { "argv": { "prefix": ["status"] } },
+                { "argv": { "prefix": ["log"] } },
+                { "argv": { "prefix": ["diff"] } },
+                { "argv": { "prefix": ["show"] } },
+                { "argv": { "prefix": ["blame"] } },
+                { "argv": { "prefix": ["ls-files"] } },
+                { "argv": { "prefix": ["rev-parse"] } },
+                { "argv": { "prefix": ["rev-list"] } },
+                { "argv": { "prefix": ["merge-base"] } },
+                { "argv": { "prefix": ["add"] } },
+                { "argv": { "prefix": ["rm"] } },
+                { "argv": { "prefix": ["mv"] } },
+                { "argv": { "prefix": ["restore"] } },
+                { "argv": { "prefix": ["reset"] } },
+                { "argv": { "prefix": ["commit"] } },
+                { "argv": { "prefix": ["stash"] } },
+                { "argv": { "prefix": ["switch"] } },
+                { "argv": { "prefix": ["checkout"] } },
+                { "argv": { "prefix": ["branch"] } },
+                { "argv": { "prefix": ["tag"] } },
+                { "argv": { "prefix": ["merge"] } },
+                { "argv": { "prefix": ["rebase"] } },
+                { "argv": { "prefix": ["cherry-pick"] } },
+                { "argv": { "prefix": ["revert"] } },
+                { "argv": { "prefix": ["fetch"] } },
+                { "argv": { "prefix": ["pull"] } },
+                { "argv": { "prefix": ["remote"] } },
+                { "argv": { "prefix": ["worktree"] } }
+              ]
+            }
+          }
+        }
+      },
+      "gpg": {
+        "executable": "/opt/homebrew/bin/gpg",
+        "from": {
+          "git": {
+            "sandbox": {
+              // Inherits git's cwd (repo); getcwd needs read on it
+              "fs_read": ["/opt/homebrew", "$HOME/.gnupg-claude", "@git:toplevel"],
+              "fs_write": ["$HOME/.gnupg-claude"],
+              "unix_socket_bind": ["$HOME/.gnupg-claude/S.gpg-agent"],
+              "environment": { "set_vars": { "GNUPGHOME": "/Users/taylorknapp/.gnupg-claude" } }
+            },
+            "invocation_policy": {
+              "default": "deny",
+              "allow": [
+                { "argv": { "prefix": ["--status-fd=2", "-bsau"] }, "reason": "git commit signing" },
+                { "argv": { "contains": ["--verify"] }, "reason": "git signature verification" }
+              ]
+            }
+          },
+          "session": {
+            "sandbox": {
+              "fs_read": [
+                "$HOME/.gnupg-claude"
+              ],
+              "fs_write": [
+                "$HOME/.gnupg-claude"
+              ],
+              "unix_socket_bind": [
+                "$HOME/.gnupg-claude/S.gpg-agent"
+              ],
+              "environment": {
+                "set_vars": {
+                  "GNUPGHOME": "/Users/taylorknapp/.gnupg-claude"
+                }
+              }
+            },
+            "invocation_policy": {
+              "default": "deny",
+              "allow": [
+                {
+                  "argv": {
+                    "prefix": [
+                      "--status-fd=2",
+                      "-bsau"
+                    ]
+                  },
+                  "reason": "git commit signing"
+                },
+                {
+                  "argv": {
+                    "contains": [
+                      "--verify"
+                    ]
+                  },
+                  "reason": "git signature verification"
+                }
+              ]
+            }
+          }
+        }
+      },
+      // Only the exact notification scripts from claude/settings.json Stop/Notification hooks
+      "osascript": {
+        "executable": "/usr/bin/osascript",
+        "from": {
+          "session": {
+            "sandbox": {},
+            "invocation_policy": {
+              "default": "deny",
+              "allow": [
+                {
+                  "argv": { "exact": ["-e", "display notification \"Response ready\" with title \"Claude Code - Finished\" sound name \"Submarine\""] },
+                  "reason": "Stop hook notification"
+                },
+                {
+                  "argv": { "exact": ["-e", "display notification \"Input needed\" with title \"Claude Code - Question\" sound name \"Submarine\""] },
+                  "reason": "Notification hook"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

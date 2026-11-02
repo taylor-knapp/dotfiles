@@ -1,0 +1,17 @@
+{
+  "$schema": "../profile.schema.json",
+  "extends": ["base"],
+  "meta": {
+    "name": "claude",
+    "description": "Claude Code session paths on top of base"
+  },
+  "filesystem": {
+    "allow": [
+      "/tmp/claude"
+    ]
+    // Disabled. Enable once the setup steps for $HOME/.gnupg-claude are written down.
+    // "deny": [
+    //   "$HOME/.gnupg-claude"
+    // ]
+  }
+}

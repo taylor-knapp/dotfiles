@@ -1,0 +1,39 @@
+{
+  "$schema": "../profile.schema.json",
+  "extends": ["base"],
+  "meta": {
+    "name": "personal",
+    "description": "Personal overrides on top of base"
+  },
+  "filesystem": {
+    "allow": [
+      // The git_config group allows read access to $HOME/.gitconfig, but we also want read access
+      // to $HOME/.gitconfig.local for local overrides.
+      "$HOME/.gitconfig.local"
+    ]
+  },
+  "network": {
+    // claudecode.nvim WebSocket server, bound to localhost. Claude Code connects straight to it (not via the proxy), so the sandbox needs these ports open.
+    // Keep in sync with port_range in neovim/config/lua/plugins/claudecode.lua. macOS caps open_port_range at 16,384 ports total.
+    "open_port_range": [[10000, 10999]],
+    // Fine-grained GitHub PAT for personal repos, same mechanism as the commercetools credential.
+    // "custom_credentials": {
+    //   "github_personal": {
+    //     "upstream": "https://api.github.com",
+    //     "credential_key": "github_personal",
+    //     "env_var": "GH_TOKEN",
+    //     "inject_header": "Authorization",
+    //     "credential_format": "token {}"
+    //   }
+    // }
+    "allow_domain": [
+      "depot.dev",
+      "*.depot.dev",
+      "fly.io",
+      "*.fly.io",
+      "mynah.fly.dev",
+      "mynah-staging.fly.dev",
+      "api.machines.dev"
+    ]
+  }
+}
