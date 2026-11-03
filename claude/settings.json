@@ -78,6 +78,15 @@
             "command": "bash ~/.dotfiles/claude/hooks/block-directory-switching.sh"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
       }
     ],
     "PostToolUse": [
