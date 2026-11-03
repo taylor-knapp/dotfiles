@@ -42,18 +42,14 @@ GNUPGHOME="$HOME/.gnupg-claude" gpgconf --launch gpg-agent
 # localhost port from a URL (gateway / playwright ws endpoint)
 url_port() { python3 -c 'import sys,urllib.parse as u;print(u.urlparse(sys.argv[1]).port or "")' "$1"; }
 
-# omai: export settings.json `env` block (gateway URL/token/models). nono passes env through.
+# omai: pass settings.json as --settings (session-only env: gateway URL/token/models).
 OMAI="$HOME/.dotfiles/claude/omai/settings.json"
+OMAI_ARGS=()
 if [ "$USE_OMAI" = true ] && [ -s "$OMAI" ]; then
-  eval "$(python3 - "$OMAI" <<'PY'
-import json, re, shlex, sys
-env = json.load(open(sys.argv[1])).get("env") or {}
-for k, v in env.items():
-    if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", k):
-        print(f"export {k}={shlex.quote(str(v))}")
-PY
-)"
-  port="$(url_port "${ANTHROPIC_BASE_URL:-}")"
+  export ANTHROPIC_AUTH_TOKEN="ignored"
+  OMAI_ARGS=(--settings "$OMAI")
+  url="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["env"]["ANTHROPIC_BASE_URL"])' "$OMAI")"
+  port="$(url_port "$url")"
   [ -n "$port" ] && NONO_ARGS+=(--open-port "$port")
 fi
 
@@ -134,4 +130,4 @@ if [ -f "$LOCAL" ]; then
 fi
 
 # Not exec'd: EXIT trap must stop the playwright server.
-nono run -p "$PROFILE" "${NONO_ARGS[@]}" -- claude --permission-mode auto ${CLAUDE_ARGS[@]+"${CLAUDE_ARGS[@]}"}
+nono run -p "$PROFILE" "${NONO_ARGS[@]}" -- claude --permission-mode auto ${OMAI_ARGS[@]+"${OMAI_ARGS[@]}"} ${CLAUDE_ARGS[@]+"${CLAUDE_ARGS[@]}"}
