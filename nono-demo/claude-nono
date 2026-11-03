@@ -1,0 +1,69 @@
+#!/bin/bash
+# Claude Code under nono. Successor to claudie's sandbox/claude-sandboxed.
+#   --directory-only  cwd + essentials only (profile claude-directory; no docker, no extra ~/code dirs)
+#   --online          allow all outbound domains (still proxied/audited)
+#   --login           run `claude auth login` first (standalone profile claude-login: claude + Keychain only), then session
+#   --no-omai        skip env from ~/.dotfiles/claude/omai/settings.json (local gateway)
+#   --playwright      start a chromium server outside the sandbox, pass PLAYWRIGHT_WS_ENDPOINT in
+#   --allow-dir=PATH  grant rw to PATH (nono --allow) + claude --add-dir; repeatable
+# Everything else passes through to claude.
+set -euo pipefail
+
+NONO_DIR="$(dirname "$(realpath "$0")")"
+CT_ROOT="$HOME/code/ct"
+PROFILE=claude-sandboxed
+NONO_ARGS=(--trust-proxy-ca --allow-cwd)  # proxy CA in keychain -> Go CLIs (gh) trust it
+CLAUDE_ARGS=()
+USE_OMAI=true
+for a in "$@"; do
+  case "$a" in
+    --login) LOGIN=true ;;
+    *) CLAUDE_ARGS+=("$a") ;;
+  esac
+done
+
+# Commit signing reaches gpg-agent through the sandbox socket in ~/.gnupg-claude (agent-base git.session env).
+# The agent runs outside the sandbox, so start it here; gpgconf --launch is a no-op when it is already up.
+GNUPGHOME="$HOME/.gnupg-claude" gpgconf --launch gpg-agent
+
+# localhost port from a URL (gateway / playwright ws endpoint)
+url_port() { python3 -c 'import sys,urllib.parse as u;print(u.urlparse(sys.argv[1]).port or "")' "$1"; }
+
+# omai: pass settings.json as --settings (session-only env: gateway URL/token/models).
+OMAI="$HOME/.dotfiles/claude/omai/settings.json"
+OMAI_ARGS=()
+if [ "$USE_OMAI" = true ] && [ -s "$OMAI" ]; then
+  OMAI_ARGS=(--settings "$OMAI")
+  url="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["env"]["ANTHROPIC_BASE_URL"])' "$OMAI")"
+  port="$(url_port "$url")"
+  [ -n "$port" ] && NONO_ARGS+=(--open-port "$port")
+fi
+
+# Per-repo grants (profile globs like $HOME/code/*-worktrees hang nono 0.79).
+# main = repo owning the shared .git, so this also works from inside a worktree.
+if common="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"; then
+  main="$(dirname "$common")"
+  [ -d "$main-worktrees" ] && NONO_ARGS+=(--allow "$main-worktrees")
+  [ "$main" != "$(git rev-parse --show-toplevel)" ] && NONO_ARGS+=(--allow "$main")  # in a worktree
+  case "$main/" in "$CT_ROOT"/*) NONO_ARGS+=(--read "$CT_ROOT") ;; esac
+fi
+
+printf '{"cwd":%s}' "$(python3 -c 'import json,os;print(json.dumps(os.getcwd()))')" \
+  | bash "$NONO_DIR/disable-all-mcp.sh" || true
+
+# GitHub token for this repo's owner (custom_credentials in agent-base); none for other owners.
+owner="$(git remote get-url origin 2>/dev/null | sed -E 's#.*github.com[:/]([^/]+)/.*#\1#' || true)"
+case "$owner" in
+  commercetools) NONO_ARGS+=(--credential github_commercetools) ;;
+esac
+
+# Repo-local .nono.json (repo root, else cwd) layers on top of $PROFILE.
+LOCAL="$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.nono.json"
+if [ -f "$LOCAL" ]; then
+  NONO_ARGS+=(--extends "$PROFILE")
+  PROFILE="$LOCAL"
+  echo "[claude-nono] Local profile: $LOCAL" >&2
+fi
+
+# Not exec'd: EXIT trap must stop the playwright server.
+nono run -p "$PROFILE" "${NONO_ARGS[@]}" -- claude --permission-mode auto ${OMAI_ARGS[@]+"${OMAI_ARGS[@]}"} ${CLAUDE_ARGS[@]+"${CLAUDE_ARGS[@]}"}
