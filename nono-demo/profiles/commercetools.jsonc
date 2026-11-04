@@ -4,6 +4,15 @@
     "name": "commercetools",
     "description": "commercetools specific setup: Zscaler CA and GitHub credential"
   },
+  "allow_launch_services": false,
+  "open_urls": {
+    // Allow commercetools auth endpoints for OAuth token capture when logging into mcps.
+    "allow_origins": [
+      "https://auth2.europe-west1.gcp.commercetools.com",
+      "https://auth2.eu-central-1.aws.commercetools.com"
+    ],
+    "allow_localhost": false
+  },
   "filesystem": {
     // Zscaler root CA for TLS inspection. Setup steps: TODO, export the root CA to this path.
     "read": [
@@ -13,20 +22,6 @@
   "environment": {
     "set_vars": {
       "NODE_EXTRA_CA_CERTS": "$HOME/.certs/zscaler-root-ca.pem" 
-    }
-  },
-  "network": {
-    // Fine-grained GitHub PAT for commercetools repos. claude-nono enables it per session
-    // (--credential) from the origin remote's owner. The real token lives in Keychain (service
-    // "nono", account = credential_key); the sandbox sees only a phantom GH_TOKEN.
-    "custom_credentials": {
-      "github_commercetools": {
-        "upstream": "https://api.github.com",
-        "credential_key": "github_commercetools",
-        "env_var": "GH_TOKEN",
-        "inject_header": "Authorization",
-        "credential_format": "token {}"
-      }
     }
   }
 }

@@ -1,9 +1,10 @@
 {
   "$schema": "../profile.schema.json",
-  "extends": ["base"],
+  // Later extensions override earlier onces, so the order here matters.
+  "extends": ["nolabs-ai-claude", "base", "commercetools", "personal"],
   "meta": {
-    "name": "claude",
-    "description": "Claude Code session paths on top of base"
+    "name": "claude-code",
+    "description": "Claude Code sandboxed profile."
   },
   "filesystem": {
     "allow": [

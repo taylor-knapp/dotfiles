@@ -33,6 +33,12 @@
     // session `cat` it (expect "Operation not permitted") and `ls -l` it (expect success).
     "(deny file-read-data file-write* (regex #\"^.*/nono-deny-test[.]txt$\"))"
   ],
+  "filesystem": {
+    "read": [
+      // Allow usage of gh tool
+      "$HOME/.config/gh"
+    ]
+  },
   "network": {
     // Proxy CA lifetime. Short enough to limit exposure if the trusted key leaks; long enough to skip daily trust prompts.
     // trusted: required by --trust-proxy-ca (nono 0.79 rejects the default "session").
@@ -70,8 +76,10 @@
     ]
   },
   "environment": {
-    "deny_vars": [
-      "SSH_AUTH_SOCK"
+    "allow_vars": [
+      "HOME",
+      "TERM",
+      "LANG"
     ]
   },
   // Any live entry below (gpg) makes env_credentials in profiles that extend this one resolve to phantoms.
