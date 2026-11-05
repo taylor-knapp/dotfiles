@@ -27,8 +27,8 @@
     "(deny file-read-data file-write* (regex #\"^.*/secrets/.*$\"))",
     // A repo's `.git/hooks` folder and every hook script in it.
     "(deny file-read-data file-write* (regex #\"^.*/[.]git/hooks(/.*)?$\"))",
-    // A repo's `.git/config` file.
-    "(deny file-read-data file-write* (regex #\"^.*/[.]git/config$\"))",
+    // A repo's `.git/config` file. Reads are allowed; writes are denied.
+    "(deny file-write* (regex #\"^.*/[.]git/config$\"))",
     // Test only: a file named `nono-deny-test.txt`. Create one outside the sandbox, then in a
     // session `cat` it (expect "Operation not permitted") and `ls -l` it (expect success).
     "(deny file-read-data file-write* (regex #\"^.*/nono-deny-test[.]txt$\"))"
@@ -86,26 +86,36 @@
   // Keep AG secrets out of env_credentials; claude-nono exports them instead. See nono/AGENTS.md.
   "command_policies": {
     "commands": {
-      // Session can't touch .git/config (filesystem.deny); mediated git can, but only
+      // Session can read .git/config but not write it (seatbelt deny); mediated git can, but only
       // for allowlisted subcommands. Prefix match on argv[0] also blocks global opts
       // (-c, -C, --git-dir, --exec-path) since they precede the subcommand.
       "git": {
         "executable": "/opt/homebrew/bin/git",
-        "can_use": ["gpg"],
+        "can_use": ["gpg"], 
         "from": {
           "session": {
             "sandbox": {
               "fs_read": ["/opt/homebrew", "$HOME/.config/gh", "$HOME/.gnupg-claude"],
               "fs_read_file": ["@git:config-files"],
+              // The command sandbox denies process-exec except the pinned binary. git runs its
+              // helpers from its exec-path, which resolves into the Cellar. Allow only git itself
+              // (re-exec for fetch-pack etc.; libexec/git-core/git links to bin/git) and the https
+              // helper (git-remote-https links to git-remote-http). [^/]+ spans version upgrades.
+              "unsafe_macos_seatbelt_rules": [
+                "(allow process-exec* (regex #\"^/opt/homebrew/Cellar/git/[^/]+/(bin/git|libexec/git-core/git(-remote-https?)?)$\"))"
+              ],
               "fs_write": ["@git:toplevel", "@git:common-dir"],
               // Session env does not reach command sandboxes; repeat git overrides here
               "environment": {
                 "set_vars": {
+                  // No credential helpers: the nono proxy (--credential github) injects the token,
+                  // and the exec gate blocks the sh that helpers run through.
                   "GIT_CONFIG_COUNT": "7",
-                  "GIT_CONFIG_KEY_0": "credential.https://github.com.helper",
+                  "GIT_CONFIG_KEY_0": "credential.helper",
                   "GIT_CONFIG_VALUE_0": "",
                   "GIT_CONFIG_KEY_1": "credential.https://github.com.helper",
-                  "GIT_CONFIG_VALUE_1": "!gh auth git-credential",
+                  "GIT_CONFIG_VALUE_1": "",
+                  // Use https instead of ssh for github.com, so the nono proxy can inject the token.
                   "GIT_CONFIG_KEY_2": "url.https://github.com/.insteadOf",
                   "GIT_CONFIG_VALUE_2": "git@github.com:",
                   "GIT_CONFIG_KEY_3": "url.https://github.com/.insteadOf",
@@ -134,7 +144,7 @@
                 { "argv": { "contains": ["--receive-pack"] }, "reason": "runs code in git sandbox" },
                 { "argv": { "contains": ["--template"] }, "reason": "copies hooks into .git" },
                 { "argv": { "prefix": ["remote", "set-url"] }, "reason": "url rewrite" },
-                { "argv": { "prefix": ["push"] }, "reason": "mirrors Claude Bash(git push) deny" }
+                { "argv": { "prefix": ["push"] }, "reason": "pushes to remote" }
               ],
               "allow": [
                 { "argv": { "prefix": ["status"] } },
@@ -164,7 +174,8 @@
                 { "argv": { "prefix": ["fetch"] } },
                 { "argv": { "prefix": ["pull"] } },
                 { "argv": { "prefix": ["remote"] } },
-                { "argv": { "prefix": ["worktree"] } }
+                { "argv": { "prefix": ["worktree"] } },
+                { "argv": { "exact": ["--exec-path"] } }
               ]
             }
           }
