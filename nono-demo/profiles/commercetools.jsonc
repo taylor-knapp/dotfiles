@@ -14,7 +14,8 @@
     "allow_localhost": false
   },
   "filesystem": {
-    // Zscaler root CA for TLS inspection. Setup steps: TODO, export the root CA to this path.
+    // Zscaler root CA for TLS inspection. Export the value from keychain.
+    // > security find-certificate -a -p -c "Zscaler Root CA" > ~/.certs/zscaler-root-ca.pem
     "read": [
       "$HOME/.certs/zscaler-root-ca.pem"
     ]
