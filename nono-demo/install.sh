@@ -7,6 +7,7 @@
 # 4. Copy the claude pack profile to a keychain-free version (re-run after `nono update`).
 # 5. Update nono profile json schema to the latest version.
 # 6. Symlink profiles and config into nono config directory.
+# 7. Setup dedicated gnupg key for claude for signed commits.
 # ---
 
 # Install nono
@@ -50,3 +51,6 @@ nono profile schema > "$NONO_DIR/profile.schema.json"
 # Symlink profiles and config into nono config directory
 ln -sfn "$NONO_DIR/profiles" "$HOME/.config/nono/profiles"
 ln -sf "$NONO_DIR/config.toml" "$HOME/.config/nono/config.toml"
+
+# Setup dedicated gnupg key for claude for signed commits
+"$NONO_DIR/setup-claude-gpg.sh"

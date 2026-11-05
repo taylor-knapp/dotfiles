@@ -6,9 +6,12 @@ set -euo pipefail
 # Set the current directory to the script's location, so that relative paths work.
 NONO_DIR="$(dirname "$(realpath "$0")")"
 
-# Load machine-specific paths (CT_ROOT, OMAI_SETTINGS) from .env. Copy .env.template to start.
+# Load machine-specific values from .env, and export any required 
+# for nono and claude to work at runtime.
 [ -f "$NONO_DIR/.env" ] || { echo "missing $NONO_DIR/.env (copy .env.template)" >&2; exit 1; }
 set -a; . "$NONO_DIR/.env"; set +a
+# Annoyingly, nono won't expand a generic env var so we have to export it specifically.
+export GIT_CONFIG_VALUE_6=$GIT_SIGNING_KEY
 
 NONO_ARGS=(--trust-proxy-ca --allow-cwd --credential github)  # proxy CA in keychain -> Go CLIs (gh) trust it
 

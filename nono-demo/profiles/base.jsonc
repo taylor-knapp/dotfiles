@@ -79,8 +79,12 @@
     "allow_vars": [
       "HOME",
       "TERM",
-      "LANG"
-    ]
+      "LANG",
+      "GIT_CONFIG_VALUE_6"
+    ],
+    "set_vars": {
+      "GNUPGHOME": "$HOME/.gnupg-claude"
+    }
   },
   // Any live entry below (gpg) makes env_credentials in profiles that extend this one resolve to phantoms.
   // Keep AG secrets out of env_credentials; claude-nono exports them instead. See nono/AGENTS.md.
@@ -107,6 +111,11 @@
               "fs_write": ["@git:toplevel", "@git:common-dir"],
               // Session env does not reach command sandboxes; repeat git overrides here
               "environment": {
+                "allow_vars": [
+                  "HOME",
+                  "GNUPGHOME",
+                  "GIT_CONFIG_VALUE_6"
+                ],
                 "set_vars": {
                   // No credential helpers: the nono proxy (--credential github) injects the token,
                   // and the exec gate blocks the sh that helpers run through.
@@ -120,13 +129,13 @@
                   "GIT_CONFIG_VALUE_2": "git@github.com:",
                   "GIT_CONFIG_KEY_3": "url.https://github.com/.insteadOf",
                   "GIT_CONFIG_VALUE_3": "ssh://git@github.com/",
-                  "GNUPGHOME": "/Users/taylorknapp/.gnupg-claude",
                   "GIT_CONFIG_KEY_4": "commit.gpgsign",
                   "GIT_CONFIG_VALUE_4": "true",
                   "GIT_CONFIG_KEY_5": "gpg.program",
                   "GIT_CONFIG_VALUE_5": "gpg",
-                  "GIT_CONFIG_KEY_6": "user.signingkey",
-                  "GIT_CONFIG_VALUE_6": "9AD1D3F6CB258967"
+                  "GIT_CONFIG_KEY_6": "user.signingkey"
+                  // GIT_CONFIG_VALUE_6: Because command set_vars wont interpolate vas, we 
+                  // set it in the session env, and the command sandbox inherits it.
                 }
               },
               "network": {
@@ -190,7 +199,12 @@
               "fs_read": ["/opt/homebrew", "$HOME/.gnupg-claude", "@git:toplevel"],
               "fs_write": ["$HOME/.gnupg-claude"],
               "unix_socket_bind": ["$HOME/.gnupg-claude/S.gpg-agent"],
-              "environment": { "set_vars": { "GNUPGHOME": "/Users/taylorknapp/.gnupg-claude" } }
+              "environment": { 
+                "allow_vars": [
+                  "HOME",
+                  "GNUPGHOME"
+                ]
+              }
             },
             "invocation_policy": {
               "default": "deny",
@@ -212,9 +226,10 @@
                 "$HOME/.gnupg-claude/S.gpg-agent"
               ],
               "environment": {
-                "set_vars": {
-                  "GNUPGHOME": "/Users/taylorknapp/.gnupg-claude"
-                }
+                "allow_vars": [
+                  "HOME",
+                  "GNUPGHOME"
+                ]
               }
             },
             "invocation_policy": {
