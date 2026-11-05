@@ -140,7 +140,8 @@
     "typescript-lsp@claude-plugins-official": true,
     "caveman@caveman": true,
     "ponytail@ponytail": true,
-    "simple-english@simple-english": true
+    "simple-english@simple-english": true,
+    "nono@nolabs-ai": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
