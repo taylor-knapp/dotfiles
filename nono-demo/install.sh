@@ -45,6 +45,14 @@ NONO_DIR="$(cd $(dirname "$0") && pwd)"
 # Keychain-free copy of the claude pack profile (re-run after `nono update`)
 "$NONO_DIR/claude-nokeychain.sh" > "$NONO_DIR/profiles/nolabs-ai-claude.jsonc"
 
+# Placeholder personal profile (gitignored; claude-code extends it)
+[ -f "$NONO_DIR/profiles/personal.jsonc" ] || cat > "$NONO_DIR/profiles/personal.jsonc" <<'EOF'
+{
+  "$schema": "../profile.schema.json",
+  "meta": { "name": "personal", "description": "Machine-specific overrides." }
+}
+EOF
+
 # Update nono profile json schema to the latest version
 nono profile schema > "$NONO_DIR/profile.schema.json"
 

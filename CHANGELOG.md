@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-06
+
+- nono-demo: `claude-nono` passes `NONO_ARGS` to `nono run`. Before this change, it built the worktree and `$CT_ROOT` grants but did not pass them.
+- nono-demo: If `personal-init.sh` (gitignored) exists, `claude-nono` sources it before launch. The local copy exports the AG MCP secrets from the keystore.
+- nono-demo: `profiles/personal.jsonc` is gitignored. If the file does not exist, `install.sh` creates an empty placeholder. The local copy has the CircleCI phantom credential from `nono/profiles/mcp.jsonc`.
+
 ## 2026-11-02
 
 - nono: `opencode-sandboxed` gives read access to `~/.claude/skills`. OpenCode loads Claude Code skills from that directory, so `ocn` now has the skills in `claude/skills/`.

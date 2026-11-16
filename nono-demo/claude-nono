@@ -47,9 +47,10 @@ if common="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"
   case "$main/" in "$CT_ROOT"/*) NONO_ARGS+=(--read "$CT_ROOT") ;; esac
 fi
 
+# Optional machine-specific setup (gitignored). Sourced, so it can export env vars and append to NONO_ARGS.
+[ -f "$NONO_DIR/personal-init.sh" ] && . "$NONO_DIR/personal-init.sh"
+
 exec nono run -p claude-code \
-  --trust-proxy-ca \
-  --allow-cwd \
-  --credential github \
+  "${NONO_ARGS[@]}" \
   --open-port $AGATHA_PROXY_PORT -- \
   claude --permission-mode auto --settings "$OMAI_SETTINGS" "$@"
