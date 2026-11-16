@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-16
+
+- nono-demo: `profiles/base.jsonc` git invocation policy allows the exact argv `-c submodule.recurse=false version --build-options`, which lint-staged runs at startup. It also allows `write-tree`, and it mirrors the git allowlist with the `-c submodule.recurse=false` prefix that lint-staged adds to every call. `push` and `remote set-url` stay denied in that form too. Other `-c` forms stay denied. Start a new session for the change to apply.
+
 ## 2026-11-06
 
 - nono-demo: `claude-nono` passes `NONO_ARGS` to `nono run`. Before this change, it built the worktree and `$CT_ROOT` grants but did not pass them.
@@ -70,7 +74,7 @@
 
 ## 2026-10-13
 
-- claude: Retargeted the `update-context`/`c` skills to the dotfiles layout (AGENTS.md, skills, hooks/settings, and nono profiles). Dropped the `.agents/` and `rules/` targets, the stale commit-signing example, and AskUserQuestion.
+- claude: Retargeted the `update-context`/`c` skills to the dotfiles layout (AGENTS.md, skills, hooks, and nono profiles). Dropped the `.agents/` and `rules/` targets, the stale commit-signing example, and AskUserQuestion.
 - claude: Condensed `AGENTS.md` from about 1.4k to about 330 words. Dropped the rules that nono made stale: commit signing, `git -C`, https push, and Claude sandbox notes. Also dropped rules that point to missing skills and removed the `.agents/` includes. Moved the macOS defaults guidance to the `macos-defaults` skill.
 - claude: Absorbed `~/code/claudie`, which is deprecated.
 - claude: `claude/` now holds `settings.json`, `AGENTS.md` (linked as `~/.claude/CLAUDE.md`), `mcp.json`, hooks, and the statusline and MCP wrapper scripts. It also holds `omai/`, the auto-memory directory, and the skills `pr`, `francais`, `anki`, `update-context`, `c`, and `note`.

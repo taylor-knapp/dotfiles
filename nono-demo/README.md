@@ -7,14 +7,14 @@
 #### Create a limited Github credential
 
 Create [a fine grain personal access token](https://github.com/settings/personal-access-tokens) with the following:
-	- access the commercetools organization
-	- all repositories
-	- *actions*: read only
-	- *commit statuses*: read only
-	- *content*: read and write
-	- *issues*: read only
-	- *pull requests*: read and write
-	- *metadata*: read only (will likely be checked by default)
+- access the commercetools organization
+- all repositories
+- *actions*: read only
+- *commit statuses*: read only
+- *content*: read and write
+- *issues*: read only
+- *pull requests*: read and write
+- *metadata*: read only (will likely be checked by default)
 
 Add it to keychain
 ```
