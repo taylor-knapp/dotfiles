@@ -15,6 +15,9 @@ export GIT_CONFIG_VALUE_6=$GIT_SIGNING_KEY
 
 NONO_ARGS=(--trust-proxy-ca --allow-cwd --credential github)  # proxy CA in keychain -> Go CLIs (gh) trust it
 
+# Log file set (nono reads NONO_LOG_FILE itself): enable trace-level logs.
+if [ -n "${NONO_LOG_FILE:-}" ]; then NONO_ARGS+=(-vvv); fi
+
 #### REQUIRES SETUP ####
 # Export the github token, which nono will inject into any github requests.
 export GITHUB_TOKEN="$(security find-generic-password -s nono -a github_commercetools -w 2>/dev/null || true)"

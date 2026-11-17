@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-17
+
+- nono-demo: If `NONO_LOG_FILE` is set, `claude-nono` adds `-vvv` to `nono run`. Trace logs then go to that file.
+
 ## 2026-11-16
 
 - nono-demo: `profiles/base.jsonc` git invocation policy allows the exact argv `-c submodule.recurse=false version --build-options`, which lint-staged runs at startup. It also allows `write-tree`, and it mirrors the git allowlist with the `-c submodule.recurse=false` prefix that lint-staged adds to every call. `push` and `remote set-url` stay denied in that form too. Other `-c` forms stay denied. Start a new session for the change to apply.
