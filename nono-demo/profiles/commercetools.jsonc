@@ -9,7 +9,8 @@
     // Allow commercetools auth endpoints for OAuth token capture when logging into mcps.
     "allow_origins": [
       "https://auth2.europe-west1.gcp.commercetools.com",
-      "https://auth2.eu-central-1.aws.commercetools.com"
+      "https://auth2.eu-central-1.aws.commercetools.com",
+      "https://mcp.atlassian.com"
     ],
     "allow_localhost": false
   },
