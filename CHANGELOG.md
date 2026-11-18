@@ -11,6 +11,7 @@
 - nono-demo: `install.sh` copies `nono-demo/.nono.npmrc` to `~/.nono.npmrc` and installs `nono-gcp-npm-token-helper` to `~/bin`. The helper runs `gcloud auth application-default print-access-token` from `~/google-cloud-sdk`, so that SDK must be installed. Run `sh install.sh` to create both copies.
 - nono-demo: If `brew` is missing or `brew install nono` fails, `install.sh` installs nono with `curl -fsSL https://nono.sh/install.sh | sh`. An Intel Mac hit a brew failure.
 - nono-demo: Start a new session for the profile changes to apply.
+- iterm: The Code Review pane of the Claude Code workgroup passes `\(codeReviewSettingsFile)` to `--settings`. Before this change it used a fixed path in the iTerm2 app bundle.
 
 ## 2026-11-17
 
