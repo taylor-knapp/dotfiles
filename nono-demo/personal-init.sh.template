@@ -1,0 +1,16 @@
+# Template for personal-init.sh. Copy it to personal-init.sh (gitignored).
+# claude-nono sources personal-init.sh before launch. It can export env vars
+# and append to NONO_ARGS, for example: NONO_ARGS+=(--allow /path/to/dir)
+
+# Keystore secrets, one per account (service nono), exported as <ACCOUNT>_SECRET.
+# Add a keychain item with:
+#   security add-generic-password -U -s nono -a <account> -w "<base64 client_id:secret>"
+# A missing item prints a warning and skips that export.
+for acct in ag_example; do
+  secret="$(security find-generic-password -s nono -a "$acct" -w 2>/dev/null || true)"
+  if [ -z "$secret" ]; then
+    echo "[claude-nono] keystore item nono/$acct not found" >&2
+    continue
+  fi
+  export "$(printf '%s' "$acct" | tr 'a-z' 'A-Z')_SECRET=$secret"
+done

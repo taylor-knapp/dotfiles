@@ -1,3 +1,5 @@
 .env
 personal-init.sh
 profiles/personal.jsonc
+profile.schema.json
+profiles/nolabs-ai-claude.jsonc

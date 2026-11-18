@@ -5,8 +5,8 @@
 # a passphrase during key generation.
 #
 # Creates an isolated GNUPGHOME at ~/.gnupg-claude with a passphrase-protected,
-# signing-only ed25519 key. The sandbox launcher scripts (claude-sandboxed,
-# claude-jailed) automatically pick up this key via the signing-key-id file.
+# signing-only ed25519 key. The script prints the key ID. Copy it into
+# GIT_SIGNING_KEY in .env, which claude-nono reads.
 # Passphrase is entered once after each machine restart via pinentry.
 
 set -euo pipefail
