@@ -199,6 +199,8 @@
                 { "argv": { "prefix": ["remote"] } },
                 { "argv": { "prefix": ["worktree"] } },
                 { "argv": { "prefix": ["write-tree"] } },
+                // Husky install. Key and value pinned; broad `config` lets the agent set code-running keys.
+                { "argv": { "prefix": ["config", "core.hooksPath", ".husky/_"] } },
                 { "argv": { "prefix": ["-c", "submodule.recurse=false", "status"] } },
                 { "argv": { "prefix": ["-c", "submodule.recurse=false", "log"] } },
                 { "argv": { "prefix": ["-c", "submodule.recurse=false", "diff"] } },
