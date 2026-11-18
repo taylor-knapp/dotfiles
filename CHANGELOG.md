@@ -1,8 +1,21 @@
 # Changelog
 
+## 2026-11-18
+
+- nono-demo: The mediated git policy in `base.jsonc` allows `git config core.hooksPath .husky/_`, so the Husky postinstall step can set up git hooks inside the sandbox. Other `git config` calls stay denied.
+- nono-demo: `profiles/base.jsonc` grants read+write on `~/Library/pnpm/store`. Before this change the store was read-only in the sandbox, so pnpm fell back to a repo-local `.pnpm-store`.
+- nono-demo: `profiles/base.jsonc` allows write-only (no read) on `.env` and `.env.*` files under any `node_modules` folder, a carve-out from the `.env*` seatbelt deny. pnpm needs it to copy dotfiles that packages ship, such as `dotenv-cli/.env`. Paths under `secrets/` stay denied.
+- nono-demo: `profiles/base.jsonc` allows write-only (no read) on `secrets/` folders under any `node_modules` folder, a carve-out from the `secrets/` seatbelt deny. pnpm failed to create the `build/protos/google/cloud/secrets/` folder of `@google-cloud/secret-manager` without it. `.env` and `.client.env` files stay denied.
+- nono-demo: `profiles/base.jsonc` has a seatbelt `file-write-data` allow on the `~/.npm` folder node only, not its contents. `prebuild-install` calls `access(R_OK|W_OK)` on `~/.npm`, and `node_runtime` grants only read there.
+- nono-demo: `profiles/commercetools.jsonc` routes pnpm auth for `europe-npm.pkg.dev` through the nono proxy. The `gcp_npm` credential runs `~/bin/nono-gcp-npm-token-helper` outside the sandbox and caches the token for 30 minutes. The sandbox gets only a phantom token in `GCP_NPM_PHANTOM`. pnpm reads `~/.nono.npmrc` through `NPM_CONFIG_USERCONFIG`, so the real `~/.npmrc` stays denied.
+- nono-demo: `install.sh` copies `nono-demo/.nono.npmrc` to `~/.nono.npmrc` and installs `nono-gcp-npm-token-helper` to `~/bin`. The helper runs `gcloud auth application-default print-access-token` from `~/google-cloud-sdk`, so that SDK must be installed. Run `sh install.sh` to create both copies.
+- nono-demo: If `brew` is missing or `brew install nono` fails, `install.sh` installs nono with `curl -fsSL https://nono.sh/install.sh | sh`. An Intel Mac hit a brew failure.
+- nono-demo: Start a new session for the profile changes to apply.
+
 ## 2026-11-17
 
 - nono-demo: If `NONO_LOG_FILE` is set, `claude-nono` adds `-vvv` to `nono run`. Trace logs then go to that file.
+- nono-demo: `profiles/base.jsonc` sets `PNPM_HOME` to `~/Library/pnpm` and `pnpm_config_store_dir` to `~/Library/pnpm/store`. Before pnpm 11 uses the default store, it tries to create a temp folder in `$PNPM_HOME`. That folder is read-only in the sandbox, so pnpm chose `<mountpoint>/.pnpm-store`. An explicit store setting skips the check. pnpm 11 ignores `npm_config_*` for this setting.
 
 ## 2026-11-16
 

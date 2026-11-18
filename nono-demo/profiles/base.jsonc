@@ -21,10 +21,21 @@
     // A file named `.env`, or `.env.` plus anything (`.env.local`, `.env.production`).
     // Not `.envrc`, and not `.env.template` (no secrets, agents may read and edit it).
     "(deny file-read-data file-write* (require-all (regex #\"^.*/[.]env([.][^/]*)?$\") (require-not (regex #\"^.*/[.]env[.]template$\"))))",
+    // Carve-out: write-only access to `.env` and `.env.*` files under any node_modules folder, so pnpm
+    // can copy dotfiles that packages ship (for example dotenv-cli/.env). Reads stay denied. Excludes
+    // anything under a `secrets` folder. Emitted after the `.env` deny above, so this allow wins.
+    "(allow file-write* (require-all (regex #\"^.*/node_modules/(.*/)?[.]env([.][^/]*)?$\") (require-not (regex #\"^.*/secrets/.*$\"))))",
     // A file whose name ends in `.client.env` (`web.client.env`).
     "(deny file-read-data file-write* (regex #\"^.*/[^/]*[.]client[.]env$\"))",
     // Anything inside a folder named `secrets`, at any depth.
     "(deny file-read-data file-write* (regex #\"^.*/secrets/.*$\"))",
+    // Carve-out: write-only access to `secrets` folders under any node_modules folder, so pnpm can create
+    // folders that packages ship (for example @google-cloud/secret-manager's protos). Reads stay denied.
+    // `.env` and `.client.env` files stay denied. Emitted after the `secrets` deny above, so this allow wins.
+    "(allow file-write* (require-all (regex #\"^.*/node_modules/(.*/)?secrets/.*$\") (require-not (regex #\"^.*/[.]env([.][^/]*)?$\")) (require-not (regex #\"^.*/[^/]*[.]client[.]env$\"))))",
+    // The `.npm` folder node itself (not its contents). prebuild-install calls access(R_OK|W_OK) on ~/.npm
+    // before it touches _prebuilds, and node_runtime grants only read there. Children keep their own rules.
+    "(allow file-write-data (regex #\"^.*/[.]npm$\"))",
     // A repo's `.git/hooks` folder and every hook script in it.
     "(deny file-read-data file-write* (regex #\"^.*/[.]git/hooks(/.*)?$\"))",
     // A repo's `.git/config` file. Reads are allowed; writes are denied.
@@ -40,8 +51,6 @@
     ],
     // Global pnpm store (~/Library/pnpm/store/v11). Read+write so pnpm hard-links packages into the
     // repo. Without write access pnpm falls back to a repo-local .pnpm-store.
-    // Read+write on the prebuild cache. node_runtime (in node-dev) grants read on ~/.npm only. The ~/.npm
-    // node itself gets write-data through unsafe_macos_seatbelt_rules below.
     "allow": [
       "$HOME/Library/pnpm/store"
     ]
