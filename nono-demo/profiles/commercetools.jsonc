@@ -19,11 +19,46 @@
     // > security find-certificate -a -p -c "Zscaler Root CA" > ~/.certs/zscaler-root-ca.pem
     "read": [
       "$HOME/.certs/zscaler-root-ca.pem"
+    ],
+    // pnpm reads this file in place of ~/.npmrc (see NPM_CONFIG_USERCONFIG). It holds no secret.
+    "read_file": [
+      "$HOME/.nono.npmrc"
+    ]
+  },
+  // Supervisor-side token for the custom credential below. Runs outside the sandbox.
+  // Cached 30 min: Google access tokens last 1 hour.
+  "credential_capture": {
+    "gcp_npm": {
+      "command": ["$HOME/bin/nono-gcp-npm-token-helper"],
+      "timeout_secs": 30,
+      "ttl_secs": 1800
+    }
+  },
+  "network": {
+    // Artifact Registry npm (commercetools internal packages).
+    // Proxy swaps the phantom token in GCP_NPM_PHANTOM for the gcloud token on europe-npm.pkg.dev requests.
+    "credentials": ["gcp_npm"],
+    "custom_credentials": {
+      "gcp_npm": {
+        "upstream": "https://europe-npm.pkg.dev",
+        "credential_key": "cmd://gcp_npm",
+        "env_var": "GCP_NPM_PHANTOM",
+        "inject_header": "Authorization",
+        "credential_format": "Bearer {}"
+      }
+    },
+    "allow_domain": [
+      "europe-npm.pkg.dev"
     ]
   },
   "environment": {
+    "allow_vars": [
+      "GCP_NPM_PHANTOM"
+    ],
     "set_vars": {
-      "NODE_EXTRA_CA_CERTS": "$HOME/.certs/zscaler-root-ca.pem" 
+      "NODE_EXTRA_CA_CERTS": "$HOME/.certs/zscaler-root-ca.pem",
+      // Points pnpm at the sandbox npmrc, so the real ~/.npmrc (denied in the sandbox) is not read.
+      "NPM_CONFIG_USERCONFIG": "$HOME/.nono.npmrc"
     }
   }
 }

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec ~/google-cloud-sdk/bin/gcloud auth application-default print-access-token
