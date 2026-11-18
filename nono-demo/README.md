@@ -16,10 +16,11 @@ Create [a fine grain personal access token](https://github.com/settings/personal
 - *pull requests*: read and write
 - *metadata*: read only (will likely be checked by default)
 
-Add it to keychain
+Add it to keychain:
 ```
-mkdir -p ~/.certs && security find-certificate -a -p -c "Zscaler Root CA" > ~/.certs/zscaler-root-ca.pem
+security add-generic-password -U -s nono -a github_commercetools -w "<token>"
 ```
+
 
 #### Install nono
 
@@ -28,17 +29,18 @@ Pull the [uaa-shared](https://github.com/commercetools/uaa-shared) repo latest, 
 Run the `sh install.sh` script to install nono and it's dependencies.
 - Add the new gpg key to github
 - Save the passphrase to dashlane.
+
 #### Prepare a local copy of the zscaler certificate
 
 Copy the zscaler certificate locally so we can use it in proxy requests.
 
 ```
-security find-certificate -a -p -c "Zscaler Root CA" > ~/.certs/zscaler-root-ca.pem
+mkdir -p ~/.certs && security find-certificate -a -p -c "Zscaler Root CA" > ~/.certs/zscaler-root-ca.pem
 ```
 
 #### Add env vars
 
-Add an `.env` file and each variable.
+Copy `.env.template` to `.env` and add each variable. The gpg signing key prints during the install script.
 
 ## How does nono work?
 
@@ -67,6 +69,26 @@ We set up the following:
 - A `nolabs-ai-claude` profile that copies the `nolabs-ai/claude` packaged profile but disables keychain access
 - A `personal` profile with your own personal stuff
 - And finally, a `claude-code` profile that brings it all together
+
+### Debugging
+- Use [nono why](https://nono.sh/docs/cli/usage/flags#nono-why), [nono shell](https://nono.sh/docs/cli/usage/flags#nono-shell), and [nono audit show](https://nono.sh/docs/cli/features/audit#nono-audit-show) to gain insight into what is working or not.
+  ```
+  # nono why shows if something is allowed or denied, and why
+  nono why --profile claude-code --command git -- write-tree
+  nono why --profile claude-code --path /Users/taylorknapp/Library/pnpm/store --op read
+
+  # nono shell opens a shell in the sandbox so you can test commands
+  nono shell --profile claude-code
+
+  # nono audit shows specific events associated with sessions
+  nono audit list --today
+  nono audit show <id>
+  ```
+
+- Use `NONO_LOG_FILE=~/nono.log` to log nono's output to a file for easier debugging. (This enables [verbose logging](https://nono.sh/docs/cli/usage/flags#verbose-v) via ./claude-nono wrapper.)
+- When the ./install.sh ran, it loaded [claude nono plugin](https://registry.nono.sh/packages/nolabs-ai/claude) that added a few hooks and skills
+  - The hooks help claude debug nono sandbox issues proactively after failed tool calls.
+  - The skill does the same thing, but in conversation (invocable by the model or user). 
 
 ## Learnings
 
