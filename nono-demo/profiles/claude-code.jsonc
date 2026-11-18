@@ -9,10 +9,9 @@
   "filesystem": {
     "allow": [
       "/tmp/claude"
-    ]
-    // Disabled. Enable once the setup steps for $HOME/.gnupg-claude are written down.
-    // "deny": [
-    //   "$HOME/.gnupg-claude"
-    // ]
+    ],
+    "deny": [
+       "$HOME/.gnupg-claude"
+     ]
   }
 }

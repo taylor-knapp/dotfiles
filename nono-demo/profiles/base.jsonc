@@ -53,6 +53,10 @@
     // repo. Without write access pnpm falls back to a repo-local .pnpm-store.
     "allow": [
       "$HOME/Library/pnpm/store"
+    ],
+    // CoreFoundation reads this in nearly every macOS process.
+    "read_file": [
+      "$HOME/.CFUserTextEncoding"
     ]
   },
   "network": {

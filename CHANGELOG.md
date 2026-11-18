@@ -2,6 +2,9 @@
 
 ## 2026-11-18
 
+- nono-demo: `personal` profile sets `filesystem.suppress_save_prompt` to `~/code/ct`. That field does not support globs. Denials there no longer appear in the post-run review prompt. Access is unchanged.
+- nono-demo: `base` profile grants read on `~/.CFUserTextEncoding`. CoreFoundation reads it in most macOS processes.
+
 - nono-demo: `install.sh` no longer links `config.toml`, which does not exist. It creates `~/.config/nono` before it links `profiles`.
 - nono-demo: `install.sh` symlinks `claude-nono` to `~/bin/clno`. If `~/bin` is not on PATH, it prints a note.
 - nono-demo: Add `personal-init.sh.template`. Copy it to `personal-init.sh` for machine-specific setup. `personal-init.sh` stays gitignored.
@@ -22,7 +25,7 @@
 ## 2026-11-17
 
 - nono-demo: If `NONO_LOG_FILE` is set, `claude-nono` adds `-vvv` to `nono run`. Trace logs then go to that file.
-- nono-demo: `profiles/base.jsonc` sets `PNPM_HOME` to `~/Library/pnpm` and `pnpm_config_store_dir` to `~/Library/pnpm/store`. Before pnpm 11 uses the default store, it tries to create a temp folder in `$PNPM_HOME`. That folder is read-only in the sandbox, so pnpm chose `<mountpoint>/.pnpm-store`. An explicit store setting skips the check. pnpm 11 ignores `npm_config_*` for this setting.
+- nono-demo: `profiles/base.jsonc` sets `PNPM_HOME` to `~/Library/pnpm` and `pnpm_config_store_dir` to `~/Library/pnpm/store`. Before pnpm 11 uses the default store, it tries to create a temp folder in `$PNPM_HOME`. That folder is read-only in the sandbox, so pnpm chose `<mountpoint>/.pnpm-store`. An explicit store setting skips that step. pnpm 11 ignores `npm_config_*` for this setting.
 
 ## 2026-11-16
 
