@@ -70,7 +70,7 @@
 ## 2026-10-22
 
 - nono: `claude-nono` and `claude-nono-personal` run `gpgconf --launch gpg-agent` for `~/.gnupg-claude` before starting the sandbox. Before this, nothing started the agent outside the sandbox, so commit signing failed with `No agent running`. If the agent is already running, `gpgconf --launch` does nothing.
-- nono: `agent-base` denies `.env` files, `*.client.env`, `secrets/` folders, `.git/hooks`, and `.git/config` with raw Seatbelt regex rules (`unsafe_macos_seatbelt_rules`) instead of `**` deny globs. At startup, nono walked the whole cwd (`node_modules` included) once for each `**` glob, so `cln` took 10–15s to start in `~/code/ct`. The rules now apply at any path, not only under the cwd, so they also cover a worktree's main checkout. `.env.template` stays readable and writable. A test rule denies files named `nono-deny-test.txt`.
+- nono: `agent-base` denies `.env` files, `*.client.env`, `secrets/` folders, `.git/hooks`, and `.git/config` with raw Seatbelt regex rules (`unsafe_macos_seatbelt_rules`) instead of `**` deny globs. At startup, nono walked the whole cwd (`node_modules` included) once for each `**` glob, so `cln` took 10–15s to start in `~/code/ct`. The rules now apply at any path, not only under the cwd, so they also cover the main worktree. `.env.template` stays readable and writable. A test rule denies files named `nono-deny-test.txt`.
 
 ## 2026-10-21
 
@@ -80,8 +80,8 @@
 
 ## 2026-10-17
 
-- lute: Use `truststore` so TLS checks go through the macOS Keychain, because Python 3.13+ rejects the Zscaler root CA (`Basic Constraints of CA cert not marked critical`).
-- nono: If `claude auth status --json` reports the account `taylor.r.knapp@gmail.com`, `claude-nono` exits with an error before any setup. A missing login passes the check.
+- lute: Use `truststore` so TLS connections go through the macOS Keychain, because Python 3.13+ rejects the Zscaler root CA (`Basic Constraints of CA cert not marked critical`).
+- nono: If `claude auth status --json` reports the account `taylor.r.knapp@gmail.com`, `claude-nono` exits with an error before any setup. A missing login does not trigger the error.
 - nono: Add `clp` (`nono/claude-nono-personal`), which runs Claude Code with the personal account under the new `claude-personal` profile. If the cwd or an `--allow-dir` path resolves under `~/code/ct`, `clp` exits with an error. If the account is not `taylor.r.knapp@gmail.com`, `clp` also exits with an error. The profile extends `agent-base`, not `agent-extended`, and denies `~/code/ct` and the `~/code/ct` session transcripts in `~/.claude/projects`.
 
 ## 2026-10-15
@@ -141,7 +141,7 @@
 ## 2026-09-30
 
 - Added `lute/dicts.sh`. If the reader-dict fr-en and fr-fr (no-etymology) `.df` dictionaries are missing from `~/Documents/Dictionaries`, it downloads them there. `lute` runs it on every start.
-- `lute` moved the fr-en dictionary server from `8765` to `8767`. `oktapus` already listens on 8765. The "already running?" curl check mistook that port for the dict server, so fr-en never started. The check is gone. A busy port now fails loudly instead.
+- `lute` moved the fr-en dictionary server from `8765` to `8767`. `oktapus` already listens on 8765. The "already running?" curl test mistook that port for the dict server, so fr-en never started. The probe is gone. A busy port now fails loudly instead.
 
 ## 2026-09-28
 
