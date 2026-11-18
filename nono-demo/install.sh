@@ -54,11 +54,11 @@ NONO_DIR="$(cd $(dirname "$0") && pwd)"
 cp "$NONO_DIR/lib/npmrc" "$HOME/.nono.npmrc"
 
 # GCP token helper for the gcp_npm credential (commercetools profile runs $HOME/bin/nono-gcp-npm-token-helper).
-mkdir -p "$HOME/bin"
-install -m 755 "$NONO_DIR/lib/nono-gcp-npm-token-helper" "$HOME/bin/nono-gcp-npm-token-helper"
+mkdir -p "$HOME/.nono/bin"
+install -m 755 "$NONO_DIR/lib/nono-gcp-npm-token-helper" "$HOME/.nono/bin/nono-gcp-npm-token-helper"
 
 # clno launcher. Symlink, not a copy: claude-nono finds .env through its own real path.
-ln -sf "$NONO_DIR/claude-nono" "$HOME/bin/clno"
+ln -sf "$NONO_DIR/claude-nono" "$HOME/.nono/bin/clno"
 
 # Keychain-free copy of the claude pack profile (re-run after `nono update`)
 "$NONO_DIR/lib/claude-nokeychain.sh" > "$NONO_DIR/profiles/nolabs-ai-claude.jsonc"
@@ -81,9 +81,14 @@ ln -sfn "$NONO_DIR/profiles" "$HOME/.config/nono/profiles"
 # Setup dedicated gnupg key for claude for signed commits
 "$NONO_DIR/lib/setup-claude-gpg.sh"
 
-# clno needs ~/bin on PATH.
-echo "Note: ~/bin must be on PATH for clno."
+# clno needs $HOME/.nono/bin on PATH. Add it to ~/.zshrc once (idempotent).
+PATH_LINE='export PATH="$HOME/.nono/bin:$PATH"'
 case ":$PATH:" in
-  *":$HOME/bin:"*) ;;
-  *) echo '  Add this line to your shell profile: export PATH="$HOME/bin:$PATH"' ;;
+  *":$HOME/.nono/bin:"*) ;;
+  *)
+    if ! grep -qsF "$PATH_LINE" "$HOME/.zshrc"; then
+      printf '\n%s\n' "$PATH_LINE" >> "$HOME/.zshrc"
+      echo "Added $HOME/.nono/bin to PATH in ~/.zshrc. Run: source ~/.zshrc (or open a new shell)."
+    fi
+    ;;
 esac

@@ -8,7 +8,7 @@
 4. Add the GPG key that the script prints to GitHub. Save the passphrase to Dashlane.
 5. Run `cp .env.template .env` and fill it in. `OMAI_SETTINGS` is required.
 6. Optionally, run `cp personal-init.sh.template personal-init.sh` to add machine-specific setup.
-7. If `~/bin` is not on your PATH, add the line that the install script prints to your shell profile.
+7. Add `$HOME/.nono/bin` to your PATH so `clno` runs. If the line is missing, the install script appends `export PATH="$HOME/.nono/bin:$PATH"` to `~/.zshrc`. Open a new shell or run `source ~/.zshrc`. Check with `which clno`.
 8. Run `clno` in a repo.
 
 ## Verify it works
