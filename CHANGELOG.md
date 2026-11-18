@@ -2,6 +2,7 @@
 
 ## 2026-11-18
 
+- claude: `install.sh` installs colgrep with Homebrew (`lightonai/tap/colgrep`) and runs `colgrep --install-claude-code` after `deploy.sh`. Claude Code then gets colgrep as a search plugin. The optional agent model (about 2.5 GB, `colgrep --install-agent`) is not installed.
 - claude: `AGENTS.md` rewritten in simple English document style. Commands, paths, and trigger phrases unchanged.
 - nono-demo: `personal` profile sets `filesystem.suppress_save_prompt` to `~/code/ct`. That field does not support globs. Denials there no longer appear in the post-run review prompt. Access is unchanged.
 - nono-demo: `base` profile grants read on `~/.CFUserTextEncoding`. CoreFoundation reads it in most macOS processes.

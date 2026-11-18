@@ -15,5 +15,10 @@ claude plugin marketplace add AminBlg/SimpleEnglish && claude plugin install sim
 brew install rtk
 rtk init -g --agent claude --auto-patch
 
+# Install colgrep, semantic code search: https://github.com/lightonai/next-plaid#colgrep
+brew install lightonai/tap/colgrep
+# Register the colgrep plugin with Claude Code. Runs after deploy.sh so the registration lands in the linked settings.json.
+colgrep --install-claude-code
+
 # Link config into ~/.claude, merge MCP servers
 "$HOME/.dotfiles/claude/deploy.sh"
