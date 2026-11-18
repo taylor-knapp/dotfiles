@@ -18,7 +18,7 @@ Create [a fine grain personal access token](https://github.com/settings/personal
 
 Add it to keychain
 ```
-security add-generic-password -U -s nono -a github_commercetools -w "<token>"
+mkdir -p ~/.certs && security find-certificate -a -p -c "Zscaler Root CA" > ~/.certs/zscaler-root-ca.pem
 ```
 
 #### Install nono
