@@ -83,7 +83,12 @@
       "GIT_CONFIG_VALUE_6"
     ],
     "set_vars": {
-      "GNUPGHOME": "$HOME/.gnupg-claude"
+      "GNUPGHOME": "$HOME/.gnupg-claude",
+      "PNPM_HOME": "$HOME/Library/pnpm",
+      // pnpm 11 places the default store in $PNPM_HOME/store only if it can create a temp folder in $PNPM_HOME.
+      // $PNPM_HOME is read-only here (it holds pnpm's global bins), so pnpm falls back to <mountpoint>/.pnpm-store.
+      // An explicit store-dir skips that check. pnpm 11 reads pnpm_config_*, not npm_config_*.
+      "pnpm_config_store_dir": "$HOME/Library/pnpm/store"
     }
   },
   // Any live entry below (gpg) makes env_credentials in profiles that extend this one resolve to phantoms.
