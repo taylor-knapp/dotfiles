@@ -38,6 +38,7 @@
   },
   "model": "haiku",
   "disableBundledSkills": true,
+  "outputStyle": "simple-english:simple-english",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -177,5 +178,6 @@
   "autoMemoryDirectory": "~/.dotfiles/claude/memory",
   "skipDangerousModePermissionPrompt": true,
   "theme": "auto",
+  "verbose": false,
   "voiceEnabled": true
 }
