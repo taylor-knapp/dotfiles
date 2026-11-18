@@ -37,6 +37,13 @@
     "read": [
       // Allow usage of gh tool
       "$HOME/.config/gh"
+    ],
+    // Global pnpm store (~/Library/pnpm/store/v11). Read+write so pnpm hard-links packages into the
+    // repo. Without write access pnpm falls back to a repo-local .pnpm-store.
+    // Read+write on the prebuild cache. node_runtime (in node-dev) grants read on ~/.npm only. The ~/.npm
+    // node itself gets write-data through unsafe_macos_seatbelt_rules below.
+    "allow": [
+      "$HOME/Library/pnpm/store"
     ]
   },
   "network": {
