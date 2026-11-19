@@ -16,8 +16,12 @@ require('emoji').setup({ enable_cmp_integration = true })
 vim.keymap.set('n', '<leader>fe', '<cmd>Telescope emoji<cr>', { desc = 'Find emoji' })
 
 require('blink.cmp').setup({
-  -- Lua matcher: skips blink's git version check, which nono's git policy blocks in sandboxed nvim.
-  fuzzy = { implementation = 'lua' },
+  -- Lua matcher only when Claude Code launched nvim. nono strips CLAUDECODE from the sandbox
+  -- environment, but AI_AGENT survives (for example "claude-code_2-1-327_harness"). blink's git
+  -- version check runs before the Rust matcher loads, and nono's git policy blocks it there.
+  fuzzy = {
+    implementation = vim.startswith(vim.env.AI_AGENT or '', 'claude-code') and 'lua' or 'prefer_rust_with_warning',
+  },
   keymap = {
     preset = 'default',
     ['<CR>'] = { 'accept', 'fallback' },

@@ -2,7 +2,7 @@
 
 ## 2026-11-19
 
-- blink.cmp uses the Lua fuzzy matcher (`lua/plugins/blink.lua`, `fuzzy.implementation = 'lua'`). blink runs `git --git-dir ... rev-parse HEAD` and `git describe` before it loads the Rust matcher. nono's git command policy blocks those calls, so Ctrl+g in the sandbox failed with `command policy denied git`. The Lua matcher skips that check. Trade-off: no typo tolerance, frecency, or proximity scoring.
+- If Claude Code launched nvim, blink.cmp uses the Lua fuzzy matcher (`lua/plugins/blink.lua`). The gate reads `AI_AGENT`, which starts with `claude-code`. nono strips `CLAUDECODE` from the sandbox environment, so that variable cannot serve as the gate. blink runs `git --git-dir ... rev-parse HEAD` and `git describe` before it loads the Rust matcher. nono's git command policy blocks those calls, so Ctrl+g in the sandbox failed with `command policy denied git`. Other nvim sessions keep the Rust matcher. Trade-off inside Claude: no typo tolerance, frecency, or proximity scoring.
 
 ## 2026-10-21
 
