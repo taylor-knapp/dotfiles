@@ -52,7 +52,8 @@
     // Global pnpm store (~/Library/pnpm/store/v11). Read+write so pnpm hard-links packages into the
     // repo. Without write access pnpm falls back to a repo-local .pnpm-store.
     "allow": [
-      "$HOME/Library/pnpm/store"
+      "$HOME/Library/pnpm/store",
+      "$HOME/Library/Application Support/rtk"
     ],
     // CoreFoundation reads this in nearly every macOS process.
     "read_file": [
