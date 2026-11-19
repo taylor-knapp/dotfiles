@@ -16,7 +16,7 @@
 - nono-demo: `install.sh` symlinks `claude-nono` to `~/bin/clno`. If `~/bin` is not on PATH, it prints a note.
 - nono-demo: Add `personal-init.sh.template`. Copy it to `personal-init.sh` for machine-specific setup. `personal-init.sh` stays gitignored.
 - nono-demo: `setup-claude-gpg.sh` header says to copy the printed key ID into `GIT_SIGNING_KEY` in `.env`. The launcher scripts it named no longer exist.
-- nono-demo: README adds a quickstart, a verify section, and the profile composition diagram. It says to run `install.sh` outside a Claude Code session.
+- nono-demo: README adds a quickstart, a section on how to make sure that the install works, and the profile composition diagram. It says to run `install.sh` outside a Claude Code session.
 - nono-demo: The mediated git policy in `base.jsonc` allows `git config core.hooksPath .husky/_`, so the Husky postinstall step can set up git hooks inside the sandbox. Other `git config` calls stay denied.
 - nono-demo: `profiles/base.jsonc` grants read+write on `~/Library/pnpm/store`. Before this change the store was read-only in the sandbox, so pnpm fell back to a repo-local `.pnpm-store`.
 - nono-demo: `profiles/base.jsonc` allows write-only (no read) on `.env` and `.env.*` files under any `node_modules` folder, a carve-out from the `.env*` seatbelt deny. pnpm needs it to copy dotfiles that packages ship, such as `dotenv-cli/.env`. Paths under `secrets/` stay denied.
