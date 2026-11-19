@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-19
+
+- blink.cmp uses the Lua fuzzy matcher (`lua/plugins/blink.lua`, `fuzzy.implementation = 'lua'`). blink runs `git --git-dir ... rev-parse HEAD` and `git describe` before it loads the Rust matcher. nono's git command policy blocks those calls, so Ctrl+g in the sandbox failed with `command policy denied git`. The Lua matcher skips that check. Trade-off: no typo tolerance, frecency, or proximity scoring.
+
 ## 2026-10-21
 
 - claudecode.nvim: `port_range` is `10000` to `10999` (`lua/plugins/claudecode.lua`). The nono sandbox allows only this window for the Claude Code localhost connection (`nono/profiles/agent-base.jsonc`, `open_port_range`). macOS caps `open_port_range` at 16,384 ports. The default range holds 55,536 ports, which is over that cap.

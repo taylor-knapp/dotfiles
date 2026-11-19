@@ -16,6 +16,8 @@ require('emoji').setup({ enable_cmp_integration = true })
 vim.keymap.set('n', '<leader>fe', '<cmd>Telescope emoji<cr>', { desc = 'Find emoji' })
 
 require('blink.cmp').setup({
+  -- Lua matcher: skips blink's git version check, which nono's git policy blocks in sandboxed nvim.
+  fuzzy = { implementation = 'lua' },
   keymap = {
     preset = 'default',
     ['<CR>'] = { 'accept', 'fallback' },
