@@ -181,7 +181,18 @@ vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 -- Clear search highlights
 vim.keymap.set('n', '<leader>nh', '<cmd>nohl<cr>', { desc = 'Clear search highlights' })
 
-vim.keymap.set('n', '<leader>ghw', '<cmd>DiffviewOpen<cr>', { desc = '[G]it [H]istory [W]orking Directory' })
+-- DiffviewOpen always opens a new tabpage, so switch to the tabpage that already
+-- holds a diffview view when one exists.
+vim.keymap.set('n', '<leader>ghw', function()
+  local lib = require 'diffview.lib'
+  for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+    if lib.tabpage_to_view(tab) then
+      vim.api.nvim_set_current_tabpage(tab)
+      return
+    end
+  end
+  vim.cmd 'DiffviewOpen'
+end, { desc = '[G]it [H]istory [W]orking Directory' })
 vim.keymap.set('n', '<leader>ghf', '<cmd>DiffviewFileHistory %<cr>', { desc = '[G]it [H]istory [F]ile' })
 vim.keymap.set('n', '<leader>ghl', '<cmd>DiffviewFileHistory<cr>', { desc = '[G]it [H]istory [L]og' })
 
