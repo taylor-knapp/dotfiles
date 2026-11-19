@@ -160,7 +160,7 @@ Label-based motion plugin by folke. Type `s` then a search character — flash h
 
 Git diff viewer with inline editing. Auto-refreshes its file panel when the directory watcher detects changes (git index or working tree). Press `q` to close.
 
-`<Space>ghw` opens the working tree diff. If a diffview tab already exists, it switches to that tab instead of opening another.
+`<Space>ghw` opens the working tree diff, `<Space>ghl` opens the repo history, and `<Space>ghf` opens the history of the current file. Each keymap reuses the tab it opened before: a repeated press switches to that tab instead of opening another.
 
 ### trouble.nvim (`plugins/trouble`)
 

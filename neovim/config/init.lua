@@ -181,20 +181,35 @@ vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 -- Clear search highlights
 vim.keymap.set('n', '<leader>nh', '<cmd>nohl<cr>', { desc = 'Clear search highlights' })
 
--- DiffviewOpen always opens a new tabpage, so switch to the tabpage that already
--- holds a diffview view when one exists.
-vim.keymap.set('n', '<leader>ghw', function()
+-- DiffviewOpen and DiffviewFileHistory open a new tabpage on every call. This
+-- maps each target (working tree, repo log, one file's history) to the tabpage
+-- it opened, so a repeated press switches to that tabpage while its view is open.
+local diffview_tabs = {}
+
+local open_diffview_once = function(key, cmd)
   local lib = require 'diffview.lib'
-  for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
-    if lib.tabpage_to_view(tab) then
-      vim.api.nvim_set_current_tabpage(tab)
-      return
-    end
+  local tab = diffview_tabs[key]
+  if tab and vim.api.nvim_tabpage_is_valid(tab) and lib.tabpage_to_view(tab) then
+    vim.api.nvim_set_current_tabpage(tab)
+    return
   end
-  vim.cmd 'DiffviewOpen'
+  local before = vim.api.nvim_get_current_tabpage()
+  vim.cmd(cmd)
+  local after = vim.api.nvim_get_current_tabpage()
+  if after ~= before and lib.tabpage_to_view(after) then
+    diffview_tabs[key] = after
+  end
+end
+
+vim.keymap.set('n', '<leader>ghw', function()
+  open_diffview_once('working', 'DiffviewOpen')
 end, { desc = '[G]it [H]istory [W]orking Directory' })
-vim.keymap.set('n', '<leader>ghf', '<cmd>DiffviewFileHistory %<cr>', { desc = '[G]it [H]istory [F]ile' })
-vim.keymap.set('n', '<leader>ghl', '<cmd>DiffviewFileHistory<cr>', { desc = '[G]it [H]istory [L]og' })
+vim.keymap.set('n', '<leader>ghf', function()
+  open_diffview_once('file:' .. vim.api.nvim_buf_get_name(0), 'DiffviewFileHistory %')
+end, { desc = '[G]it [H]istory [F]ile' })
+vim.keymap.set('n', '<leader>ghl', function()
+  open_diffview_once('log', 'DiffviewFileHistory')
+end, { desc = '[G]it [H]istory [L]og' })
 
 -- Search for the visual selection: yank it, then search for its contents.
 -- <C-r>" pastes the just-yanked text (register ") into the search line; N
