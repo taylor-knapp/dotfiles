@@ -4,6 +4,7 @@
 
 - claude: `AGENTS.md` adds an RTK section. Agents write the `rtk` prefix themselves, so auto mode reviews the command that runs. The section lists the most used commands.
 - claude: Add the `rtk-session-start.sh` SessionStart hook. It injects the subcommands from `rtk --help` into session context, minus meta commands such as `help`, `init`, and `config`. If rtk is missing, it prints nothing.
+- claude: `AGENTS.md` tells agents to prune `.git` and `.terraform` in `find` commands. The nono sandbox denies some paths there, so `find` fails with `Operation not permitted`.
 
 ## 2026-11-18
 

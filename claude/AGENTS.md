@@ -25,6 +25,7 @@ Auto-memory (notes on incidental discoveries) lives in `~/.dotfiles/claude/memor
 - Make sure that a file exists by using Read, not `test -f`. Discard unneeded standard output (stdout) by redirecting it to `> /dev/null`.
 - There is no local pnpm store (the cache of installed packages). If the global store is not available, tell the user.
 - Claude Code docs map: https://code.claude.com/docs/en/claude_code_docs_map.md
+- If you run `find` over a repo, prune `.git` and `.terraform` directories. The nono sandbox denies some paths inside them, so `find` fails with `Operation not permitted`. Use `rtk find <root> \( -name .git -o -name .terraform \) -prune -o <tests> -print`. For example, `rtk find packages-backend \( -name .git -o -name .terraform \) -prune -o -path '*sync-actions*' -name '*.ts' -print`.
 
 ## Validation (TS/pnpm)
 Make "Validate changes" the final todo. Run these steps in this order: prettier, typecheck, eslint, then related tests. Fix all errors, warnings, and deprecations.
