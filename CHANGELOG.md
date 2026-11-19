@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-19
+
+- claude: `AGENTS.md` adds an RTK section. Agents write the `rtk` prefix themselves, so auto mode reviews the command that runs. The section lists the most used commands.
+- claude: Add the `rtk-session-start.sh` SessionStart hook. It injects the subcommands from `rtk --help` into session context, minus meta commands such as `help`, `init`, and `config`. If rtk is missing, it prints nothing.
+
 ## 2026-11-18
 
 - claude: `install.sh` installs colgrep with Homebrew (`lightonai/tap/colgrep`) and runs `colgrep --install-claude-code` after `deploy.sh`. Claude Code then gets colgrep as a search plugin. The optional agent model (about 2.5 GB, `colgrep --install-agent`) is not installed.

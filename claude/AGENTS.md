@@ -41,4 +41,10 @@ Make "Validate changes" the final todo. Run these steps in this order: prettier,
 - Use `origin/main` as the base reference (the branch to compare against), not `main`. For example, run `git diff origin/main...HEAD`.
 - For refactors, make a separate `git commit --fixup=<target>` for each target commit. Find each target commit with `git log origin/main..HEAD --oneline -- FILE`. To squash, run `git stash` first. Then run `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash origin/main`. The `--autosquash` option requires `-i`.
 
+## RTK
+
+- Proactively wrap commands with the `rtk` prefix. For example, use `rtk git diff origin/main...HEAD`, not `git diff origin/main...HEAD`.
+- Most used commands: grep, git, pnpm, ls, find, curl, wc, rg, gh, tsc, prettier, npx, diff.
+- For help, run `rtk help` for the command list, `rtk <command> --help` for one command, or `rtk rewrite "<command>"` to see the rtk form of a command.
+
 @RTK.md
