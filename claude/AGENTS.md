@@ -46,6 +46,8 @@ Make "Validate changes" the final todo. Run these steps in this order: prettier,
 
 - Proactively wrap commands with the `rtk` prefix. For example, use `rtk git diff origin/main...HEAD`, not `git diff origin/main...HEAD`.
 - Most used commands: grep, git, pnpm, ls, find, curl, wc, rg, gh, tsc, prettier, npx, diff.
+- Prefix every command segment, not only the first. In `a; b`, `a | b`, and `a && b`, write `rtk a; rtk b`.
+- If a Bash call is denied with "a hook changed this call's input", the error quotes the rewritten command after "The hook produced this input". In your next response, call Bash again with exactly that `command` and `description`. Send no other text and no other tool call, except other denied calls of the same kind. Do not switch to another tool. Do not edit the command. If the second attempt is also denied, stop and tell the user.
 - For help, run `rtk help` for the command list, `rtk <command> --help` for one command, or `rtk rewrite "<command>"` to see the rtk form of a command.
 
 @RTK.md
