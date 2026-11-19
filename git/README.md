@@ -1,6 +1,6 @@
 # Git Aliases
 
-Custom aliases defined in `aliases.zsh`. Aliases above the OMZ section take precedence.
+Custom aliases defined in `aliases.zshenv`. Aliases above the OMZ section take precedence. `zsh/zshenv.symlink` sources that file for every shell, including non-interactive ones such as Neovim `:!`. `aliases.zsh` only sets `GPG_TTY`.
 
 ## Primary Aliases
 
@@ -36,7 +36,7 @@ Custom aliases defined in `aliases.zsh`. Aliases above the OMZ section take prec
 
 ## OMZ-Ported Aliases
 
-The rest of the file contains aliases ported from the oh-my-zsh git plugin. See the [OMZ git plugin cheatsheet](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git#aliases) for the full reference, or scan `aliases.zsh` directly.
+The rest of the file contains aliases ported from the oh-my-zsh git plugin. See the [OMZ git plugin cheatsheet](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git#aliases) for the full reference, or scan `aliases.zshenv` directly.
 
 Notable groups: **add** (`ga`, `gaa`, `gapa`), **branch** (`gba`, `gbd`, `gbD`), **commit** (`gc!`, `gcn!`, `gcmsg`), **diff** (`gdca`, `gds`, `gdw`), **fetch** (`gf`, `gfa`), **log** (`glo`, `glol`, `glola`), **merge** (`gm`, `gmom`), **push** (`gpf`, `gpsup`), **rebase** (`grb`, `grbi`, `grbm`), **reset** (`grh`, `grhh`), **stash** (`gsta`, `gstp`, `gstl`), **switch** (`gsw`, `gswc`, `gswm`).
 

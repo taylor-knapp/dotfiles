@@ -17,6 +17,12 @@ Everything lives in **topic directories** (`git/`, `zsh/`, `neovim/`, `tmux/`, â
 | `topic/*.symlink`      | Symlinked into `$HOME` without the extension          |
 | `bin/*`                | On `$PATH`                                            |
 
+`script/bootstrap` links every `*.symlink` file at depth 2 to `~/.<name>`. For example, `zsh/zshrc.symlink` becomes `~/.zshrc`. It prompts before it replaces an existing file.
+
+Non-interactive shells (Neovim `:!`, `zsh -c`) read only `~/.zshenv`, so they skip every `topic/*.zsh` file. `zsh/zshenv.symlink` keeps the `~/.cargo/env` line. It also sources every `topic/*.zshenv` file (a glob at depth 2) for every shell, interactive or not. The glob and the git aliases add about 7 to 10 ms to each zsh start. If a file must load there, name it `*.zshenv`, without the `.zsh` suffix. The `topic/*.zsh` glob then ignores it, so it loads once. Keep terminal-only setup (for example `GPG_TTY`) out of those files. `.zshenv` must use `$HOME/.dotfiles`, because `$DOTFILES` is not set yet. `bin/.dotfiles` exports `$DOTFILES`. `PATH` setup from `system/_path.zsh` does not run in non-interactive shells.
+
+The nono sandbox denies agents read access to the shell startup files: `zsh/zshrc.symlink`, `zsh/zprofile.symlink`, `zsh/zlogin.symlink`, `bash/*.symlink`, and `nono-demo/.env`. Do not try to work around the deny. Ask the user to read or edit those files.
+
 Configs under `~/.config/<app>` (e.g. `neovim/`) are symlinked by that topic's `install.sh`.
 
 Entry points: `script/bootstrap` (symlinks + installers), `script/install` (runs every `install.sh`).

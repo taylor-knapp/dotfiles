@@ -2,6 +2,8 @@
 
 ## 2026-11-19
 
+- zsh/git: Non-interactive zsh shells (for example Neovim `:!`) now load the git aliases. New `zsh/zshenv.symlink` (links to `~/.zshenv`) keeps the `~/.cargo/env` line. It also sources every `topic/*.zshenv` file for every shell, interactive or not. The aliases and helper functions moved from `git/aliases.zsh` to `git/aliases.zshenv`. The `.zsh` suffix is missing on purpose, so the `topic/*.zsh` glob does not load the file twice. `git/aliases.zsh` keeps only `GPG_TTY`. Run `script/bootstrap` to link `~/.zshenv`.
+- docs: `AGENTS.md` documents the `*.zshenv` convention, the `*.symlink` linking rule, where `$DOTFILES` is set, and the sandbox-denied startup files.
 - claude: `AGENTS.md` RTK section adds two rules. Agents prefix every segment of a compound command with `rtk`. If auto mode denies a Bash call because a hook changed its input, agents re-issue the quoted rewritten command unchanged, alone in the next response.
 - claude: `AGENTS.md` adds an RTK section. Agents write the `rtk` prefix themselves, so auto mode reviews the command that runs. The section lists the most used commands.
 - claude: Add the `rtk-session-start.sh` SessionStart hook. It injects the subcommands from `rtk --help` into session context, minus meta commands such as `help`, `init`, and `config`. If rtk is missing, it prints nothing.

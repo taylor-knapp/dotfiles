@@ -1,0 +1,8 @@
+. "$HOME/.cargo/env"
+
+# zsh reads this file for every shell, including non-interactive ones such as
+# Neovim `:!`. Load every topic/*.zshenv file. (N) stops an error if none match.
+for _zshenv_file in "$HOME"/.dotfiles/*/*.zshenv(N); do
+  source "$_zshenv_file"
+done
+unset _zshenv_file

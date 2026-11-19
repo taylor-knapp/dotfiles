@@ -16,6 +16,7 @@ Everything is organized into topic directories. The file names control how each 
 | `topic/path.zsh`       | Loaded first. Sets up `$PATH`                         |
 | `topic/completion.zsh` | Loaded last. Sets up autocomplete                     |
 | `topic/install.sh`     | Runs during `script/install`                          |
+| `topic/*.zshenv`       | Not auto-sourced. Sourced by `zsh/zshenv.symlink` for every shell, including non-interactive ones |
 | `topic/*.symlink`      | Symlinked into `$HOME` (without `.symlink` extension) |
 | `bin/*`                | Added to `$PATH` globally                             |
 
